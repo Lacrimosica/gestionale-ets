@@ -1,0 +1,60 @@
+{
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "add": "Aggiungi",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "success": "Successo",
+    "actions": "Azioni",
+    "back": "Indietro"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "people": "Anagrafica",
+    "volunteers": "Volontari",
+    "members": "Soci",
+    "board": "Direttivo",
+    "assemblies": "Assemblee",
+    "convocations": "Convocazioni",
+    "compliance": "Compliance",
+    "timeline": "Timeline",
+    "resignations": "Dimissioni",
+    "settings": "Impostazioni"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "register": "Registrazione"
+  },
+  "timeline": {
+    "title": "Timeline Storica",
+    "subtitle": "Sviluppo verticale dei mandati e delle adunanze.",
+    "eventDetail": "Dettaglio evento",
+    "session": "Verbale",
+    "copyMembers": "Copia elenco soci",
+    "editAssembly": "Modifica verbale",
+    "agenda": "Ordine del giorno",
+    "noDocumentLinks": "Nessun link documento. Usa Modifica per aggiungerli.",
+    "members": "Soci",
+    "viewAll": "Vedi tutti",
+    "selectEvent": "Seleziona un evento",
+    "clickPrompt": "Clicca su un evento nella timeline per vedere i dettagli qui sopra.",
+    "legend": {
+      "assemblies": "Assemblee",
+      "admissions": "Ammissioni",
+      "resignations": "Dimissioni"
+    },
+    "help": "Esplora la storia dell'associazione. Clicca su un evento nella timeline per vedere i dettagli nel pannello in alto (ODG, link, soci). Anno e mesi rimangono orientati verticalmente per una lettura ottimale dello scorrimento."
+  },
+  "assemblies": {
+    "labels": {
+      "boardCouncil": "CD n. {{number}} ({{date}})",
+      "assembly": "Ass. n. {{number}}/{{year}} ({{date}})"
+    }
+  }
+}

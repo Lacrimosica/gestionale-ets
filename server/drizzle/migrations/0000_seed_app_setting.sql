@@ -1,0 +1,1 @@
+INSERT INTO "app_setting" ("id","organization_name","short_name","tagline","support_email","logo_data_url","created_at","updated_at","auth_domain") VALUES('branding','Dialogue Explore Bond','DEB','Gestionale associazione','admin@dialogueexplorebond.it',NULL,'2026-03-17 01:37:47','2026-03-17T01:52:15.515Z','dialogueexplorebond.it');

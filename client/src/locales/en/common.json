@@ -1,0 +1,60 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "actions": "Actions",
+    "back": "Back"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "people": "People",
+    "volunteers": "Volunteers",
+    "members": "Members",
+    "board": "Board",
+    "assemblies": "Assemblies",
+    "convocations": "Convocations",
+    "compliance": "Compliance",
+    "timeline": "Timeline",
+    "resignations": "Resignations",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "register": "Register"
+  },
+  "timeline": {
+    "title": "Historical Timeline",
+    "subtitle": "Vertical development of mandates and assemblies.",
+    "eventDetail": "Event detail",
+    "session": "Assembly",
+    "copyMembers": "Copy member list",
+    "editAssembly": "Edit assembly",
+    "agenda": "Agenda",
+    "noDocumentLinks": "No document links. Use Edit to add them.",
+    "members": "Members",
+    "viewAll": "View all",
+    "selectEvent": "Select an event",
+    "clickPrompt": "Click on an event in the timeline to see details above.",
+    "legend": {
+      "assemblies": "Assemblies",
+      "admissions": "Admissions",
+      "resignations": "Resignations"
+    },
+    "help": "Explore the history of the association. Click on an event in the timeline to see details in the top panel (Agenda, links, members). Year and months remain vertically oriented for optimal scrolling."
+  },
+  "assemblies": {
+    "labels": {
+      "boardCouncil": "BC n. {{number}} ({{date}})",
+      "assembly": "Ass. n. {{number}}/{{year}} ({{date}})"
+    }
+  }
+}

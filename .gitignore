@@ -82,3 +82,7 @@ Thumbs.db
 # Cloudflare specific
 .wrangler/
 database_dump.sql
+
+.dev.vars*
+!.dev.vars.example
+!.env.example

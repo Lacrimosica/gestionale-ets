@@ -38,7 +38,7 @@ const LoginPage = () => {
 
   const handleContinue = async () => {
     if (!email || !email.includes('@')) {
-      setError('Inserisci un indirizzo email valido.');
+      setError('Please enter a valid email address.');
       return;
     }
 
@@ -49,14 +49,18 @@ const LoginPage = () => {
       setResolvedBranding(nextBranding);
 
       if (nextBranding.authDomain && !nextBranding.matchedDomain) {
-        setError('Email non valida.');
+        setError(
+          `This email domain (${emailDomain}) is not allowed for this organization. ` +
+            'Please use a registered domain or contact your administrator.'
+        );
         return;
       }
 
       setStep('password');
-    } catch {
+    } catch (error) {
       setResolvedBranding(null);
-      setError('Email non valida.');
+      console.error('Branding resolution failed', error);
+      setError('Unable to validate your email domain right now. Please try again later.');
     } finally {
       setLoading(false);
     }

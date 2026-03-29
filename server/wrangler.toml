@@ -3,9 +3,8 @@ compatibility_date = "2024-03-01"
 
 [vars]
 # Add and environment variables here
-#CORS_ORIGIN = "https://gestionale-ets.pages.dev"
-#CORS_ORIGIN = "http://localhost:5173/"
-JWT_SECRET= "G0tLflHRh7GykKVRCAOEVxP7Ba8bvEvp"
+CORS_ORIGIN = "https://gestionale-ets.pages.dev"
+#JWT_SECRET= "G0tLflHRh7GykKVRCAOEVxP7Ba8bvEvp"
 
 [[d1_databases]]
 binding = "DB"

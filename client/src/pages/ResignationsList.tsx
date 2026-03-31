@@ -78,7 +78,7 @@ const ResignationsList = () => {
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-96 text-slate-500">
       <Loader2 className="animate-spin mb-4" size={32} />
-      <p>{t('common.loadingActive', { defaultValue: 'Loading active members...' })}</p>
+      <p>{t('common.status.loadingActive', { defaultValue: 'Loading active members...' })}</p>
     </div>
   );
 
@@ -98,7 +98,7 @@ const ResignationsList = () => {
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
         <input
           type="text"
-          placeholder={t('common.searchPlaceholder', { defaultValue: 'Search by name or surname...' })}
+          placeholder={t('common.fields.searchPlaceholder', { defaultValue: 'Search by name or surname...' })}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-600/50"
@@ -109,7 +109,7 @@ const ResignationsList = () => {
         <div className="space-y-4">
           <h2 className="text-xl font-bold text-white flex items-center space-x-2 px-2">
             <ShieldCheck className="text-yellow-400" size={20} />
-            <span>{t('common.activeMembers', { defaultValue: 'Active Members' })}</span>
+            <span>{t('common.status.activeMembers', { defaultValue: 'Active Members' })}</span>
             <span className="ml-auto bg-yellow-600/20 text-yellow-400 text-xs px-2 py-0.5 rounded-full border border-yellow-500/30">
               {filteredMembers.length}
             </span>
@@ -121,17 +121,17 @@ const ResignationsList = () => {
                   <div className="font-bold text-white">{m.person.firstName} {m.person.lastName}</div>
                   <div className="text-xs text-slate-500 flex items-center mt-1">
                     <Calendar size={12} className="mr-1" />
-                    {t('common.since', { defaultValue: 'Since' })} {new Date(m.period.admissionDate).toLocaleDateString(i18n.language)}
+                    {t('common.fields.since', { defaultValue: 'Since' })} {new Date(m.period.admissionDate).toLocaleDateString(i18n.language)}
                   </div>
                 </div>
                 <button 
                   onClick={() => setSelectedPerson(m)}
                   className="bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all border border-red-500/20"
                 >
-                  {t('common.resign', { defaultValue: 'Resign' })}
+                  {t('common.actions.resign', { defaultValue: 'Resign' })}
                 </button>
               </div>
-            )) : <div className="p-8 text-center text-slate-500 text-sm italic">{t('common.noActiveMembersFound', { defaultValue: 'No active members found' })}</div>}
+            )) : <div className="p-8 text-center text-slate-500 text-sm italic">{t('common.status.noActiveMembersFound', { defaultValue: 'No active members found' })}</div>}
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@ const ResignationsList = () => {
 
             <form onSubmit={handleResign} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">{t('common.resignationDate', { defaultValue: 'Resignation Date' })}</label>
+                <label className="block text-sm font-medium text-slate-400 mb-2">{t('common.fields.resignationDate', { defaultValue: 'Resignation Date' })}</label>
                 <input
                   type="date"
                   required
@@ -157,7 +157,7 @@ const ResignationsList = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">{t('common.reason', { defaultValue: 'Reason' })}</label>
+                <label className="block text-sm font-medium text-slate-400 mb-2">{t('common.fields.reason', { defaultValue: 'Reason' })}</label>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -173,7 +173,7 @@ const ResignationsList = () => {
                   onClick={() => setSelectedPerson(null)}
                   className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all uppercase tracking-wider text-xs"
                 >
-                  {t('common.cancel')}
+                  {t('common.actions.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -181,7 +181,7 @@ const ResignationsList = () => {
                   className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center space-x-2 uppercase tracking-wider text-xs"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Trash2 size={20} />}
-                  <span>{t('common.confirm', { defaultValue: 'Confirm' })}</span>
+                  <span>{t('common.actions.confirm', { defaultValue: 'Confirm' })}</span>
                 </button>
               </div>
             </form>

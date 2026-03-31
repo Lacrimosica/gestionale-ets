@@ -1,0 +1,49 @@
+{
+  "documentTypes": {
+    "nda_dia": { "label": "compliance.documents.nda_dia", "description": "NDA Dialogue" },
+    "nda_dir": { "label": "compliance.documents.nda_dir", "description": "NDA Board" },
+    "nda_hr": { "label": "compliance.documents.nda_hr", "description": "NDA HR" },
+    "nda_tesoreria": { "label": "compliance.documents.nda_tesoreria", "description": "NDA Treasury" },
+    "nda_it": { "label": "compliance.documents.nda_it", "description": "NDA IT" },
+    "privacy": { "label": "compliance.documents.privacy", "description": "Privacy", "hasConsents": true, "versions": ["OLD", "NEW"] },
+    "enrollment_form": { "label": "compliance.documents.enrollment_form", "description": "Enrollment Form" },
+    "member_form": { "label": "compliance.documents.member_form", "description": "Member Form" }
+  },
+  "roles": {
+    "dialogue": {
+      "label": "compliance.roles.dialogue",
+      "requiredDocuments": ["nda_dia"]
+    },
+    "it_team": {
+      "label": "compliance.roles.it_team",
+      "requiredDocuments": ["nda_it"]
+    },
+    "it_lead": {
+      "label": "compliance.roles.it_lead",
+      "inherits": ["it_team"],
+      "requiredDocuments": ["nda_dir"]
+    },
+    "hr_team": {
+      "label": "compliance.roles.hr_team",
+      "requiredDocuments": ["nda_hr"]
+    },
+    "treasury_team": {
+      "label": "compliance.roles.treasury_team",
+      "requiredDocuments": ["nda_tesoreria"]
+    },
+    "explore": {
+      "label": "compliance.roles.explore"
+    },
+    "bond": {
+      "label": "compliance.roles.bond"
+    },
+    "social": {
+      "label": "compliance.roles.social"
+    }
+  },
+  "baseRequirements": {
+    "isVolunteer": ["enrollment_form", "privacy"],
+    "isSocio": ["member_form"],
+    "isBoard": ["nda_dir"]
+  }
+}

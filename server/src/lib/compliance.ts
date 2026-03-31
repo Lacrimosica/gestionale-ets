@@ -1,26 +1,58 @@
-import { complianceDocumentFlag, complianceDocument, complianceRole, alertSuppression, person } from '../db/schema';
+import { complianceDocumentFlag, complianceDocument, complianceRole, alertSuppression, person, appSetting } from '../db/schema';
+import staticRules from '../config/compliance_rules.json';
+import { eq } from 'drizzle-orm';
 
-export const DOCUMENT_TYPES = {
-  ndaDia: 'nda_dia',
-  ndaDir: 'nda_dir',
-  ndaHr: 'nda_hr',
-  ndaTesoreria: 'nda_tesoreria',
-  ndaIt: 'nda_it',
-  privacy: 'privacy',
-  enrollmentForm: 'enrollment_form',
-  memberForm: 'member_form',
-} as const;
+// ── Types ──────────────────────────────────────────────────────────────────────
 
-export const ROLE_TYPES = {
-  dialogue: 'dialogue',
-  itTeam: 'it_team',
-  itLead: 'it_lead',
-  hrTeam: 'hr_team',
-  treasuryTeam: 'treasury_team',
-  explore: 'explore',
-  bond: 'bond',
-  social: 'social',
-} as const;
+export interface ComplianceDocumentTypeConfig {
+  label: string;
+  description: string;
+  hasConsents?: boolean;
+  versions?: string[];
+}
+
+export interface ComplianceRoleConfig {
+  label: string;
+  requiredDocuments?: string[];
+  inherits?: string[];
+}
+
+export interface ComplianceRules {
+  documentTypes: Record<string, ComplianceDocumentTypeConfig>;
+  roles: Record<string, ComplianceRoleConfig>;
+  baseRequirements: {
+    isVolunteer: string[];
+    isSocio: string[];
+    isBoard: string[];
+  };
+}
+
+// ── Rule Loader ────────────────────────────────────────────────────────────────
+
+/**
+ * Load compliance rules from the DB (app_setting row).
+ * Falls back to the static JSON file if the DB has no stored rules.
+ */
+export const loadRules = async (db: any): Promise<ComplianceRules> => {
+  try {
+    const setting = await db.select({ complianceRules: appSetting.complianceRules })
+      .from(appSetting)
+      .where(eq(appSetting.id, 'branding'))
+      .get();
+
+    if (setting?.complianceRules) {
+      const parsed = JSON.parse(setting.complianceRules);
+      if (parsed?.documentTypes && parsed?.roles && parsed?.baseRequirements) {
+        return parsed as ComplianceRules;
+      }
+    }
+  } catch {
+    // fall through to static JSON
+  }
+  return staticRules as ComplianceRules;
+};
+
+// ── Legacy constants (kept for backwards compat in routes) ─────────────────────
 
 export const PRIVACY_VERSIONS = {
   without: 'WITHOUT',
@@ -33,6 +65,8 @@ export const DIA_VERSIONS = {
   old: 'OLD',
   new: 'NEW',
 } as const;
+
+// ── Schema types ───────────────────────────────────────────────────────────────
 
 type Person = typeof person.$inferSelect;
 type Role = typeof complianceRole.$inferSelect;
@@ -65,6 +99,8 @@ type ComputeInput = {
   suppressions: Suppression[];
 };
 
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
 const boolValue = (value: number | null) => value === 1;
 
 const todayIso = () => new Date().toISOString().split('T')[0];
@@ -81,32 +117,14 @@ export const isSuppressionActive = (suppression: Pick<Suppression, 'releasedAt' 
   return suppression.untilDate >= today;
 };
 
-export const documentLabel = (documentType: string) => {
-  const labels: Record<string, string> = {
-    [DOCUMENT_TYPES.ndaDia]: 'NDA Dialogue',
-    [DOCUMENT_TYPES.ndaDir]: 'NDA Board',
-    [DOCUMENT_TYPES.ndaHr]: 'NDA HR',
-    [DOCUMENT_TYPES.ndaTesoreria]: 'NDA Treasury',
-    [DOCUMENT_TYPES.ndaIt]: 'NDA IT',
-    [DOCUMENT_TYPES.privacy]: 'Privacy',
-    [DOCUMENT_TYPES.enrollmentForm]: 'Enrollment Form',
-    [DOCUMENT_TYPES.memberForm]: 'Member Form',
-  };
-  return labels[documentType] ?? documentType;
+export const documentLabel = (documentType: string, rules: ComplianceRules) => {
+  const config = rules.documentTypes[documentType];
+  return config?.label ?? documentType;
 };
 
-export const roleLabel = (roleType: string) => {
-  const labels: Record<string, string> = {
-    [ROLE_TYPES.dialogue]: 'Dialogue',
-    [ROLE_TYPES.itTeam]: 'IT',
-    [ROLE_TYPES.itLead]: 'IT Lead',
-    [ROLE_TYPES.hrTeam]: 'HR',
-    [ROLE_TYPES.treasuryTeam]: 'Treasury',
-    [ROLE_TYPES.explore]: 'Explore',
-    [ROLE_TYPES.bond]: 'Bond',
-    [ROLE_TYPES.social]: 'Social',
-  };
-  return labels[roleType] ?? roleType;
+export const roleLabel = (roleType: string, rules: ComplianceRules) => {
+  const config = rules.roles[roleType];
+  return config?.label ?? roleType;
 };
 
 const groupForCode = (code: string) => {
@@ -138,7 +156,7 @@ const buildAlert = (
 const currentDocumentByType = (documents: Document[]) => {
   const map = new Map<string, Document>();
   if (!Array.isArray(documents)) return map;
-  
+
   for (const doc of documents) {
     if (!doc || !doc.documentType) continue;
     const existing = map.get(doc.documentType);
@@ -151,47 +169,46 @@ const currentDocumentByType = (documents: Document[]) => {
   return map;
 };
 
-const requiredDocumentsForPerson = (personId: string, input: ComputeInput) => {
+const getRequiredForRole = (roleType: string, rules: ComplianceRules, seen = new Set<string>()): string[] => {
+  if (seen.has(roleType)) return [];
+  seen.add(roleType);
+
+  const config = rules.roles[roleType];
+  if (!config) return [];
+
+  let required: string[] = config.requiredDocuments || [];
+  if (config.inherits) {
+    for (const parent of config.inherits) {
+      required = [...required, ...getRequiredForRole(parent, rules, seen)];
+    }
+  }
+  return required;
+};
+
+const requiredDocumentsForPerson = (personId: string, input: ComputeInput, rules: ComplianceRules) => {
   const required = new Set<string>();
   const personRoles = input.roles.filter((role) => role.personId === personId && isRoleActive(role));
-  const isBoard = input.activeBoardIds.has(personId);
 
   if (input.activeVolunteerIds.has(personId)) {
-    required.add(DOCUMENT_TYPES.enrollmentForm);
-    required.add(DOCUMENT_TYPES.privacy);
+    rules.baseRequirements.isVolunteer.forEach(d => required.add(d));
   }
   if (input.activeSocioIds.has(personId)) {
-    required.add(DOCUMENT_TYPES.memberForm);
+    rules.baseRequirements.isSocio.forEach(d => required.add(d));
   }
-  if (isBoard) {
-    required.add(DOCUMENT_TYPES.ndaDir);
+  if (input.activeBoardIds.has(personId)) {
+    rules.baseRequirements.isBoard.forEach(d => required.add(d));
   }
 
   for (const role of personRoles) {
-    switch (role.roleType) {
-      case ROLE_TYPES.dialogue:
-        required.add(DOCUMENT_TYPES.ndaDia);
-        break;
-      case ROLE_TYPES.itTeam:
-        required.add(DOCUMENT_TYPES.ndaIt);
-        break;
-      case ROLE_TYPES.itLead:
-        required.add(DOCUMENT_TYPES.ndaIt);
-        required.add(DOCUMENT_TYPES.ndaDir);
-        break;
-      case ROLE_TYPES.hrTeam:
-        if (!isBoard) required.add(DOCUMENT_TYPES.ndaHr);
-        break;
-      case ROLE_TYPES.treasuryTeam:
-        if (!isBoard) required.add(DOCUMENT_TYPES.ndaTesoreria);
-        break;
-    }
+    getRequiredForRole(role.roleType, rules).forEach(d => required.add(d));
   }
 
   return required;
 };
 
-export const computeComplianceAlerts = (input: ComputeInput) => {
+// ── Main exports ───────────────────────────────────────────────────────────────
+
+export const computeComplianceAlerts = (input: ComputeInput, rules: ComplianceRules) => {
   const suppressionsByKey = new Map(
     input.suppressions
       .filter((suppression) => isSuppressionActive(suppression))
@@ -217,7 +234,7 @@ export const computeComplianceAlerts = (input: ComputeInput) => {
   for (const person of input.people) {
     const personDocuments = docsByPerson.get(person.id) ?? [];
     const currentDocs = currentDocumentByType(personDocuments);
-    const requiredDocuments = requiredDocumentsForPerson(person.id, input);
+    const requiredDocuments = requiredDocumentsForPerson(person.id, input, rules);
     const isRelevant =
       input.activeVolunteerIds.has(person.id) ||
       input.activeSocioIds.has(person.id) ||
@@ -250,29 +267,29 @@ export const computeComplianceAlerts = (input: ComputeInput) => {
 
     for (const documentType of requiredDocuments) {
       const currentDoc = currentDocs.get(documentType);
-      const missing = !currentDoc || (documentType === DOCUMENT_TYPES.privacy && currentDoc.version === PRIVACY_VERSIONS.without);
+      const missing = !currentDoc || (documentType === 'privacy' && currentDoc.version === PRIVACY_VERSIONS.without);
       if (!missing) continue;
 
       const code =
-        documentType === DOCUMENT_TYPES.enrollmentForm
+        documentType === 'enrollment_form'
           ? 'missing_enrollment_form'
-          : documentType === DOCUMENT_TYPES.memberForm
+          : documentType === 'member_form'
             ? 'missing_member_form'
-            : documentType === DOCUMENT_TYPES.privacy
+            : documentType === 'privacy'
               ? 'privacy_missing'
               : `missing_nda_${documentType.replace('nda_', '')}`;
 
       alerts.push(buildAlert(person, {
         code,
-        title: `${documentLabel(documentType)} missing`,
-        description: `Missing required document: ${documentLabel(documentType)}.`,
-        severity: documentType === DOCUMENT_TYPES.privacy ? 'warning' : 'critical',
+        title: `${documentLabel(documentType, rules)} missing`,
+        description: `Missing required document: ${documentLabel(documentType, rules)}.`,
+        severity: documentType === 'privacy' ? 'warning' : 'critical',
         entityType: 'document',
         entityId: currentDoc?.id,
       }));
     }
 
-    const privacyDoc = currentDocs.get(DOCUMENT_TYPES.privacy);
+    const privacyDoc = currentDocs.get('privacy');
     if (privacyDoc?.version === PRIVACY_VERSIONS.old) {
       alerts.push(buildAlert(person, {
         code: 'privacy_outdated',
@@ -284,9 +301,9 @@ export const computeComplianceAlerts = (input: ComputeInput) => {
       }));
     }
 
-    const diaDoc = currentDocs.get(DOCUMENT_TYPES.ndaDia);
+    const diaDoc = currentDocs.get('nda_dia');
     if (
-      requiredDocuments.has(DOCUMENT_TYPES.ndaDia) &&
+      requiredDocuments.has('nda_dia') &&
       diaDoc &&
       diaDoc.version &&
       ([DIA_VERSIONS.veryOld, DIA_VERSIONS.old] as string[]).includes(diaDoc.version)
@@ -307,8 +324,8 @@ export const computeComplianceAlerts = (input: ComputeInput) => {
         alerts.push(buildAlert(person, {
           code: 'document_flag',
           keySuffix: flag.id,
-          title: `${documentLabel(doc.documentType)}: ${flag.label}`,
-          description: flag.note || `Problematic flag on document ${documentLabel(doc.documentType)}.`,
+          title: `${documentLabel(doc.documentType, rules)}: ${flag.label}`,
+          description: flag.note || `Problematic flag on document ${documentLabel(doc.documentType, rules)}.`,
           severity: flag.severity === 'critical' ? 'critical' : flag.severity === 'info' ? 'info' : 'warning',
           entityType: 'document',
           entityId: doc.id,
@@ -331,7 +348,7 @@ export const computeComplianceAlerts = (input: ComputeInput) => {
 };
 
 export const getPrivacyStatus = (documents: Document[]) => {
-  const current = currentDocumentByType(documents).get(DOCUMENT_TYPES.privacy);
+  const current = currentDocumentByType(documents).get('privacy');
   if (!current) {
     return null;
   }

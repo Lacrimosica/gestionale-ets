@@ -143,6 +143,7 @@ export const appSetting = sqliteTable('app_setting', {
   tagline: text('tagline'),
   supportEmail: text('support_email'),
   logoDataUrl: text('logo_data_url'),
+  complianceRules: text('compliance_rules'), // JSON blob – nullable, falls back to static JSON file
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });

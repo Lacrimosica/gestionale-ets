@@ -97,12 +97,12 @@ const VolunteersList = () => {
                 </th>
                 <th className="px-6 py-4 font-semibold cursor-pointer hover:text-white transition-colors group" onClick={() => setSort('period.enrollmentDate')}>
                   <div className="flex items-center space-x-2">
-                    <span>{t('common.startDate')}</span>
+                    <span>{t('common.fields.startDate')}</span>
                     {state.sortBy === 'period.enrollmentDate' ? (state.sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} className="opacity-20 group-hover:opacity-100" />}
                   </div>
                 </th>
                 <th className="px-6 py-4 font-semibold">{t('people.identifiers')}</th>
-                <th className="px-6 py-4 font-semibold text-right">{t('common.actions')}</th>
+                <th className="px-6 py-4 font-semibold text-right">{t('common.actions.actions', { defaultValue: 'Actions' })}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
@@ -114,7 +114,7 @@ const VolunteersList = () => {
                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
                     </div>
-                    <span className="mt-2 block">{t('common.loading')}</span>
+                    <span className="mt-2 block">{t('common.status.loading')}</span>
                   </td>
                 </tr>
               ) : items.length === 0 ? (

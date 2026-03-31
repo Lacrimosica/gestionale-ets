@@ -74,7 +74,9 @@ timelineRouter.get('/', async (c) => {
       firstName: person.firstName,
       lastName: person.lastName,
       admission: memberPeriod.admissionDate,
-      resignation: memberPeriod.resignationDate
+      resignation: memberPeriod.resignationDate,
+      admissionAssemblyId: memberPeriod.admissionAssemblyId,
+      exitAssemblyId: memberPeriod.exitAssemblyId
     })
     .from(memberPeriod)
     .innerJoin(person, eq(memberPeriod.personId, person.id))
@@ -92,39 +94,126 @@ timelineRouter.get('/', async (c) => {
     list.sort((a, b) => a.number - b.number);
   }
 
+  // Calculate Compliance & Pending Verbals
+  const pendingVerbals: any[] = [];
+  const complianceErrors: any[] = [];
+
+  // Group admissions/resignations by date to see missing chunks of verbals
+  const unlinkedAdmissionsByDate = new Map<string, string[]>();
+  const unlinkedResignationsByDate = new Map<string, string[]>();
+
+  for (const m of membershipEvents) {
+    // Check Admissions
+    if (m.admission && !m.admissionAssemblyId) {
+      const list = unlinkedAdmissionsByDate.get(m.admission) ?? [];
+      list.push(`${m.firstName} ${m.lastName}`);
+      unlinkedAdmissionsByDate.set(m.admission, list);
+    }
+    // Check Resignations
+    if (m.resignation && !m.exitAssemblyId) {
+      const list = unlinkedResignationsByDate.get(m.resignation) ?? [];
+      list.push(`${m.firstName} ${m.lastName}`);
+      unlinkedResignationsByDate.set(m.resignation, list);
+    }
+
+    // Stealth Changes Check: did a member change happen between a meeting convocation and its held date?
+    for (const a of assemblies) {
+      const convDate = a.convocationDate;
+      const firstCall = a.firstCallDate;
+      if (convDate && firstCall && convDate < firstCall) {
+        const checkStealth = (memberDate: string | null, type: string) => {
+          if (memberDate && memberDate > convDate && memberDate < firstCall) {
+            complianceErrors.push({
+              id: `stealth-${m.id}-${type}-${a.id}`,
+              type: 'compliance_error',
+              label: `Stealth ${type}: ${m.firstName} ${m.lastName}`,
+              start: memberDate,
+              end: memberDate,
+              errorType: 'stealth_change',
+              affectedAssemblyId: a.id,
+              affectedAssemblyName: buildAssemblyLabel(a),
+              description: `This ${type} happened between the convocation (${convDate}) and the session (${firstCall}) of ${buildAssemblyLabel(a)}.`
+            });
+          }
+        };
+        checkStealth(m.admission, 'admission');
+        checkStealth(m.resignation, 'resignation');
+      }
+    }
+  }
+
+  // Create "Pending Verbal" entries for unlinked groups
+  for (const [date, names] of unlinkedAdmissionsByDate) {
+    pendingVerbals.push({
+      id: `pending-adm-${date}`,
+      type: 'pending_verbal',
+      label: `Expected Admission Verbal (${names.length})`,
+      start: date,
+      end: date,
+      subType: 'member_admission',
+      affectedNames: names,
+      description: `Il verbale per l'ammissione di: ${names.join(', ')} deve ancora essere prodotto o collegato.`
+    });
+  }
+  for (const [date, names] of unlinkedResignationsByDate) {
+    pendingVerbals.push({
+      id: `pending-res-${date}`,
+      type: 'pending_verbal',
+      label: `Expected Resignation Verbal (${names.length})`,
+      start: date,
+      end: date,
+      subType: 'member_resignation',
+      affectedNames: names,
+      description: `Il verbale per le dimissioni di: ${names.join(', ')} deve ancora essere prodotto o collegato.`
+    });
+  }
+
   const events = [
-    ...assemblies.map(v => ({
-      id: v.id,
-      type: 'assembly' as const,
-      label: buildAssemblyLabel(v),
-      start: v.firstCallDate ?? v.convocationDate ?? v.createdAt,
-      end: v.firstCallDate ?? v.convocationDate ?? v.createdAt,
-      subType: v.type,
-      status: v.assemblyStatus,
-      totalNumber: v.totalNumber,
-      referenceNumber: v.referenceNumber,
-      referenceYear: v.referenceYear,
-      googleDocsLink: v.googleDocsLink ?? undefined,
-      pdfLink: v.pdfLink ?? undefined,
-      location: v.location,
-      president: v.president,
-      agendaItems: agendaByAssembly.get(v.id) ?? [],
-    })),
+    ...assemblies.map(v => {
+      const isHeld = v.assemblyStatus === 'held';
+      const hasLinks = v.googleDocsLink || v.pdfLink;
+      const isMissingVerbal = isHeld && !hasLinks;
+
+      return {
+        id: v.id,
+        type: 'assembly' as const,
+        label: buildAssemblyLabel(v),
+        start: v.firstCallDate ?? v.convocationDate ?? v.createdAt,
+        end: v.firstCallDate ?? v.convocationDate ?? v.createdAt,
+        subType: v.type,
+        status: v.assemblyStatus,
+        totalNumber: v.totalNumber,
+        referenceNumber: v.referenceNumber,
+        referenceYear: v.referenceYear,
+        googleDocsLink: v.googleDocsLink ?? undefined,
+        pdfLink: v.pdfLink ?? undefined,
+        location: v.location,
+        mode: v.mode,
+        president: v.president,
+        agendaItems: agendaByAssembly.get(v.id) ?? [],
+        complianceStatus: isMissingVerbal ? 'warning' : 'ok',
+        errorDetails: isMissingVerbal ? 'Nessun link documento (Google Doc / PDF). Verbale non prodotto.' : undefined
+      };
+    }),
+    ...pendingVerbals,
+    ...complianceErrors,
     // Admissions
     ...membershipEvents.map(m => ({
       id: `${m.id}-admission`,
-      type: 'member_admission',
+      type: 'member_admission' as const,
       label: `Admission: ${m.firstName} ${m.lastName}`,
       start: m.admission,
       end: m.admission,
+      linkedAssemblyId: m.admissionAssemblyId
     })),
     // Resignations (only if exists)
     ...membershipEvents.filter(m => m.resignation).map(m => ({
       id: `${m.id}-resignation`,
-      type: 'member_resignation',
+      type: 'member_resignation' as const,
       label: `Resignation: ${m.firstName} ${m.lastName}`,
       start: m.resignation!,
       end: m.resignation!,
+      linkedAssemblyId: m.exitAssemblyId
     }))
   ].sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 

@@ -1,15 +1,51 @@
 {
   "common": {
-    "save": "Salva",
-    "cancel": "Annulla",
-    "delete": "Elimina",
-    "edit": "Modifica",
-    "add": "Aggiungi",
-    "loading": "Caricamento...",
-    "error": "Errore",
-    "success": "Successo",
-    "actions": "Azioni",
-    "back": "Indietro"
+    "actions": {
+      "save": "Salva",
+      "saveChanges": "Salva modifiche",
+      "cancel": "Annulla",
+      "delete": "Elimina",
+      "edit": "Modifica",
+      "add": "Aggiungi",
+      "confirm": "Conferma",
+      "open": "Apri",
+      "close": "Chiudi",
+      "viewAll": "Vedi tutti",
+      "select": "Seleziona",
+      "backToList": "Torna alla lista",
+      "editProfile": "Modifica profilo",
+      "resign": "Dimettersi"
+    },
+    "status": {
+      "yes": "Sì",
+      "no": "No",
+      "today": "Oggi",
+      "ongoing": "In corso",
+      "loading": "Caricamento...",
+      "error": "Errore",
+      "success": "Successo",
+      "loadingDetails": "Caricamento dettagli...",
+      "resultsFound": "Trovati {{count}} risultati",
+      "all": "Tutti",
+      "loadingActive": "Caricamento membri attivi...",
+      "activeMembers": "Membri Attivi",
+      "noActiveMembersFound": "Nessun membro attivo trovato"
+    },
+    "fields": {
+      "date": "Data",
+      "startDate": "Data inizio",
+      "endDate": "Data fine",
+      "notes": "Note",
+      "notesPlaceholder": "Note...",
+      "version": "Versione",
+      "signed": "Firmato",
+      "searchPlaceholder": "Cerca per nome o cognome...",
+      "since": "Da",
+      "resignationDate": "Data dimissioni",
+      "reason": "Motivazione",
+      "addedOn": "Aggiunto il",
+      "label": "Label"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -24,37 +60,82 @@
     "resignations": "Dimissioni",
     "settings": "Impostazioni"
   },
-  "auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "email": "Email",
-    "password": "Password",
-    "register": "Registrazione"
+  "board": {
+    "title": "Consiglio Direttivo",
+    "subtitle": "Record storico dei mandati e della composizione del Consiglio Direttivo.",
+    "newGeneration": "Nuovo Mandato",
+    "generation": "Mandato",
+    "composition": "Composizione Direttivo",
+    "addMember": "Aggiungi Membro",
+    "noGenerations": "Nessun mandato registrato.",
+    "noMembers": "Nessun membro assegnato a questo mandato.",
+    "roles": {
+      "president": "Presidente",
+      "vice_president": "Vice Presidente",
+      "treasurer": "Tesoriere",
+      "secretary": "Segretario",
+      "councilor": "Consigliere"
+    }
+  },
+  "compliance": {
+    "title": "Compliance e Documenti",
+    "subtitle": "Gestione della documentazione obbligatoria e dei ruoli di responsabilità.",
+    "documents": "Documenti",
+    "documentsSubtitle": "NDA, privacy, moduli di iscrizione e adesione.",
+    "addDocument": "Aggiungi Documento",
+    "editDocument": "Modifica Documento",
+    "deleteDocument": "Elimina Documento",
+    "documentType": "Tipo Documento",
+    "driveUrl": "Link Drive",
+    "openDriveLink": "Apri link Drive",
+    "states": {
+      "isCurrent": "Corrente",
+      "isSigned": "Firmato",
+      "isDated": "Datato",
+      "isComplete": "Completo"
+    },
+    "tooltips": {
+      "isCurrent": "Indica se questa è l'ultima versione attiva del documento.",
+      "isSigned": "Indica se il documento è stato firmato fisicamente o digitalmente.",
+      "isDated": "Indica se il documento riporta una data di esecuzione corretta.",
+      "isComplete": "Indica se tutti i campi necessari del modulo sono stati compilati."
+    }
+  },
+  "people": {
+    "personalDetails": "Dettagli personali",
+    "taxId": "Codice Fiscale",
+    "gender": "Genere",
+    "profession": "Professione",
+    "matricola": "Matricola",
+    "phone": "Telefono",
+    "contacts": "Contatti",
+    "identifiers": "Identificativi",
+    "registerResignation": "Registra Dimissioni",
+    "confirmResignation": "Stai registrando le dimissioni di {{name}}.",
+    "rolesAndResponsibilities": "Ruoli e Responsabilità",
+    "activeOperationalRoles": "Ruoli Operativi Attivi",
+    "noActiveRoles": "Nessun ruolo attivo assegnato"
   },
   "timeline": {
     "title": "Timeline Storica",
     "subtitle": "Sviluppo verticale dei mandati e delle adunanze.",
-    "eventDetail": "Dettaglio evento",
-    "session": "Verbale",
-    "copyMembers": "Copia elenco soci",
-    "editAssembly": "Modifica verbale",
     "agenda": "Ordine del giorno",
-    "noDocumentLinks": "Nessun link documento. Usa Modifica per aggiungerli.",
     "members": "Soci",
     "viewAll": "Vedi tutti",
     "selectEvent": "Seleziona un evento",
     "clickPrompt": "Clicca su un evento nella timeline per vedere i dettagli qui sopra.",
-    "legend": {
-      "assemblies": "Assemblee",
-      "admissions": "Ammissioni",
-      "resignations": "Dimissioni"
-    },
-    "help": "Esplora la storia dell'associazione. Clicca su un evento nella timeline per vedere i dettagli nel pannello in alto (ODG, link, soci). Anno e mesi rimangono orientati verticalmente per una lettura ottimale dello scorrimento."
+    "pendingVerbal": "Produzione Verbale Necessaria",
+    "complianceError": "Violazione Integrità ODG",
+    "eventDetail": "Dettagli Evento"
   },
   "assemblies": {
-    "labels": {
-      "boardCouncil": "CD n. {{number}} ({{date}})",
-      "assembly": "Ass. n. {{number}}/{{year}} ({{date}})"
+    "selectAssembly": "Seleziona Assemblea",
+    "noSecondAssembly": "Nessuna Seconda Convocazione",
+    "agenda": "Ordine del giorno",
+    "modes": {
+      "in_person": "In Presenza",
+      "remote": "Da remoto",
+      "hybrid": "Ibrida"
     }
   }
 }

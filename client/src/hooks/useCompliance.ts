@@ -3,27 +3,11 @@ import axios from 'axios';
 
 import { API_BASE_URL } from '../config';
 
-export const COMPLIANCE_ROLE_TYPES = [
-  { value: 'dialogue', label: 'Dialogue' },
-  { value: 'it_team', label: 'IT' },
-  { value: 'it_lead', label: 'IT Lead' },
-  { value: 'hr_team', label: 'HR' },
-  { value: 'treasury_team', label: 'Treasury' },
-  { value: 'explore', label: 'Explore' },
-  { value: 'bond', label: 'Bond' },
-  { value: 'social', label: 'Social' },
-] as const;
-
-export const DOCUMENT_TYPES = [
-  { value: 'nda_dia', label: 'NDA Dialogue' },
-  { value: 'nda_dir', label: 'NDA Board' },
-  { value: 'nda_hr', label: 'NDA HR' },
-  { value: 'nda_tesoreria', label: 'NDA Treasury' },
-  { value: 'nda_it', label: 'NDA IT' },
-  { value: 'privacy', label: 'Privacy' },
-  { value: 'enrollment_form', label: 'Enrollment Form' },
-  { value: 'member_form', label: 'Member Form' },
-] as const;
+export interface ComplianceRules {
+  documentTypes: Record<string, { label: string; description: string; hasConsents?: boolean; versions?: string[] }>;
+  roles: Record<string, { label: string; description?: string; requiredDocuments?: string[]; inherits?: string[] }>;
+  baseRequirements: { isVolunteer: string[]; isSocio: string[]; isBoard: string[] };
+}
 
 export interface ComplianceFlag {
   id: string;
@@ -113,8 +97,15 @@ export const useCompliance = (personId?: string) => {
   const [summary, setSummary] = useState<{ totalActiveAlerts: number; totalSuppressedAlerts: number; groups: { group: string; count: number }[] } | null>(null);
   const [alerts, setAlerts] = useState<ComplianceAlert[]>([]);
   const [suppressedAlerts, setSuppressedAlerts] = useState<ComplianceAlert[]>([]);
+  const [rules, setRules] = useState<ComplianceRules | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchRules = async () => {
+    const response = await axios.get(`${API_BASE_URL}/compliance/rules`);
+    setRules(response.data);
+    return response.data;
+  };
 
   const fetchPersonCompliance = async () => {
     if (!personId) return null;
@@ -142,7 +133,7 @@ export const useCompliance = (personId?: string) => {
     try {
       setLoading(true);
       setError(null);
-      const tasks = [fetchSummary(), fetchAlerts(true)];
+      const tasks = [fetchRules(), fetchSummary(), fetchAlerts(true)];
       if (personId) tasks.push(fetchPersonCompliance());
       await Promise.all(tasks);
     } catch (err) {
@@ -217,11 +208,18 @@ export const useCompliance = (personId?: string) => {
     await refresh();
   };
 
+  const saveRules = async (updatedRules: ComplianceRules) => {
+    const response = await axios.put(`${API_BASE_URL}/compliance/rules`, updatedRules);
+    setRules(response.data);
+    return response.data as ComplianceRules;
+  };
+
   return {
     personData,
     summary,
     alerts,
     suppressedAlerts,
+    rules,
     loading,
     error,
     refresh,
@@ -236,5 +234,6 @@ export const useCompliance = (personId?: string) => {
     deleteFlag,
     suppressAlert,
     releaseSuppression,
+    saveRules,
   };
 };

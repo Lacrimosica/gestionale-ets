@@ -2,11 +2,15 @@
   "name": "gestionale-server",
   "version": "1.0.0",
   "scripts": {
-    "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy src/index.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "wrangler d1 migrations apply gestionale-ets-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply gestionale-ets-db --remote"
+    "dev":            "wrangler dev src/index.ts --inspector-port 9229",
+    "dev:staging":    "wrangler dev src/index.ts --env staging --remote --inspector-port 9229",
+    "dev:production": "wrangler dev src/index.ts --env production --remote --inspector-port 9229",
+    "deploy:staging":    "wrangler deploy src/index.ts --env staging",
+    "deploy":            "wrangler deploy src/index.ts --env production",
+    "db:generate":          "drizzle-kit generate",
+    "db:migrate":           "wrangler d1 migrations apply gestionale-ets-db --local",
+    "db:migrate:staging":   "wrangler d1 migrations apply gestionale-ets-db-staging --remote --env staging",
+    "db:migrate:production": "wrangler d1 migrations apply gestionale-ets-db --remote --env production"
   },
   "dependencies": {
     "drizzle-orm": "^0.30.0",

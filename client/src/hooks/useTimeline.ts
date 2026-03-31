@@ -11,7 +11,7 @@ export interface TimelineAgendaItem {
 
 export interface TimelineEntry {
   id: string;
-  type: 'assembly' | 'member_admission' | 'member_resignation';
+  type: 'assembly' | 'member_admission' | 'member_resignation' | 'pending_verbal' | 'compliance_error';
   label: string;
   start: string;
   end: string;
@@ -23,8 +23,17 @@ export interface TimelineEntry {
   googleDocsLink?: string;
   pdfLink?: string;
   location?: string;
+  mode?: string;
   president?: string;
   agendaItems?: TimelineAgendaItem[];
+  complianceStatus?: 'ok' | 'warning' | 'error';
+  errorDetails?: string;
+  errorType?: string;
+  affectedNames?: string[];
+  affectedAssemblyId?: string;
+  affectedAssemblyName?: string;
+  linkedAssemblyId?: string;
+  description?: string;
 }
 
 export interface MembershipHistory {

@@ -55,7 +55,17 @@ const BoardGenerationsList = () => {
     }
   };
 
-  const roles = ['President', 'Vice President', 'Treasurer', 'Secretary', 'Councilor'];
+  const roles = ['president', 'vice_president', 'treasurer', 'secretary', 'councilor'];
+  
+  const normalizeRole = (role: string): string => {
+    const r = role?.toLowerCase().trim() || '';
+    if (r.includes('presid') && !r.includes('vice')) return 'president';
+    if (r.includes('vice')) return 'vice_president';
+    if (r.includes('treas') || r.includes('tesor')) return 'treasurer';
+    if (r.includes('secr') || r.includes('segr')) return 'secretary';
+    if (r.includes('counc') || r.includes('consig')) return 'councilor';
+    return r;
+  };
 
   // Actions
   const handleCreateGen = async () => {
@@ -106,7 +116,7 @@ const BoardGenerationsList = () => {
     return (
       <div className="bg-red-500/10 border border-red-500 p-4 rounded-xl flex items-center text-red-400">
         <AlertCircle className="w-5 h-5 mr-3" />
-        {error || t('common.errorOccurred')}
+        {error || t('common.status.error')}
       </div>
     );
   }
@@ -133,8 +143,8 @@ const BoardGenerationsList = () => {
         <div className="p-4 bg-slate-800/50 border-b border-slate-800 flex items-center font-medium text-slate-300">
           <div className="w-10"></div>
           <div className="flex-1">{t('board.generation', { defaultValue: 'Generation' })}</div>
-          <div className="w-1/4">{t('common.startDate')}</div>
-          <div className="w-1/4">{t('common.endDate')}</div>
+          <div className="w-1/4">{t('common.fields.startDate')}</div>
+          <div className="w-1/4">{t('common.fields.endDate')}</div>
           <div className="w-24"></div>
         </div>
         
@@ -262,11 +272,15 @@ const BoardGenerationsList = () => {
                            onChange={e => setMemForm({...memForm, role: e.target.value})}
                            className="w-40 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200"
                          >
-                           {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                           {roles.map(r => (
+                             <option key={r} value={r}>
+                               {t(`board.roles.${r}`, { defaultValue: r })}
+                             </option>
+                           ))}
                          </select>
                          <input 
                            type="text" 
-                           placeholder={t('common.notes')}
+                           placeholder={t('common.fields.notes')}
                            value={memForm.notes}
                            onChange={e => setMemForm({...memForm, notes: e.target.value})}
                            className="w-48 bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-slate-200"
@@ -305,7 +319,7 @@ const BoardGenerationsList = () => {
                               <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 {!isEditing && (
                                   <>
-                                    <button onClick={() => { setEditMemForm({ role: member.role, notes: member.notes || '' }); setEditingMemId(member.id); }} className="p-1.5 text-slate-500 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg"><Edit2 size={14} /></button>
+                                    <button onClick={() => { setEditMemForm({ role: normalizeRole(member.role), notes: member.notes || '' }); setEditingMemId(member.id); }} className="p-1.5 text-slate-500 hover:text-blue-400 hover:bg-blue-400/10 rounded-lg"><Edit2 size={14} /></button>
                                     <button onClick={() => handleDeleteMem(gen.id, member.id)} className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded-lg"><Trash2 size={14} /></button>
                                   </>
                                 )}
@@ -319,24 +333,28 @@ const BoardGenerationsList = () => {
                                    onChange={e => setEditMemForm({...editMemForm, role: e.target.value})}
                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 text-sm"
                                  >
-                                   {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                                   {roles.map(r => (
+                                     <option key={r} value={r}>
+                                       {t(`board.roles.${r}`, { defaultValue: r })}
+                                     </option>
+                                   ))}
                                  </select>
                                  <input 
                                    type="text" 
-                                   placeholder={t('common.notesPlaceholder')}
+                                   placeholder={t('common.fields.notesPlaceholder')}
                                    value={editMemForm.notes}
                                    onChange={e => setEditMemForm({...editMemForm, notes: e.target.value})}
                                    className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-slate-200 text-sm"
                                  />
                                  <div className="flex justify-end space-x-2 pt-1">
-                                   <button onClick={() => setEditingMemId(null)} className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider">{t('common.cancel')}</button>
-                                   <button onClick={() => handleSaveMem(gen.id, member.id)} className="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-500 uppercase tracking-wider">{t('common.save')}</button>
+                                   <button onClick={() => setEditingMemId(null)} className="px-3 py-1 text-xs font-bold text-slate-400 hover:text-white uppercase tracking-wider">{t('common.actions.cancel')}</button>
+                                   <button onClick={() => handleSaveMem(gen.id, member.id)} className="px-3 py-1 text-xs font-bold bg-blue-600 text-white rounded-lg hover:bg-blue-500 uppercase tracking-wider">{t('common.actions.save')}</button>
                                  </div>
                               </div>
                             ) : (
                               <div>
                                 <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${getRoleBadgeColor(member.role)}`}>
-                                   {t(`board.roles.${member.role.toLowerCase().replace(' ', '_')}`, { defaultValue: member.role })}
+                                   {t(`board.roles.${member.role}`, { defaultValue: member.role })}
                                 </span>
                                 {member.notes && (
                                   <p className="mt-3 text-xs text-slate-400/80 bg-slate-950/50 p-2 rounded-lg border border-slate-800/50">

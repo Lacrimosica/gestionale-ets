@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from 'react';
-import { Building2, ImageUp, KeyRound, LockKeyhole, Save, Settings, Shield, Trash2, UserPlus, Users } from 'lucide-react';
+import { Building2, ImageUp, KeyRound, LockKeyhole, Save, Settings, Shield, ShieldCheck, Trash2, UserPlus, Users } from 'lucide-react';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import ComplianceRulesEditor from '../components/ComplianceRulesEditor';
 import { useAuth } from '../hooks/useAuth';
 import { readLogoFileAsDataUrl, useBranding } from '../hooks/useBranding';
 import { changePassword, resetUserPassword, useSettingsUsers } from '../hooks/useSettings';
 import { getPermissionsForRole, PERMISSIONS, type Permission } from '../lib/permissions';
+import { useCompliance } from '../hooks/useCompliance';
 
 const roleOptions = [
   { value: 'admin', label: 'Admin' },
@@ -46,6 +48,8 @@ const groupedPermissions = [
 const SettingsPage = () => {
   const { user, hasPermission, login, token } = useAuth();
   const { branding, updateBranding } = useBranding();
+  const { rules, saveRules } = useCompliance();
+  const isCoreAdmin = user?.role === 'core_admin';
   const canManageUsers = hasPermission(PERMISSIONS.settingsUsersManage);
   const canViewUsers = hasPermission(PERMISSIONS.settingsUsersView);
   const canManagePassword = hasPermission(PERMISSIONS.settingsPasswordManage);
@@ -503,6 +507,23 @@ const SettingsPage = () => {
             <Shield size={16} />
             Update password
           </button>
+        </section>
+      )}
+
+      {isCoreAdmin && rules && (
+        <section className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl space-y-5">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="text-emerald-400" size={20} />
+            <div>
+              <h2 className="text-lg font-semibold text-white">Compliance Rules</h2>
+              <p className="text-sm text-slate-500">Define compliance document types, roles, inheritance, and base requirements. Changes are saved to the database and take effect immediately.</p>
+            </div>
+          </div>
+          <div className="rounded-lg border border-amber-800/40 bg-amber-900/10 px-4 py-3 text-sm text-amber-300/80">
+            ⚠ These rules drive the compliance engine. Changing them affects alerts for all people in the system.
+            Labels should be i18n keys (e.g. <span className="font-mono text-amber-400">compliance.documents.nda_dia</span>) that exist in your locale files.
+          </div>
+          <ComplianceRulesEditor initialRules={rules} onSave={async (r) => { await saveRules(r); }} />
         </section>
       )}
 

@@ -19,7 +19,10 @@ import {
   isRoleActive,
   isSuppressionActive,
   roleLabel,
+  loadRules,
+  type ComplianceRules,
 } from '../lib/compliance';
+import { appSetting } from '../db/schema';
 
 type Bindings = {
   DB: D1Database;
@@ -36,6 +39,51 @@ type Variables = {
 };
 
 const complianceRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
+
+complianceRouter.get('/rules', async (c) => {
+  const denied = await requirePermission(c, 'people.view');
+  if (denied) return denied;
+
+  const db = drizzle(c.env.DB);
+  const activeRules = await loadRules(db);
+  return c.json(activeRules);
+});
+
+complianceRouter.put('/rules', async (c) => {
+  const payload = c.get('jwtPayload');
+  const db = drizzle(c.env.DB);
+  const currentUser = await db.select().from(user).where(eq(user.id, payload.sub)).get();
+  if (!currentUser || currentUser.role !== 'core_admin') {
+    return c.json({ error: 'Only core admin can update compliance rules' }, 403);
+  }
+
+  const body = await c.req.json() as ComplianceRules;
+  if (!body?.documentTypes || !body?.roles || !body?.baseRequirements) {
+    return c.json({ error: 'Invalid compliance rules structure' }, 400);
+  }
+
+  const now = new Date().toISOString();
+  const existing = await db.select().from(appSetting).where(eq(appSetting.id, 'branding')).get();
+  const rulesJson = JSON.stringify(body);
+
+  if (existing) {
+    await db.update(appSetting)
+      .set({ complianceRules: rulesJson, updatedAt: now })
+      .where(eq(appSetting.id, 'branding'))
+      .run();
+  } else {
+    await db.insert(appSetting).values({
+      id: 'branding',
+      organizationName: 'Organization',
+      shortName: 'ORG',
+      complianceRules: rulesJson,
+      createdAt: now,
+      updatedAt: now,
+    }).run();
+  }
+
+  return c.json(body);
+});
 
 const parsePermissions = (value?: string | null) => {
   try {
@@ -152,8 +200,8 @@ complianceRouter.get('/summary', async (c) => {
   if (denied) return denied;
 
   const db = drizzle(c.env.DB);
-  const state = await buildState(db);
-  const alerts = computeComplianceAlerts(state);
+  const [state, activeRules] = await Promise.all([buildState(db), loadRules(db)]);
+  const alerts = computeComplianceAlerts(state, activeRules);
 
   const activeAlerts = alerts.filter((alert) => !alert.suppression);
   const suppressedAlerts = alerts.filter((alert) => alert.suppression);
@@ -177,8 +225,8 @@ complianceRouter.get('/alerts', async (c) => {
 
   const includeSuppressed = c.req.query('includeSuppressed') === 'true';
   const db = drizzle(c.env.DB);
-  const state = await buildState(db);
-  const alerts = computeComplianceAlerts(state);
+  const [state, activeRules] = await Promise.all([buildState(db), loadRules(db)]);
+  const alerts = computeComplianceAlerts(state, activeRules);
 
   return c.json({
     alerts: alerts.filter((alert) => includeSuppressed || !alert.suppression),
@@ -192,7 +240,7 @@ complianceRouter.get('/person/:personId', async (c) => {
 
   const personId = c.req.param('personId');
   const db = drizzle(c.env.DB);
-  const state = await buildState(db);
+  const [state, activeRules] = await Promise.all([buildState(db), loadRules(db)]);
 
   const foundPerson = state.people.find((item) => item.id === personId);
   if (!foundPerson) {
@@ -205,12 +253,12 @@ complianceRouter.get('/person/:personId', async (c) => {
   const alerts = computeComplianceAlerts({
     ...state,
     people: [foundPerson],
-  });
+  }, activeRules);
 
   return c.json({
     roles: roles.map((role) => ({
       ...role,
-      label: roleLabel(role.roleType),
+      label: roleLabel(role.roleType, activeRules),
       active: isRoleActive(role),
     })),
     documents: documents.map((document) =>

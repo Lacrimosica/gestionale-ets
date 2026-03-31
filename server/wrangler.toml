@@ -1,18 +1,68 @@
 name = "gestionale-server"
 compatibility_date = "2024-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── LOCAL DEV ────────────────────────────────────────────────────────────────
+# Used by: npm run dev
+# Database: local SQLite emulator (no network, reset-safe)
+# Secrets: overridden by .dev.vars
 
 [vars]
-# Add and environment variables here
-CORS_ORIGIN = "https://gestionale-ets.pages.dev"
-#JWT_SECRET= "G0tLflHRh7GykKVRCAOEVxP7Ba8bvEvp"
+CORS_ORIGIN = "http://localhost:5173"
+# JWT_SECRET → comes from .dev.vars locally, never hardcoded here
 
 [[d1_databases]]
 binding = "DB"
 database_name = "gestionale-ets-db"
 database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
 migrations_dir = "drizzle/migrations"
-remote = true
 
 [observability]
 enabled = true
 
+
+# ─── STAGING ──────────────────────────────────────────────────────────────────
+# Used by: npm run dev:staging  (local code → remote staging DB)
+#          npm run deploy:staging
+# First-time setup:
+#   wrangler d1 create gestionale-ets-db-staging   ← run this, paste the id below
+#   wrangler secret put JWT_SECRET --env staging
+#   wrangler secret put CORS_ORIGIN --env staging   ← set to your staging Pages URL
+
+[env.staging]
+name = "gestionale-server-staging"
+
+[env.staging.vars]
+CORS_ORIGIN = "https://staging.gestionale-ets.pages.dev"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db-staging"
+database_id = "a0aba6f8-f4b9-4260-ae99-c95462590cfc"   # ← paste id from `wrangler d1 create` here
+migrations_dir = "drizzle/migrations"
+
+[env.staging.observability]
+enabled = true
+
+
+# ─── PRODUCTION ───────────────────────────────────────────────────────────────
+# Used by: npm run dev:production  (local code → remote production DB, careful!)
+#          npm run deploy (no --env flag needed, default = production)
+# Secrets managed via Cloudflare dashboard or:
+#   wrangler secret put JWT_SECRET
+#   (CORS_ORIGIN is set in [vars] below, not a secret)
+
+[env.production]
+name = "gestionale-server"
+
+[env.production.vars]
+CORS_ORIGIN = "https://gestionale-ets.pages.dev"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db"
+database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
+migrations_dir = "drizzle/migrations"
+
+[env.production.observability]
+enabled = true

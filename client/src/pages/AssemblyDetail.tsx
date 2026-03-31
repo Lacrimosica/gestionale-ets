@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import {
   ArrowLeft, FileText, Save, Plus, AlertCircle,
-  FileCode, ListOrdered, ExternalLink, Mail, Calendar, Pencil, Trash2, X, Link2
+  FileCode, ListOrdered, ExternalLink, Mail, Calendar, Pencil, Trash2, X, Link2,
+  Video, Users as UsersIcon, Globe
 } from 'lucide-react';
 import { useConvocations, type Convocation } from '../hooks/useConvocations';
 
@@ -99,7 +100,7 @@ const AssemblyDetail = () => {
     update: updateConvocation,
     remove: removeConvocation
   } = useConvocations(id ?? undefined);
-  
+
   const [convSentAt, setConvSentAt] = useState('');
   const [convDocumentLink, setConvDocumentLink] = useState('');
   const [convNotes, setConvNotes] = useState('');
@@ -172,14 +173,14 @@ const AssemblyDetail = () => {
     const assembly = allAssemblies.find((entry) => entry.id === assemblyId) ?? linkedAssemblies[assemblyId];
     if (!assembly) return assemblyId;
     const dataStr = assembly.firstCallDate ? new Date(assembly.firstCallDate).toLocaleDateString(i18n.language) : '-';
-    
+
     if (assembly.type === 'board_council') {
       return t('assemblies.labels.boardCouncil', { number: assembly.referenceNumber, date: dataStr });
     }
-    return t('assemblies.labels.assembly', { 
-      number: assembly.referenceNumber, 
-      year: assembly.referenceYear ?? '-', 
-      date: dataStr 
+    return t('assemblies.labels.assembly', {
+      number: assembly.referenceNumber,
+      year: assembly.referenceYear ?? '-',
+      date: dataStr
     });
   };
 
@@ -316,14 +317,26 @@ const AssemblyDetail = () => {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
               <FileText className="text-purple-400" />
-              {data.type === 'board_council' 
+              {data.type === 'board_council'
                 ? t('assemblies.labels.boardCouncil', { number: data.referenceNumber, date: '' }).split(' (')[0]
                 : t('assemblies.labels.assembly', { number: data.referenceNumber, year: data.referenceYear ?? '-', date: '' }).split(' (')[0]
               }
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
-              {dataConv ? new Date(dataConv).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }) : t('common.dateNotSet')} · {data.location} · {t(`assemblies.modes.${data.mode}`, { defaultValue: data.mode })}
-            </p>
+            <div className="flex items-center gap-3 text-slate-400 text-sm mt-1.5 flex-wrap">
+              <span className="flex items-center gap-1.5">{dataConv ? new Date(dataConv).toLocaleDateString(i18n.language, { day: 'numeric', month: 'long', year: 'numeric' }) : t('common.dateNotSet')}</span>
+              <span className="text-slate-700">·</span>
+              <span className="flex items-center gap-1.5">{data.location}</span>
+              <span className="text-slate-700">·</span>
+              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${data.mode === 'in_person' ? 'bg-emerald-900/40 text-emerald-400 border-emerald-800' :
+                data.mode === 'remote' ? 'bg-cyan-900/40 text-cyan-400 border-cyan-800' :
+                  'bg-violet-900/40 text-violet-400 border-violet-800'
+                }`}>
+                {data.mode === 'in_person' && <UsersIcon size={12} />}
+                {data.mode === 'remote' && <Video size={12} />}
+                {data.mode === 'hybrid' && <Globe size={12} />}
+                {t(`assemblies.modes.${data.mode}`, { defaultValue: data.mode })}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -346,8 +359,8 @@ const AssemblyDetail = () => {
             </div>
           </div>
           <div className="mt-4">
-            <label className="block text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">{t('common.notes')}</label>
-            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder={t('assemblies.notesPlaceholder', { defaultValue: 'Notes about the assembly...' })} />
+            <label className="block text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">{t('common.fields.notes')}</label>
+            <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent" placeholder={t('common.fields.notesPlaceholder', { defaultValue: 'Notes about the assembly...' })} />
           </div>
           <div className="mt-4 flex items-center gap-3">
             <button onClick={handleSaveNotes} disabled={saving} className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold text-sm">
@@ -412,29 +425,29 @@ const AssemblyDetail = () => {
               {convocations.map((conv) => (
                 <li key={conv.id} className="p-4 bg-slate-950/50 rounded-lg border border-slate-800 space-y-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                     <div>
-                       <span className="flex flex-wrap items-center gap-2 text-slate-300 text-sm">
-                         <Calendar size={14} />
-                         {t('convocations.sentAt')}: {conv.sentAt ? new Date(conv.sentAt).toLocaleDateString(i18n.language) : '-'}
-                       </span>
-                       <div className="text-xs text-slate-500 mt-2 space-y-1">
-                         <p>{getAssemblyLabel(conv.assemblyId)}</p>
-                         {conv.secondAssemblyId && <p>{getAssemblyLabel(conv.secondAssemblyId)}</p>}
-                       </div>
-                     </div>
-                     <div className="flex flex-wrap items-center gap-3">
-                       {conv.documentLink && (
-                         <a href={conv.documentLink} target="_blank" rel="noreferrer" className="text-amber-400 hover:underline text-sm flex items-center gap-1">
-                           <FileCode size={14} /> {t('common.document')}
-                         </a>
-                       )}
-                       <button type="button" onClick={() => handleEditConvocation(conv)} className="text-slate-300 hover:text-white text-sm flex items-center gap-1">
-                         <Pencil size={14} /> {t('common.edit')}
-                       </button>
-                       <button type="button" onClick={() => handleDeleteConvocation(conv.id)} className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1">
-                         <Trash2 size={14} /> {t('common.delete')}
-                       </button>
-                     </div>
+                    <div>
+                      <span className="flex flex-wrap items-center gap-2 text-slate-300 text-sm">
+                        <Calendar size={14} />
+                        {t('convocations.sentAt')}: {conv.sentAt ? new Date(conv.sentAt).toLocaleDateString(i18n.language) : '-'}
+                      </span>
+                      <div className="text-xs text-slate-500 mt-2 space-y-1">
+                        <p>{getAssemblyLabel(conv.assemblyId)}</p>
+                        {conv.secondAssemblyId && <p>{getAssemblyLabel(conv.secondAssemblyId)}</p>}
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {conv.documentLink && (
+                        <a href={conv.documentLink} target="_blank" rel="noreferrer" className="text-amber-400 hover:underline text-sm flex items-center gap-1">
+                          <FileCode size={14} /> {t('common.document')}
+                        </a>
+                      )}
+                      <button type="button" onClick={() => handleEditConvocation(conv)} className="text-slate-300 hover:text-white text-sm flex items-center gap-1">
+                        <Pencil size={14} /> {t('common.edit')}
+                      </button>
+                      <button type="button" onClick={() => handleDeleteConvocation(conv.id)} className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1">
+                        <Trash2 size={14} /> {t('common.actions.delete')}
+                      </button>
+                    </div>
                   </div>
 
                   {(conv.notes || conv.documentLink) && (
@@ -455,7 +468,7 @@ const AssemblyDetail = () => {
               {editingConvId && (
                 <button type="button" onClick={resetConvocationForm} className="text-xs text-slate-400 hover:text-white flex items-center gap-1">
                   <X size={12} />
-                  {t('common.cancel')}
+                  {t('common.actions.cancel')}
                 </button>
               )}
             </div>
@@ -494,8 +507,8 @@ const AssemblyDetail = () => {
             </div>
 
             <div>
-              <label className="block text-xs text-slate-500 mb-1">{t('common.notes')}</label>
-              <textarea value={convNotes} onChange={e => setConvNotes(e.target.value)} rows={2} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" placeholder={t('convocations.notesPlaceholder', { defaultValue: 'Additional notes on the convocation...' })} />
+              <label className="block text-xs text-slate-500 mb-1">{t('common.fields.notes')}</label>
+              <textarea value={convNotes} onChange={e => setConvNotes(e.target.value)} rows={2} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" placeholder={t('common.fields.notesPlaceholder', { defaultValue: 'Additional notes on the convocation...' })} />
             </div>
 
             <button onClick={handleSaveConvocation} disabled={addingConv} className="flex items-center gap-2 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium">

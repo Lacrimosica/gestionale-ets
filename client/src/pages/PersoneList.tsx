@@ -2,17 +2,73 @@ import { useTranslation } from 'react-i18next';
 import { usePersone, type Person } from '../hooks/usePersone';
 import { useListState } from '../hooks/useListState';
 import PaginationControls from '../components/PaginationControls';
-import { 
-  UserPlus, Search, Mail, Phone, 
-  ArrowUpDown, ArrowUp, ArrowDown
+import {
+  UserPlus, Search, Mail, Phone,
+  ArrowUpDown, ArrowUp, ArrowDown,
+  UserMinus, Trash2, Loader2, X, ShieldCheck
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { usePeriods } from '../hooks/usePeriods';
+import { useState, useEffect } from 'react';
 
 const PersoneList = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { people, loading, error } = usePersone();
-  
+  const { people, loading: peopleLoading, error, refresh: refreshPeople } = usePersone();
+  const { getActiveMembers, endMembership } = usePeriods();
+
+  const [activeMembersMap, setActiveMembersMap] = useState<Record<string, string>>({}); // personId -> periodId
+  const [loadingActive, setLoadingActive] = useState(true);
+
+  // Resignation Modal State
+  const [resigningPerson, setResigningPerson] = useState<Person | null>(null);
+  const [resignationDate, setResignationDate] = useState(new Date().toISOString().split('T')[0]);
+  const [reason, setReason] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchActiveMembers = async () => {
+    try {
+      setLoadingActive(true);
+      const active = await getActiveMembers();
+      const map: Record<string, string> = {};
+      active.forEach((m: any) => {
+        map[m.person.id] = m.period.id;
+      });
+      setActiveMembersMap(map);
+    } catch (err) {
+      console.error('Error fetching active members:', err);
+    } finally {
+      setLoadingActive(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchActiveMembers();
+  }, [people]);
+
+  const loading = peopleLoading || loadingActive;
+
+  const handleResignSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resigningPerson) return;
+
+    const periodId = activeMembersMap[resigningPerson.id];
+    if (!periodId) return;
+
+    setIsSubmitting(true);
+    try {
+      await endMembership(periodId, { resignationDate, exitReason: reason });
+      setResigningPerson(null);
+      setReason('');
+      fetchActiveMembers();
+      refreshPeople();
+    } catch (err) {
+      console.error('Resignation failed:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const { state, setPage, setPageSize, setSearchTerm, setSort, setFilter, processList } = useListState<Person>({
     initialSortBy: 'lastName',
     pageSize: 10
@@ -25,7 +81,7 @@ const PersoneList = () => {
   });
 
   const filters = [
-    { id: 'all', label: t('common.all', { defaultValue: 'All' }) },
+    { id: 'all', label: t('common.status.all', { defaultValue: 'All' }) },
     { id: 'missing_cf', label: t('people.missingTaxId', { defaultValue: 'Missing Tax ID' }) },
     { id: 'no_contacts', label: t('people.noContacts', { defaultValue: 'No Contacts' }) },
   ];
@@ -37,7 +93,7 @@ const PersoneList = () => {
           <h1 className="text-3xl font-bold text-white">{t('nav.people')}</h1>
           <p className="text-slate-400 mt-1">{t('people.subtitle', { defaultValue: 'Centralized management of members and volunteers.' })}</p>
         </div>
-        <Link 
+        <Link
           to="/people/nuova"
           className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-blue-900/20"
         >
@@ -51,11 +107,10 @@ const PersoneList = () => {
           <button
             key={f.id}
             onClick={() => setFilter(f.id)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
-              state.filter === f.id 
-                ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20' 
-                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-            }`}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${state.filter === f.id
+              ? 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-900/20'
+              : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+              }`}
           >
             {f.label}
           </button>
@@ -81,7 +136,7 @@ const PersoneList = () => {
             />
           </div>
           <div className="text-sm text-slate-500 font-medium">
-            {t('common.resultsFound', { defaultValue: 'Found {{count}} results', count: totalItems })}
+            {t('common.status.resultsFound', { defaultValue: 'Found {{count}} results', count: totalItems })}
           </div>
         </div>
 
@@ -98,7 +153,7 @@ const PersoneList = () => {
                 <th className="px-6 py-4 font-semibold">{t('people.contacts', { defaultValue: 'Contacts' })}</th>
                 <th className="px-6 py-4 font-semibold">{t('people.identifiers', { defaultValue: 'Identifiers' })}</th>
                 <th className="px-6 py-4 font-semibold">Status</th>
-                <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">{t('common.actions')}</th>
+                <th className="px-6 py-4 font-semibold text-right whitespace-nowrap">{t('common.actions.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
@@ -106,11 +161,11 @@ const PersoneList = () => {
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                     <div className="flex items-center justify-center space-x-2">
-                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                       <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
                     </div>
-                    <span className="mt-2 block">{t('common.loading')}</span>
+                    <span className="mt-2 block">{t('common.status.loading')}</span>
                   </td>
                 </tr>
               ) : items.length === 0 ? (
@@ -121,8 +176,8 @@ const PersoneList = () => {
                 </tr>
               ) : (
                 items.map((p) => (
-                  <tr 
-                    key={p.id} 
+                  <tr
+                    key={p.id}
                     className="hover:bg-slate-800/40 transition-colors group cursor-pointer"
                     onClick={() => navigate(`/people/${p.id}`)}
                   >
@@ -133,7 +188,7 @@ const PersoneList = () => {
                         </div>
                         <div>
                           <div className="text-slate-200 font-medium">{p.firstName} {p.lastName}</div>
-                          <div className="text-slate-500 text-sm">{t('common.addedOn', { defaultValue: 'Added on' })} {new Date(p.createdAt).toLocaleDateString(i18n.language)}</div>
+                          <div className="text-slate-500 text-sm">{t('common.fields.addedOn', { defaultValue: 'Added on' })} {new Date(p.createdAt).toLocaleDateString(i18n.language)}</div>
                         </div>
                       </div>
                     </td>
@@ -159,17 +214,40 @@ const PersoneList = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-                        {t('people.person', { defaultValue: 'Person' })}
-                      </span>
+                      {activeMembersMap[p.id] ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-black bg-blue-900/40 text-blue-400 border border-blue-800 uppercase tracking-wider">
+                          <ShieldCheck size={12} />
+                          {t('nav.members')}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500 border border-slate-700 uppercase">
+                          {t('people.person')}
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); navigate(`/people/${p.id}`); }}
-                        className="text-blue-400 hover:text-blue-300 font-bold text-sm bg-blue-400/10 px-3 py-1 rounded-md transition-colors invisible group-hover:visible"
-                      >
-                        {t('common.edit')}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        {activeMembersMap[p.id] && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setResigningPerson(p);
+                              setResignationDate(new Date().toISOString().split('T')[0]);
+                            }}
+                            className="text-red-400 hover:text-white font-bold text-xs bg-red-400/10 hover:bg-red-600 px-3 py-1.5 rounded-lg transition-all border border-red-500/20 invisible group-hover:visible flex items-center gap-1.5"
+                            title={t('common.actions.resign')}
+                          >
+                            <UserMinus size={14} />
+                            <span>{t('common.actions.resign').toUpperCase()}</span>
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); navigate(`/people/${p.id}`); }}
+                          className="text-blue-400 hover:text-white font-bold text-xs bg-blue-400/10 hover:bg-blue-600 px-3 py-1.5 rounded-lg transition-all border border-blue-500/20 invisible group-hover:visible"
+                        >
+                          {t('common.actions.edit')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -189,6 +267,72 @@ const PersoneList = () => {
           onPageSizeChange={setPageSize}
         />
       </div>
+      {/* Resignation Modal */}
+      {resigningPerson && (
+        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl animate-in zoom-in duration-300">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-2xl font-bold text-white">{t('people.registerResignation')}</h3>
+              <button
+                onClick={() => setResigningPerson(null)}
+                className="p-1 rounded-full hover:bg-slate-800 text-slate-500 hover:text-white transition-colors"
+                title={t('common.actions.close')}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <p className="text-slate-400 mb-6 leading-relaxed">
+              {t('people.confirmResignation', {
+                defaultValue: 'You are recording the resignation of {{name}}.',
+                name: `${resigningPerson.firstName} ${resigningPerson.lastName}`
+              })}
+            </p>
+
+            <form onSubmit={handleResignSubmit} className="space-y-5">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">{t('common.fields.date')}</label>
+                <input
+                  type="date"
+                  required
+                  value={resignationDate}
+                  onChange={(e) => setResignationDate(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-black text-slate-500 uppercase tracking-widest">{t('common.fields.notes')}</label>
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  rows={3}
+                  placeholder={t('common.fields.notesPlaceholder', { defaultValue: 'Notes...' })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-3 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-600/50 transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setResigningPerson(null)}
+                  className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl transition-all uppercase tracking-widest text-xs"
+                >
+                  {t('common.actions.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white font-black py-3 rounded-xl transition-all flex items-center justify-center space-x-2 uppercase tracking-widest text-xs shadow-lg shadow-red-900/20"
+                >
+                  {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Trash2 size={16} />}
+                  <span>{t('common.actions.confirm')}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

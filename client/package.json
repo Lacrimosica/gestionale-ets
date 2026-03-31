@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:staging": "tsc -b && vite build --mode staging",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && npx wrangler pages deploy dist --project-name=gestionale-ets"
+    "deploy": "npm run build && npx wrangler pages deploy dist --project-name=gestionale-ets",
+    "deploy:staging": "npm run build:staging && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=staging"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.1",

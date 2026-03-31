@@ -6,7 +6,7 @@ import PaginationControls from '../components/PaginationControls';
 import { 
   FileText, Plus, Search, Calendar as CalendarIcon,
   ArrowUpDown, ArrowUp, ArrowDown,
-  FileCode, FileDown
+  FileCode, FileDown, Video, Users as UsersIcon, Globe
 } from 'lucide-react';
 
 const AssembliesList = () => {
@@ -96,7 +96,7 @@ const AssembliesList = () => {
               <tr className="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider">
                 <th className="px-6 py-4 font-semibold cursor-pointer hover:text-white transition-colors group" onClick={() => setSort('firstCallDate')}>
                   <div className="flex items-center space-x-2">
-                    <span>{t('common.date')}</span>
+                    <span>{t('common.fields.date')}</span>
                     {state.sortBy === 'firstCallDate' ? (state.sortOrder === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} className="opacity-20 group-hover:opacity-100" />}
                   </div>
                 </th>
@@ -155,7 +155,18 @@ const AssembliesList = () => {
                         }`}>
                           {t(`assemblies.types.${v.type}`, { defaultValue: v.type.replace('_', ' ') })}
                         </span>
-                        <div className="text-xs text-slate-500">{t(`assemblies.modes.${v.mode}`, { defaultValue: v.mode })}</div>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border whitespace-nowrap ${
+                            v.mode === 'in_person' ? 'bg-emerald-900/40 text-emerald-400 border-emerald-800' : 
+                            v.mode === 'remote' ? 'bg-cyan-900/40 text-cyan-400 border-cyan-800' :
+                            'bg-violet-900/40 text-violet-400 border-violet-800'
+                          }`}>
+                            {v.mode === 'in_person' && <UsersIcon size={12} />}
+                            {v.mode === 'remote' && <Video size={12} />}
+                            {v.mode === 'hybrid' && <Globe size={12} />}
+                            {t(`assemblies.modes.${v.mode}`, { defaultValue: v.mode })}
+                          </span>
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 max-w-md">

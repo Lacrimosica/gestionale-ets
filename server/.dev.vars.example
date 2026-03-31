@@ -1,0 +1,4 @@
+# Copy this file to .dev.vars for local development
+# These values are only used by wrangler dev (never deployed to Cloudflare)
+JWT_SECRET=change-me-local-dev-secret
+CORS_ORIGIN=http://localhost:5173

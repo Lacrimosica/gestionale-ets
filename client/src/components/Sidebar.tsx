@@ -8,7 +8,6 @@ import {
   Settings,
   ShieldCheck,
   LogOut,
-  UserMinus,
   Briefcase,
   Mail,
   PanelLeftClose,
@@ -45,7 +44,6 @@ const Sidebar = ({
     { to: '/convocations', icon: Mail, label: t('nav.convocations'), permission: PERMISSIONS.convocationsView },
     { to: '/compliance', icon: ShieldCheck, label: t('nav.compliance'), permission: PERMISSIONS.peopleView },
     { to: '/timeline', icon: Calendar, label: t('nav.timeline'), permission: PERMISSIONS.timelineView },
-    { to: '/resignations', icon: UserMinus, label: t('nav.resignations'), permission: PERMISSIONS.resignationsView },
   ].filter((item) => hasPermission(item.permission));
 
   return (

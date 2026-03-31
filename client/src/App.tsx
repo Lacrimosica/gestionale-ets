@@ -12,7 +12,6 @@ import AssembliesList from './pages/AssembliesList';
 import AssemblyDetail from './pages/AssemblyDetail';
 import ConvocationsList from './pages/ConvocationsList';
 import TimelineView from './pages/TimelineView';
-import ResignationsList from './pages/ResignationsList';
 import BoardGenerationsList from './pages/BoardGenerationsList';
 import SettingsPage from './pages/SettingsPage';
 import CompliancePage from './pages/CompliancePage';
@@ -54,7 +53,6 @@ function App() {
           <Route path="assemblies/:id" element={<AuthorizedRoute permission={PERMISSIONS.assembliesView} element={<AssemblyDetail />} />} />
           <Route path="convocations" element={<AuthorizedRoute permission={PERMISSIONS.convocationsView} element={<ConvocationsList />} />} />
           <Route path="timeline" element={<AuthorizedRoute permission={PERMISSIONS.timelineView} element={<TimelineView />} />} />
-          <Route path="resignations" element={<AuthorizedRoute permission={PERMISSIONS.resignationsView} element={<ResignationsList />} />} />
           <Route path="compliance" element={<AuthorizedRoute permission={PERMISSIONS.peopleView} element={<CompliancePage />} />} />
           <Route path="settings" element={<AuthorizedRoute permission={PERMISSIONS.settingsView} element={<SettingsPage />} />} />
         </Route>

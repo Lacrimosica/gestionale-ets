@@ -1,15 +1,51 @@
 {
   "common": {
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "actions": "Actions",
-    "back": "Back"
+    "actions": {
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "confirm": "Confirm",
+      "open": "Open",
+      "close": "Close",
+      "viewAll": "View all",
+      "select": "Select",
+      "backToList": "Back to list",
+      "editProfile": "Edit Profile",
+      "resign": "Resign"
+    },
+    "status": {
+      "yes": "Yes",
+      "no": "No",
+      "today": "Today",
+      "ongoing": "Ongoing",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "loadingDetails": "Loading details...",
+      "resultsFound": "Found {{count}} results",
+      "all": "All",
+      "loadingActive": "Loading active members...",
+      "activeMembers": "Active Members",
+      "noActiveMembersFound": "No active members found"
+    },
+    "fields": {
+      "date": "Date",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "notes": "Notes",
+      "notesPlaceholder": "Notes...",
+      "version": "Version",
+      "signed": "Signed",
+      "searchPlaceholder": "Search by name or surname...",
+      "since": "Since",
+      "resignationDate": "Resignation Date",
+      "reason": "Reason",
+      "addedOn": "Added on",
+      "label": "Label"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -24,37 +60,82 @@
     "resignations": "Resignations",
     "settings": "Settings"
   },
-  "auth": {
-    "login": "Login",
-    "logout": "Logout",
-    "email": "Email",
-    "password": "Password",
-    "register": "Register"
+  "board": {
+    "title": "Board of Directors",
+    "subtitle": "Historical record of mandates and composition of the Board of Directors.",
+    "newGeneration": "New Mandate",
+    "generation": "Mandate",
+    "composition": "Board Composition",
+    "addMember": "Add Member",
+    "noGenerations": "No mandates registered.",
+    "noMembers": "No members assigned to this mandate.",
+    "roles": {
+      "president": "President",
+      "vice_president": "Vice President",
+      "treasurer": "Treasurer",
+      "secretary": "Secretary",
+      "councilor": "Councilor"
+    }
+  },
+  "compliance": {
+    "title": "Compliance & Documents",
+    "subtitle": "Management of mandatory documentation and responsibility roles.",
+    "documents": "Documents",
+    "documentsSubtitle": "NDAs, privacy, enrollment and membership forms.",
+    "addDocument": "Add Document",
+    "editDocument": "Edit Document",
+    "deleteDocument": "Delete Document",
+    "documentType": "Document Type",
+    "driveUrl": "Drive URL",
+    "openDriveLink": "Open Drive link",
+    "states": {
+      "isCurrent": "Current",
+      "isSigned": "Signed",
+      "isDated": "Dated",
+      "isComplete": "Complete"
+    },
+    "tooltips": {
+      "isCurrent": "Indicates if this is the latest active version of the document.",
+      "isSigned": "Indicates if the document has been physically or digitally signed.",
+      "isDated": "Indicates if the document includes a correct issuance date.",
+      "isComplete": "Indicates if all required fields of the form have been filled."
+    }
+  },
+  "people": {
+    "personalDetails": "Personal Details",
+    "taxId": "Tax ID",
+    "gender": "Gender",
+    "profession": "Profession",
+    "matricola": "Matricola",
+    "phone": "Phone",
+    "contacts": "Contacts",
+    "identifiers": "Identifiers",
+    "registerResignation": "Register Resignation",
+    "confirmResignation": "You are recording the resignation of {{name}}.",
+    "rolesAndResponsibilities": "Roles & Responsibilities",
+    "activeOperationalRoles": "Active Operational Roles",
+    "noActiveRoles": "No active roles assigned"
   },
   "timeline": {
     "title": "Historical Timeline",
-    "subtitle": "Vertical development of mandates and assemblies.",
-    "eventDetail": "Event detail",
-    "session": "Assembly",
-    "copyMembers": "Copy member list",
-    "editAssembly": "Edit assembly",
+    "subtitle": "Vertical development of mandates and assemblies held.",
     "agenda": "Agenda",
-    "noDocumentLinks": "No document links. Use Edit to add them.",
     "members": "Members",
     "viewAll": "View all",
     "selectEvent": "Select an event",
     "clickPrompt": "Click on an event in the timeline to see details above.",
-    "legend": {
-      "assemblies": "Assemblies",
-      "admissions": "Admissions",
-      "resignations": "Resignations"
-    },
-    "help": "Explore the history of the association. Click on an event in the timeline to see details in the top panel (Agenda, links, members). Year and months remain vertically oriented for optimal scrolling."
+    "pendingVerbal": "Verbal Production Needed",
+    "complianceError": "ODG Integrity Violation",
+    "eventDetail": "Event Detail"
   },
   "assemblies": {
-    "labels": {
-      "boardCouncil": "BC n. {{number}} ({{date}})",
-      "assembly": "Ass. n. {{number}}/{{year}} ({{date}})"
+    "selectAssembly": "Select Assembly",
+    "noSecondAssembly": "No Second Assembly",
+    "agenda": "Agenda",
+    "modes": {
+      "in_person": "In Person",
+      "remote": "Remote",
+      "hybrid": "Hybrid"
     }
   }
 }

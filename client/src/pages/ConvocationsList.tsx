@@ -290,8 +290,8 @@ const ConvocationsList = () => {
           </div>
 
           <div className="md:col-span-2">
-            <label className="block text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">{t('common.notes')}</label>
-            <textarea value={form.notes} onChange={(e) => updateForm('notes', e.target.value)} rows={2} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" placeholder={t('convocations.notesPlaceholder')} />
+            <label className="block text-xs text-slate-500 font-semibold uppercase tracking-wide mb-1">{t('common.fields.notes')}</label>
+            <textarea value={form.notes} onChange={(e) => updateForm('notes', e.target.value)} rows={2} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" placeholder={t('common.fields.notesPlaceholder')} />
           </div>
         </div>
 
@@ -347,21 +347,21 @@ const ConvocationsList = () => {
                   </div>
                 </th>
                 <th className="px-6 py-4 font-semibold">{t('convocations.linkedAssemblies', { defaultValue: 'Linked Assemblies' })}</th>
-                <th className="px-6 py-4 font-semibold">{t('common.document')} / {t('common.notes')}</th>
+                <th className="px-6 py-4 font-semibold">{t('common.document')} / {t('common.fields.notes')}</th>
                 <th className="px-6 py-4 font-semibold text-right">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
               {loading ? (
                 <tr>
-                   <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
-                     <div className="flex items-center justify-center space-x-2">
-                        <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                        <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                        <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce"></div>
-                     </div>
-                     <span className="mt-2 block">{t('common.loading')}</span>
-                   </td>
+                  <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-amber-600 rounded-full animate-bounce"></div>
+                    </div>
+                    <span className="mt-2 block">{t('common.loading')}</span>
+                  </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-500 italic">{t('convocations.noResults', { defaultValue: 'No convocations.' })}</td></tr>
@@ -397,7 +397,7 @@ const ConvocationsList = () => {
                         <button type="button" onClick={() => startEdit(c)} className="p-1.5 text-slate-300 hover:bg-slate-800 rounded" title={t('common.edit')}>
                           <Pencil size={18} />
                         </button>
-                        <button type="button" onClick={() => handleDelete(c.id)} className="p-1.5 text-red-400 hover:bg-red-950/30 rounded" title={t('common.delete')}>
+                        <button type="button" onClick={() => handleDelete(c.id)} className="p-1.5 text-red-400 hover:bg-red-950/30 rounded" title={t('common.actions.delete')}>
                           <Trash2 size={18} />
                         </button>
                       </div>

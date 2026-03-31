@@ -11,6 +11,7 @@
     "dev:staging":    "concurrently -n client,server -c cyan,yellow \"npm run dev -w client\" \"npm run dev:staging -w server\"",
     "dev:production": "concurrently -n client,server -c cyan,yellow \"npm run dev -w client\" \"npm run dev:production -w server\"",
     "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
     "deploy:client":          "npm run deploy -w client",
     "deploy:client:staging":  "npm run deploy:staging -w client",
     "deploy:server":          "npm run deploy -w server",
@@ -19,9 +20,15 @@
     "deploy":                 "npm run deploy:server && npm run deploy:client",
     "release:patch": "npm version patch -m \"chore: release v%s\"",
     "release:minor": "npm version minor -m \"chore: release v%s\"",
-    "release:major": "npm version major -m \"chore: release v%s\""
+    "release:major": "npm version major -m \"chore: release v%s\"",
+    "prepare": "husky || true"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "lint-staged": {
+    "client/src/**/*.{ts,tsx}": "eslint --fix"
   }
 }

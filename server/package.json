@@ -2,6 +2,7 @@
   "name": "gestionale-server",
   "version": "1.0.0",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "dev":            "wrangler dev src/index.ts --inspector-port 9229",
     "dev:staging":    "wrangler dev src/index.ts --env staging --remote --inspector-port 9229",
     "dev:production": "wrangler dev src/index.ts --env production --remote --inspector-port 9229",

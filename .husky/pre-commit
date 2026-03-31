@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# Lint & auto-fix staged TypeScript/React files (client only — server has no ESLint)
+npx lint-staged
+
+# TypeScript type-check both workspaces
+npm run typecheck -w client
+npm run typecheck -w server

@@ -8,5 +8,6 @@ export default defineConfig({
   dbCredentials: {
     accountId: 'PLACEHOLDER', // This is used for remote, for local it works via wrangler
     databaseId: 'PLACEHOLDER',
+    token: 'PLACEHOLDER',
   }
 });

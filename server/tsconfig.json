@@ -7,5 +7,7 @@
     "skipLibCheck": true,
     "lib": ["ESNext"],
     "types": ["@cloudflare/workers-types"]
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["scripts", "drizzle.config.ts", "node_modules"]
 }

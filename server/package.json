@@ -1,0 +1,50 @@
+{
+  "name": "gestionale-server",
+  "version": "1.0.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "dev": "wrangler dev src/index.ts --inspector-port 9229",
+    "dev:staging": "wrangler dev src/index.ts --env staging --inspector-port 9229",
+    "dev:production": "wrangler dev src/index.ts --env production --inspector-port 9229",
+    "dev:production:snapshot": "wrangler dev src/index.ts --env production --remote --inspector-port 9229",
+    "deploy:staging": "wrangler deploy src/index.ts --env staging",
+    "deploy": "wrangler deploy src/index.ts --env production",
+    "db:generate": "cross-env ENVIRONMENT=dev drizzle-kit generate",
+    "db:generate:staging": "cross-env ENVIRONMENT=staging drizzle-kit generate",
+    "db:generate:prod": "cross-env ENVIRONMENT=production drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply gestionale-ets-db --local",
+    "db:migrate:staging": "wrangler d1 migrations apply gestionale-ets-db-staging --remote --env staging",
+    "db:migrate:production": "wrangler d1 migrations apply gestionale-ets-db --remote --env production",
+    "db:seed:common": "node scripts/apply-seeds.mjs drizzle/seeds/common",
+    "db:seed:dev": "node scripts/apply-seeds.mjs drizzle/seeds/dev",
+    "db:reset:local": "node scripts/db-reset-local.mjs",
+    "db:reset:staging": "node scripts/db-reset-staging.mjs",
+    "db:snapshot": "node scripts/db-snapshot.mjs",
+    "test": "npm run test:unit && npm run test:integration && npm run test:api",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:watch": "vitest watch tests/integration",
+    "test:api:single_org": "DEPLOYMENT_MODE=single_org npm run dev:test &",
+    "test:api:open": "DEPLOYMENT_MODE=open npm run dev:test &",
+    "test:api:invite_only": "DEPLOYMENT_MODE=invite_only npm run dev:test &",
+    "test:api:closed": "DEPLOYMENT_MODE=closed npm run dev:test &",
+    "dev:test": "wrangler dev src/index.ts --config wrangler.test.json"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.30.0",
+    "drizzle-zod": "^0.5.0",
+    "fflate": "^0.8.2",
+    "hono": "^4.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240000.0",
+    "cross-env": "^10.1.0",
+    "drizzle-kit": "^0.21.0",
+    "miniflare": "^3.0.0",
+    "newman": "^6.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "wrangler": "^4.75.0"
+  }
+}

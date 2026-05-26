@@ -1,0 +1,178 @@
+{
+  "info": {
+    "_postman_id": "invite-only-mode-tests",
+    "name": "Invite-Only Mode API Tests",
+    "description": "API contract tests for DEPLOYMENT_MODE=invite_only. Verify token-gated org creation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup First Organization (No Token Required)",
+      "item": [
+        {
+          "name": "Get Setup Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/setup/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup", "token"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Token endpoint works', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Token captured', function() {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('setupToken', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create First Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{setupToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"invite-first-{{$timestamp}}\",\n  \"name\": \"First Organization\",\n  \"shortName\": \"FirstOrg\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/setup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('First org creation succeeds (no token required)', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Organization created with ID', function() {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('org1Id', json.organization.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Attempt Second Organization (Should Require Token)",
+      "item": [
+        {
+          "name": "Attempt Signup Without Token → 401",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"invite-second-{{$timestamp}}\",\n  \"name\": \"Second Organization\",\n  \"shortName\": \"SecondOrg\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/setup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Signup without token is rejected in invite_only mode', function() {",
+                  "  pm.response.to.have.status(401);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Attempt Signup With Invalid Token → 403",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer invalid-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"invite-invalid-{{$timestamp}}\",\n  \"name\": \"Invalid Token Org\",\n  \"shortName\": \"InvalidToken\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/setup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid invite token is rejected', function() {",
+                  "  pm.response.to.have.status(403);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8787",
+      "type": "string"
+    },
+    {
+      "key": "setupToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "org1Id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

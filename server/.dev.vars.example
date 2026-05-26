@@ -1,0 +1,34 @@
+# Copy this file to .dev.vars and fill in the values for local development
+# These values are only used by wrangler dev (never deployed to Cloudflare)
+# DO NOT commit .dev.vars to git—it's in .gitignore
+
+# ─── REQUIRED ─────────────────────────────────────────────────────────────────
+JWT_SECRET=change-me-local-dev-secret
+
+# ─── CORS & DEPLOYMENT ─────────────────────────────────────────────────────────
+CORS_ORIGIN=http://localhost:5173
+DEPLOYMENT_MODE=open
+
+# ─── APP URLS ─────────────────────────────────────────────────────────────────
+# Backend URL (used by frontend for OAuth redirects)
+GOOGLE_REDIRECT_BASE_URL=http://localhost:8787
+# Frontend URL (used by backend for post-OAuth redirects)
+APP_URL=http://localhost:5173
+
+# ─── GOOGLE OAUTH (Option A: OAuth credentials) ────────────────────────────────
+# For personal Google accounts or Google Workspace with OAuth flow
+# Get these from Google Cloud Console (APIs & Services > Credentials)
+GOOGLE_CLIENT_ID=your-client-id-here.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+GOOGLE_REFRESH_TOKEN=your-refresh-token-here
+
+# ─── GOOGLE SERVICE ACCOUNT (Option B: Service Account) ───────────────────────
+# For Google Workspace / Shared Drives (mutually exclusive with Option A)
+# Download the JSON key from Google Cloud Console and paste the entire JSON here
+GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"..."}
+
+# ─── GOOGLE DRIVE TEMPLATES ──────────────────────────────────────────────────
+# Folder IDs for document templates and generated output
+# Get from the URL of the Google Drive folder: https://drive.google.com/drive/folders/{ID}
+TEMPLATE_FOLDER_ID=your-google-drive-folder-id
+OUTPUT_FOLDER_ID=your-google-drive-folder-id

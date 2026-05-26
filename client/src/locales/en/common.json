@@ -1,0 +1,612 @@
+{
+  "common": {
+    "actions": {
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "confirm": "Confirm",
+      "open": "Open",
+      "close": "Close",
+      "viewAll": "View all",
+      "select": "Select",
+      "backToList": "Back to list",
+      "editProfile": "Edit Profile",
+      "resign": "Resign",
+      "new": "New",
+      "create": "Create"
+    },
+    "status": {
+      "yes": "Yes",
+      "no": "No",
+      "today": "Today",
+      "ongoing": "Ongoing",
+      "loading": "Loading...",
+      "error": "Error",
+      "success": "Success",
+      "loadingDetails": "Loading details...",
+      "resultsFound": "Found {{count}} results",
+      "all": "All",
+      "loadingActive": "Loading active members...",
+      "activeMembers": "Active Members",
+      "noActiveMembersFound": "No active members found",
+      "noResultsFound": "No results found",
+      "saving": "Saving...",
+      "adding": "Adding...",
+      "errorSaving": "Error saving..."
+    },
+    "fields": {
+      "date": "Date",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "notes": "Notes",
+      "notesPlaceholder": "Notes...",
+      "version": "Version",
+      "signed": "Signed",
+      "searchPlaceholder": "Search by name or surname...",
+      "since": "Since",
+      "resignationDate": "Resignation Date",
+      "reason": "Reason",
+      "addedOn": "Added on",
+      "label": "Label",
+      "documentLink": "Document Link",
+      "sentAt": "Sent at",
+      "documents": "Documents",
+      "document": "Document",
+      "actions": "Actions",
+      "location": "Location",
+      "details": "Details",
+      "mode": "Mode",
+      "president": "President",
+      "secretary": "Secretary",
+      "type": "Type",
+      "time": "Time",
+      "referenceNumber": "Ref. Number",
+      "referenceYear": "Ref. Year",
+      "select": "Select..."
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "people": "People",
+    "volunteers": "Volunteers",
+    "members": "Members",
+    "board": "Board",
+    "assemblies": "Assemblies",
+    "compliance": "Compliance",
+    "timeline": "Timeline",
+    "resignations": "Resignations",
+    "settings": "Settings",
+    "convocations": "Convocations",
+    "retention": "Data Retention",
+    "documents": "Documents"
+  },
+  "board": {
+    "title": "Board of Directors",
+    "subtitle": "Historical record of mandates and composition of the Board of Directors.",
+    "newGeneration": "New Mandate",
+    "generation": "Mandate",
+    "composition": "Board Composition",
+    "addMember": "Add Member",
+    "noGenerations": "No mandates registered.",
+    "noMembers": "No members assigned to this mandate.",
+    "roles": {
+      "president": "President",
+      "vice_president": "Vice President",
+      "treasurer": "Treasurer",
+      "secretary": "Secretary",
+      "councilor": "Councilor"
+    }
+  },
+  "compliance": {
+    "title": "Compliance & Documents",
+    "subtitle": "Management of mandatory documentation and responsibility roles.",
+    "documentsTitle": "Documents",
+    "documentsSubtitle": "NDAs, privacy, enrollment and membership forms.",
+    "addDocument": "Add Document",
+    "editDocument": "Edit Document",
+    "deleteDocument": "Delete Document",
+    "documentType": "Document Type",
+    "driveUrl": "Drive URL",
+    "openDriveLink": "Open Drive link",
+    "states": {
+      "isCurrent": "Current",
+      "isSigned": "Signed",
+      "isDated": "Dated",
+      "isComplete": "Complete",
+      "isDigital": "Digital"
+    },
+    "tooltips": {
+      "isCurrent": "Indicates if this is the latest active version of the document.",
+      "isSigned": "Indicates if the document has been physically or digitally signed.",
+      "isDated": "Indicates if the document includes a correct issuance date.",
+      "isComplete": "Indicates if all required fields of the form have been filled.",
+      "isDigital": "Indicates if the document was filled digitally (checked) or filled by hand and scanned (unchecked)."
+    },
+    "alerts": {
+      "missing_document": "{{label}} missing",
+      "privacy_outdated": "Privacy on OLD module",
+      "document_flag": "Problem on {{label}}",
+      "document_version_outdated": "{{label}} version outdated",
+      "missing_tax_id": "Volunteer without Tax ID",
+      "missing_contacts": "Person without contact info",
+      "consent_not_recorded": "Consent not recorded ({{label}})",
+      "consent_withdrawn": "Consent withdrawn ({{label}})",
+      "consent_outdated_version": "Consent on outdated policy version ({{label}})",
+      "volunteer_register_not_registered": "Not recorded in the physical volunteer register",
+      "volunteer_register_exit_not_recorded": "Exit not updated in the physical volunteer register",
+      "volunteer_register_start_date_mismatch": "Start date mismatch between digital and physical register",
+      "volunteer_register_end_date_mismatch": "Exit date mismatch between digital and physical register",
+      "fix": "Fix",
+      "suppress": "Suppress",
+      "reactivate": "Reactivate",
+      "activeAlerts": "Active Alerts",
+      "activeAlertsSubtitle": "Current issues with data or documents.",
+      "noActiveAlerts": "No active alerts.",
+      "suppressedAlerts": "Suppressed Alerts",
+      "suppressedAlertsSubtitle": "Known issues temporarily excluded from the active view.",
+      "noSuppressedAlerts": "No suppressed alerts.",
+      "suppressAlert": "Suppress Alert",
+      "reason": "Reason"
+    },
+    "groups": {
+      "missing_nda": "Missing NDAs",
+      "missing_form": "Missing Forms",
+      "privacy": "Privacy",
+      "consent": "Consent Records",
+      "incomplete_profile": "Incomplete Profile",
+      "missing_contacts": "Missing Contacts",
+      "problematic_documents": "Problematic Documents",
+      "outdated_documents": "Outdated Documents",
+      "volunteer_register": "Physical Volunteer Register",
+      "other": "Other"
+    },
+    "badges": {
+      "superseded": "Superseded",
+      "outdatedVersion": "Outdated version — consents need re-collection",
+      "consentsNotRecorded": "Consents not recorded"
+    },
+    "gdprDataProcessingNote": "Data processing consent is no longer required — legal basis: membership contract (Art. 6(1)(b) GDPR)"
+  },
+  "people": {
+    "person": "Person",
+    "personalDetails": "Personal Details",
+    "taxId": "Tax ID",
+    "gender": "Gender",
+    "profession": "Profession",
+    "occupationStatus": "Occupation Status",
+    "student": "Student",
+    "employee": "Employee",
+    "matricola": "Matricola",
+    "phone": "Phone",
+    "contacts": "Contacts",
+    "identifiers": "Identifiers",
+    "registerResignation": "Register Resignation",
+    "confirmResignation": "You are recording the resignation of {{name}}.",
+    "rolesAndResponsibilities": "Roles & Responsibilities",
+    "activeOperationalRoles": "Active Operational Roles",
+    "noActiveRoles": "No active roles assigned",
+    "volunteer": "Volunteer",
+    "member": "Member",
+    "filters": {
+      "all": "All",
+      "members": "Members",
+      "volunteers": "Volunteers",
+      "active": "Active",
+      "resigned": "Resigned",
+      "recent": "Last 6 months"
+    },
+    "notVolunteer": "Not Volunteer",
+    "notMember": "Not Member",
+    "status": {
+      "active": "Active",
+      "resigned": "Resigned",
+      "pendingResignation": "Pending Resignation"
+    },
+    "addRole": "Add Role",
+    "consents": {
+      "third_party": "Third-Party Communication Consent",
+      "image_use": "Image Usage Consent"
+    }
+  },
+  "timeline": {
+    "title": "Historical Timeline",
+    "subtitle": "Vertical development of mandates and assemblies held.",
+    "agenda": "Agenda",
+    "members": "Members",
+    "viewAll": "View all",
+    "selectEvent": "Select an event",
+    "clickPrompt": "Click on an event in the timeline to see details above.",
+    "pendingVerbal": "Verbal Production Needed",
+    "complianceError": "ODG Integrity Violation",
+    "eventDetail": "Event Detail",
+    "assemblyTypes": {
+      "board_council": "Board Council",
+      "ordinary": "Ordinary Assembly",
+      "extraordinary": "Extraordinary Assembly",
+      "constitution": "Constitutional Assembly"
+    },
+    "assemblyLabels": {
+      "board_council_n": "Board Council n. {{number}}",
+      "ordinary_n_year": "Ordinary Assembly n. {{number}}/{{year}}",
+      "extraordinary_n_year": "Extraordinary Assembly n. {{number}}/{{year}}",
+      "constitution": "Constitutional Assembly",
+      "assembly_n": "Assembly n. {{total}}"
+    },
+    "membershipEvents": {
+      "admission": "Admission: {{name}}",
+      "resignation": "Resignation: {{name}}"
+    },
+    "pendingVerbals": {
+      "admission": "Expected Admission Meeting Minutes ({{count}})",
+      "resignation": "Expected Resignation Meeting Minutes ({{count}})",
+      "descriptionAdmission": "Meeting minutes for the admission of: {{names}} must still be produced or linked.",
+      "descriptionResignation": "Meeting minutes for the resignation of: {{names}} must still be produced or linked."
+    },
+    "complianceErrors": {
+      "stealthChange": "Stealth {{type}}: {{name}}",
+      "descriptionStealthChange": "This {{type}} occurred between the convocation ({{convocationDate}}) and the session ({{sessionDate}}) of {{assemblyName}}.",
+      "missingDocumentLink": "No document link (Google Doc / PDF). Meeting minutes not produced."
+    },
+    "session": "Session",
+    "pending": "Pending",
+    "copyMembers": "Copy members list",
+    "editAssembly": "Edit assembly",
+    "noDocumentLinks": "No document links available",
+    "legend": {
+      "assemblies": "Assemblies",
+      "admissions": "Admissions",
+      "resignations": "Resignations",
+      "pending": "Pending Verbals",
+      "error": "Compliance Errors"
+    },
+    "help": "Click on any event in the timeline to see detailed information. The timeline shows all assembly sessions, member admissions and resignations, compliance issues, and pending documentation requirements.",
+    "labels": {
+      "admission_short": "Adm.",
+      "resignation_short": "Res.",
+      "assembly_abbreviated": "Ass.",
+      "assembly_ordinary_short": "Ord",
+      "assembly_extraordinary_short": "Extr",
+      "board_council_short": "[BD]",
+      "members_count": "Members: {{count}}"
+    }
+  },
+  "assemblies": {
+    "selectAssembly": "Select Assembly",
+    "noSecondAssembly": "No Second Assembly",
+    "agenda": "Agenda",
+    "subtitle": "Historical record of meetings and resolutions.",
+    "newAssembly": "New Assembly",
+    "types": {
+      "ordinary": "Ordinary Assembly",
+      "extraordinary": "Extraordinary Assembly",
+      "board_council": "Board Council",
+      "constitution": "Assemblea Costitutiva"
+    },
+    "modes": {
+      "in_person": "In Person",
+      "remote": "Remote",
+      "hybrid": "Hybrid"
+    },
+    "labels": {
+      "assembly": "Assembly",
+      "convocation": "Convocation",
+      "document": "Document",
+      "notes": "Notes",
+      "actions": "Actions"
+    },
+    "convocations": {
+      "addConvocation": "add Convocation",
+      "editConvocation": "Edit convocation",
+      "saveConvocation": "Save convocation"
+    },
+    "depositedOnRunts": "Deposited on RUNTS",
+    "signedPdf": "PDF (signed)",
+    "notFound": "Assembly not found"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Backoffice for administrators, roles, permissions and account security.",
+    "branding": {
+      "title": "Organization Identity",
+      "description": "Configure logo, name and base texts to make the project reusable for other organizations.",
+      "currentCustomization": "Current customization of the management system. If saving is rejected, the backend recognizes your user as not `core_admin`.",
+      "noLogoUploaded": "No logo uploaded",
+      "uploadLogo": "Upload logo",
+      "removeLogo": "Remove logo",
+      "fullOrganizationName": "Full organization name",
+      "fullOrganizationNamePlaceholder": "e.g. Dialogue Explore Bond APS",
+      "shortName": "Short name",
+      "shortNamePlaceholder": "e.g. DEB",
+      "loginDomain": "Login domain",
+      "loginDomainPlaceholder": "e.g. deb.org",
+      "tagline": "Tagline",
+      "taglinePlaceholder": "e.g. Association management",
+      "supportEmail": "Support email",
+      "supportEmailPlaceholder": "e.g. admin@deb.org",
+      "previewTitle": "Preview",
+      "previewShortNameDefault": "Short Name Gestionale",
+      "previewOrganizationNameDefault": "Full Organization Name",
+      "accessDomain": "Access domain: {{domain}}",
+      "saveCustomization": "Save customisation"
+    },
+    "users": {
+      "inviteUser": "Invite user",
+      "title": "Administrative Users",
+      "description": "Backoffice access management with role and permission array.",
+      "addUser": "Add user",
+      "loadingUsers": "Loading users...",
+      "noUsers": "No users configured.",
+      "newUserModalTitle": "New admin/backoffice user",
+      "emailPlaceholder": "Email",
+      "initialPasswordPlaceholder": "Initial password",
+      "createUser": "Create user",
+      "saveUserButton": "Save user",
+      "resetPasswordSectionTitle": "Reset user password",
+      "resetPasswordPlaceholder": "New password",
+      "confirmResetPasswordPlaceholder": "Confirm new password",
+      "resetPasswordErrorMissing": "Enter a new password and confirmation.",
+      "resetPasswordErrorMismatch": "Passwords do not match.",
+      "resetPasswordButton": "Reset password",
+      "deleteUserSectionTitle": "Delete user",
+      "deleteUserButton": "Delete user"
+    },
+    "password": {
+      "title": "Account security",
+      "description": "Update your account password.",
+      "currentPasswordPlaceholder": "Current password",
+      "newPasswordPlaceholder": "New password",
+      "confirmPasswordPlaceholder": "Confirm new password",
+      "updatePassword": "Update password"
+    },
+    "inviteUser": {
+      "title": "Invite User",
+      "emailLabel": "Email (Optional)",
+      "emailHint": "If specified, only this user can use the invite.",
+      "roleLabel": "Role *",
+      "roles": {
+        "admin": "Administrator",
+        "manager": "Manager",
+        "viewer": "Viewer"
+      },
+      "howItWorks": "How it works:",
+      "step1": "Share the invite link with the user",
+      "step2": "The user accepts and logs in with Google or email/password",
+      "step3": "The invite expires after 72 hours",
+      "step4": "Can be used only once",
+      "createButton": "Create Invite",
+      "cancelButton": "Cancel",
+      "createdTitle": "Invite Created",
+      "createdMessage": "The invite was created successfully. Share the link with the user.",
+      "copyButton": "Copy Link",
+      "copiedButton": "Copied!",
+      "newInviteButton": "New Invite",
+      "closeButton": "Close",
+      "errorCreating": "Error creating the invite."
+    },
+    "addresses": {
+      "title": "Legal Headquarters",
+      "description": "History of the organization legal headquarters addresses.",
+      "addAddress": "Add address",
+      "addressPlaceholder": "Full address (e.g. Via Roma 1, 00100 Roma (RM))",
+      "effectiveFrom": "Effective from",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "Notes",
+      "addressAndDateRequired": "Address and date are required.",
+      "addressAdded": "Address added.",
+      "errorSaving": "Error saving address.",
+      "save": "Save",
+      "loading": "Loading…",
+      "noAddresses": "No addresses registered.",
+      "address": "Address",
+      "notes": "Notes",
+      "actions": "Actions",
+      "currentLabel": "(current)",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Confirm deletion of this address?",
+      "errorUpdating": "Error updating address.",
+      "errorDeleting": "Error deleting address."
+    },
+    "compliance": {
+      "title": "Compliance Rules",
+      "description": "Define compliance document types, roles, inheritance, and base requirements. Changes are saved to the database and take effect immediately.",
+      "warning": "⚠ These rules drive the compliance engine. Changing them affects alerts for all people in the system.",
+      "labelsInfo": "Labels should be i18n keys (e.g. {{example}}) that exist in your locale files.",
+      "sections": {
+        "documentTypes": "Document Types",
+        "documentTypesSubtitle": "Define all compliance document types. Each key is the internal identifier (e.g. nda_dia).",
+        "roles": "Roles",
+        "rolesSubtitle": "Define compliance roles and the documents they require. Roles can inherit requirements from other roles.",
+        "baseRequirements": "Base Requirements",
+        "baseRequirementsSubtitle": "Documents required for all persons based on their status (volunteer, member, board)."
+      },
+      "fields": {
+        "labelI18nKey": "Label (i18n key)",
+        "description": "Description",
+        "consentTypes": "Consent Types (comma-separated, e.g. third_party,image_use)",
+        "availableVersions": "Available Versions (comma-separated, optional)",
+        "currentRequiredVersion": "Current Required Version",
+        "requiredDocuments": "Required Documents",
+        "inheritsFrom": "Inherits From",
+        "key": "Key (snake_case)",
+        "none": "None",
+        "noInheritance": "No inheritance"
+      },
+      "baseRequirementsContexts": {
+        "volunteer": "VOLUNTEER",
+        "member": "MEMBER (SOCIO)",
+        "boardMember": "BOARD MEMBER"
+      },
+      "forms": {
+        "newDocumentType": "New Document Type",
+        "newRole": "New Role",
+        "addDocumentType": "Add Document Type",
+        "addRole": "Add Role",
+        "add": "Add",
+        "cancel": "Cancel",
+        "keyAlreadyExists": "Key \"{{key}}\" already exists.",
+        "keyRequired": "Key is required."
+      },
+      "delete": {
+        "deleteRole": "Delete Role",
+        "deleteDocumentType": "Delete Document Type",
+        "roleConfirmation": "This role will be removed from the compliance rules. Remember to save after confirming.",
+        "documentTypeConfirmation": "This document type will be removed from all roles and base requirements. Remember to save after confirming.",
+        "delete": "Delete"
+      },
+      "save": {
+        "savingButton": "Saving...",
+        "saveComplianceRules": "Save Compliance Rules",
+        "successMessage": "Compliance rules saved successfully.",
+        "errorMessage": "Error saving compliance rules."
+      },
+      "preview": "Preview:"
+    },
+    "customization": {
+      "title": "Customization",
+      "description": "Personalize your workspace with themes and organization branding."
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Choose a preset theme or create a custom color scheme.",
+      "hideCustom": "Hide custom theme",
+      "createCustom": "Create custom theme",
+      "customDescription": "Define custom colors (valid CSS values).",
+      "bgPrimary": "Primary background",
+      "bgSecondary": "Secondary background",
+      "textPrimary": "Primary text",
+      "accentPrimary": "Primary accent",
+      "sidebarBg": "Sidebar background",
+      "applyCustom": "Apply custom theme"
+    },
+    "deleteUser": {
+      "title": "Confirm user deletion",
+      "description": "This action will permanently delete the backoffice user. Access will be revoked immediately.",
+      "expectedText": "DELETE {{email}}",
+      "submit": "Delete user"
+    },
+    "roles": {
+      "admin": "Admin",
+      "core_admin": "Core Admin",
+      "manager": "Manager",
+      "viewer": "Viewer"
+    },
+    "permissions": {
+      "groups": {
+        "modules": "Modules",
+        "actions": "Actions",
+        "documents": "Documents"
+      }
+    },
+    "messages": {
+      "emailPasswordRequired": "Email and password are required.",
+      "userCreated": "User created successfully.",
+      "errorCreatingUser": "Error creating user.",
+      "userPasswordReset": "User password reset successfully.",
+      "errorResettingPassword": "Error resetting user password.",
+      "userDeleted": "User deleted successfully.",
+      "errorDeletingUser": "Error deleting user.",
+      "passwordMismatch": "New passwords do not match.",
+      "passwordUpdated": "Password updated successfully.",
+      "errorUpdatingPassword": "Error updating password.",
+      "userUpdated": "User updated successfully.",
+      "errorUpdatingUser": "Error updating user.",
+      "errorUploadingLogo": "Error uploading logo.",
+      "customizationSaved": "Customization updated successfully.",
+      "errorSavingCustomization": "Error saving customization."
+    },
+    "export": {
+      "title": "Export / Backup",
+      "description": "Download org data as TSV files in a ZIP archive.",
+      "selectTables": "Select tables to include:",
+      "exportButton": "Download ZIP",
+      "exporting": "Exporting…",
+      "success": "Export downloaded successfully.",
+      "error": "Export failed. Please try again.",
+      "tables": {
+        "people": "People",
+        "volunteer_periods": "Volunteer Periods",
+        "member_periods": "Member Periods",
+        "board": "Board (Generations & Members)",
+        "assemblies": "Assemblies",
+        "convocations": "Convocations",
+        "organization_settings": "Organization Settings",
+        "compliance_documents": "Compliance Documents",
+        "compliance_roles": "Compliance Roles"
+      }
+    },
+    "import": {
+      "title": "Import / Restore",
+      "description": "Upload a previously exported ZIP file to restore org data.",
+      "selectFile": "Select file to import:",
+      "chooseFile": "Choose ZIP file",
+      "selectTables": "Tables will be imported from the ZIP.",
+      "importButton": "Upload & Import",
+      "importing": "Importing…",
+      "success": "Import completed successfully.",
+      "error": "Import failed. Please check the file and try again.",
+      "invalidFileType": "Please select a valid ZIP file.",
+      "noFileSelected": "Please select a file to import.",
+      "warning": "This will overwrite existing records with matching IDs. Make sure you are importing the correct backup.",
+      "tables": {
+        "people": "People",
+        "volunteer_periods": "Volunteer Periods",
+        "member_periods": "Member Periods",
+        "board": "Board (Generations & Members)",
+        "assemblies": "Assemblies",
+        "convocations": "Convocations",
+        "organization_settings": "Organization Settings",
+        "compliance_documents": "Compliance Documents",
+        "compliance_roles": "Compliance Roles"
+      }
+    }
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "invalidCredentials": "Invalid email or password."
+  },
+  "retention": {
+    "title": "Data Retention",
+    "subtitle": "Analysis of data retention obligations. Indicates who can be removed from the association's history, who requires regularization, and who is permanently anchored.",
+    "recompute": "Recompute all",
+    "legendTitle": "How flags are computed",
+    "libroVol": "Vol. Register",
+    "missing": "Missing",
+    "showLess": "Show less",
+    "showAll": "Show all ({{count}})",
+    "groups": {
+      "canRemove": "Can be removed",
+      "canRemoveDesc": "No retention obligation. Safe to delete these records.",
+      "regularize": "Needs regularization",
+      "regularizeDesc": "Active retention obligations, but incomplete profile. Must be completed before removal can be considered.",
+      "anchored": "Permanently anchored",
+      "anchoredDesc": "Active retention obligations. Profile is complete — no action required."
+    },
+    "legend": {
+      "canRemoveDesc": "No retention obligation: not in any RUNTS-deposited minutes, not in the physical volunteer register (or 10 years have elapsed), no active roles.",
+      "regularizeDesc": "Anchored but has incomplete personal data (Tax ID, email or phone missing).",
+      "anchoredDesc": "Has retention obligations and complete data.",
+      "flagNote": "The {{runts}} and {{libro}} badges indicate the reason for anchoring."
+    },
+    "totals": {
+      "total": "Total",
+      "canRemove": "Removable",
+      "regularize": "To regularize",
+      "anchored": "Anchored"
+    },
+    "libroNote": "The \"Physical Volunteer Register\" field and its entry/exit dates are configured on each person's profile.",
+    "runtsNote": "The \"Deposited on RUNTS\" flag is set on the assembly meeting note. Recomputing updates the flags for all attendees automatically.",
+    "libroTitle": "Physical Volunteer Register (Libro Volontari)",
+    "inLibro": "Appears in the physical volunteer register",
+    "inLibroYes": "In the physical volunteer register",
+    "inLibroNo": "Not in the physical volunteer register",
+    "libroStartDate": "Entry date (start)",
+    "libroEndDate": "Exit date (leave blank if still active)"
+  }
+}

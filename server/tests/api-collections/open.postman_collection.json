@@ -1,0 +1,186 @@
+{
+  "info": {
+    "_postman_id": "open-mode-tests",
+    "name": "Open Mode API Tests",
+    "description": "API contract tests for DEPLOYMENT_MODE=open. Verify unlimited organization creation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup First Organization",
+      "item": [
+        {
+          "name": "Get Setup Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/setup/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup", "token"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Get token succeeds', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Token captured for next request', function() {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('setupToken', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create First Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{setupToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"first-org-{{$timestamp}}\",\n  \"name\": \"First Organization\",\n  \"shortName\": \"FirstOrg\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/setup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('First org creation succeeds', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Organization returned with ID', function() {",
+                  "  const json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('organization');",
+                  "  pm.environment.set('org1Id', json.organization.id);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Create Additional Organizations",
+      "item": [
+        {
+          "name": "Get Signup Token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/setup/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup", "token"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Token endpoint still works', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Signup token captured', function() {",
+                  "  const json = pm.response.json();",
+                  "  pm.environment.set('signupToken', json.token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Second Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{signupToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"second-org-{{$timestamp}}\",\n  \"name\": \"Second Organization\",\n  \"shortName\": \"SecondOrg\",\n  \"password\": \"SecurePassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/setup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Second org creation succeeds (open mode allows it)', function() {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Second org has different ID', function() {",
+                  "  const json = pm.response.json();",
+                  "  const org2Id = json.organization.id;",
+                  "  pm.expect(org2Id).to.not.equal(pm.environment.get('org1Id'));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8787",
+      "type": "string"
+    },
+    {
+      "key": "setupToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "signupToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "org1Id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

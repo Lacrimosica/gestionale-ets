@@ -1,0 +1,30 @@
+name = "gestionale-server"
+compatibility_date = "2024-03-01"
+compatibility_flags = ["nodejs_compat"]
+
+# ─── LOCAL DEV ────────────────────────────────────────────────────────────────
+# Used by: npm run dev
+# Database: local SQLite emulator (no network, reset-safe)
+# Secrets: overridden by .dev.vars
+
+[vars]
+# CORS_ORIGIN = "http://localhost:5173"
+# DEPLOYMENT_MODE = "open"
+# JWT_SECRET               → comes from .dev.vars locally, never hardcoded here
+# GOOGLE_SERVICE_ACCOUNT_KEY → wrangler secret put GOOGLE_SERVICE_ACCOUNT_KEY
+# TEMPLATE_FOLDER_ID and OUTPUT_FOLDER_ID are now stored in DB settings (Settings → Documents)
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db"
+database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
+migrations_dir = "drizzle/migrations/dev"
+
+[observability]
+enabled = true
+
+# ─── ENVIRONMENT-SPECIFIC CONFIGS ─────────────────────────────────────────────
+# Staging and production configs are in separate files:
+#   - wrangler.staging.toml
+#   - wrangler.prod.toml
+# These files are NOT committed to git (.gitignore)

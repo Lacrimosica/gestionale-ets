@@ -1,0 +1,36 @@
+{
+  "name": "gestionale-ets-root",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev":            "concurrently -n client,server -c cyan,yellow \"npm run dev -w client\" \"npm run dev -w server\"",
+    "dev:staging":    "concurrently -n client,server -c cyan,yellow \"npm run dev -w client\" \"npm run dev:staging -w server\"",
+    "dev:production": "concurrently -n client,server -c cyan,yellow \"npm run dev -w client\" \"npm run dev:production -w server\"",
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "deploy:client":          "npm run deploy -w client",
+    "deploy:client:staging":  "npm run deploy:staging -w client",
+    "deploy:server":          "npm run deploy -w server",
+    "deploy:server:staging":  "npm run deploy:staging -w server",
+    "deploy:staging":         "npm run deploy:server:staging && npm run deploy:client:staging",
+    "deploy:production":      "npm run deploy:server && npm run deploy:client",
+    "deploy":                 "npm run deploy:production",
+    "deploy:all":             "npm run deploy:staging && npm run deploy:production",
+    "release:patch": "npm version patch -m \"chore: release v%s\"",
+    "release:minor": "npm version minor -m \"chore: release v%s\"",
+    "release:major": "npm version major -m \"chore: release v%s\"",
+    "prepare": "husky || true"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.0.0"
+  },
+  "lint-staged": {
+    "client/src/**/*.{ts,tsx}": "npx -w client eslint --fix"
+  }
+}

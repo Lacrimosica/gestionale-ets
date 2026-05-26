@@ -1,0 +1,147 @@
+{
+  "info": {
+    "_postman_id": "closed-mode-tests",
+    "name": "Closed Mode API Tests",
+    "description": "API contract tests for DEPLOYMENT_MODE=closed. Verify all setup endpoints are locked.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Setup Locked",
+      "item": [
+        {
+          "name": "Get Setup Token → 423 Locked",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/setup/token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup", "token"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Setup token endpoint is locked in closed mode', function() {",
+                  "  pm.response.to.have.status(423);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Setup Status → 423 Locked",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/setup/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup", "status"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Setup status endpoint is locked in closed mode', function() {",
+                  "  pm.response.to.have.status(423);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST Setup → 423 Locked",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer dummy-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"any-slug\",\n  \"name\": \"Any Organization\",\n  \"shortName\": \"AnyOrg\",\n  \"password\": \"AnyPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/setup",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "setup"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Setup endpoint is locked in closed mode', function() {",
+                  "  pm.response.to.have.status(423);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Existing Users Still Work",
+      "item": [
+        {
+          "name": "Login with Existing Credentials → 200",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"existing-user@example.com\",\n  \"password\": \"ExistingPassword123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Existing users can still login (if credentials valid)', function() {",
+                  "  // 200 if valid, 401 if invalid — both are expected behavior",
+                  "  const status = pm.response.code;",
+                  "  pm.expect([200, 401]).to.include(status);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8787",
+      "type": "string"
+    }
+  ]
+}

@@ -1,0 +1,594 @@
+{
+  "common": {
+    "actions": {
+      "save": "Salva",
+      "saveChanges": "Salva modifiche",
+      "cancel": "Annulla",
+      "delete": "Elimina",
+      "edit": "Modifica",
+      "add": "Aggiungi",
+      "confirm": "Conferma",
+      "open": "Apri",
+      "close": "Chiudi",
+      "viewAll": "Vedi tutti",
+      "select": "Seleziona",
+      "backToList": "Torna alla lista",
+      "editProfile": "Modifica profilo",
+      "resign": "Dimettersi",
+      "new": "Nuovo",
+      "create": "Crea"
+    },
+    "status": {
+      "yes": "Sì",
+      "no": "No",
+      "today": "Oggi",
+      "ongoing": "In corso",
+      "loading": "Caricamento...",
+      "error": "Errore",
+      "success": "Successo",
+      "loadingDetails": "Caricamento dettagli...",
+      "resultsFound": "Trovati {{count}} risultati",
+      "all": "Tutti",
+      "loadingActive": "Caricamento membri attivi...",
+      "activeMembers": "Membri Attivi",
+      "noActiveMembersFound": "Nessun membro attivo trovato",
+      "noResultsFound": "Nessun risultato trovato",
+      "saving": "Salvataggio in corso...",
+      "adding": "Aggiunta in corso...",
+      "errorSaving": "Errore durante il salvataggio..."
+    },
+    "fields": {
+      "date": "Data",
+      "startDate": "Data inizio",
+      "endDate": "Data fine",
+      "notes": "Note",
+      "notesPlaceholder": "Note...",
+      "version": "Versione",
+      "signed": "Firmato",
+      "searchPlaceholder": "Cerca per nome o cognome...",
+      "since": "Da",
+      "resignationDate": "Data dimissioni",
+      "reason": "Motivazione",
+      "addedOn": "Aggiunto il",
+      "label": "Label",
+      "documentLink": "Link documento",
+      "sentAt": "Inviato il",
+      "documents": "Documenti",
+      "document": "Documento",
+      "actions": "Azioni",
+      "location": "Luogo",
+      "details": "Dettagli",
+      "mode": "Modalità",
+      "president": "Presidente",
+      "secretary": "Segretario",
+      "type": "Tipo",
+      "time": "Ora",
+      "referenceNumber": "N. Riferimento",
+      "referenceYear": "Anno Riferimento",
+      "select": "Seleziona..."
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "people": "Anagrafica",
+    "volunteers": "Volontari",
+    "members": "Soci",
+    "board": "Direttivo",
+    "assemblies": "Assemblee",
+    "compliance": "Compliance",
+    "timeline": "Timeline",
+    "resignations": "Dimissioni",
+    "settings": "Impostazioni",
+    "convocations": "Convocazioni",
+    "retention": "Conservazione dati",
+    "documents": "Documenti"
+  },
+  "board": {
+    "title": "Consiglio Direttivo",
+    "subtitle": "Record storico dei mandati e della composizione del Consiglio Direttivo.",
+    "newGeneration": "Nuovo Mandato",
+    "generation": "Mandato",
+    "composition": "Composizione Direttivo",
+    "addMember": "Aggiungi Membro",
+    "noGenerations": "Nessun mandato registrato.",
+    "noMembers": "Nessun membro assegnato a questo mandato.",
+    "roles": {
+      "president": "Presidente",
+      "vice_president": "Vice Presidente",
+      "treasurer": "Tesoriere",
+      "secretary": "Segretario",
+      "councilor": "Consigliere"
+    }
+  },
+  "compliance": {
+    "title": "Compliance e Documenti",
+    "subtitle": "Gestione della documentazione obbligatoria e dei ruoli di responsabilità.",
+    "documentsTitle": "Documenti",
+    "documentsSubtitle": "NDA, privacy, moduli di iscrizione e adesione.",
+    "addDocument": "Aggiungi Documento",
+    "editDocument": "Modifica Documento",
+    "deleteDocument": "Elimina Documento",
+    "documentType": "Tipo Documento",
+    "driveUrl": "Link Drive",
+    "openDriveLink": "Apri link Drive",
+    "states": {
+      "isCurrent": "Corrente",
+      "isSigned": "Firmato",
+      "isDated": "Datato",
+      "isComplete": "Completo",
+      "isDigital": "Digitale"
+    },
+    "tooltips": {
+      "isCurrent": "Indica se questa è l'ultima versione attiva del documento.",
+      "isSigned": "Indica se il documento è stato firmato fisicamente o digitalmente.",
+      "isDated": "Indica se il documento riporta una data di esecuzione corretta.",
+      "isComplete": "Indica se tutti i campi necessari del modulo sono stati compilati.",
+      "isDigital": "Indica se il documento è stato compilato digitalmente (spuntato) oppure compilato a mano e scansionato (non spuntato)."
+    },
+    "alerts": {
+      "missing_document": "{{label}} mancante",
+      "privacy_outdated": "Privacy su modulo VECCHIO",
+      "document_flag": "Problema su {{label}}",
+      "document_version_outdated": "Versione {{label}} obsoleta",
+      "missing_tax_id": "Volontario senza Codice Fiscale",
+      "missing_contacts": "Persona senza contatti (Email/Tel)",
+      "consent_not_recorded": "Consenso non registrato ({{label}})",
+      "consent_withdrawn": "Consenso revocato ({{label}})",
+      "consent_outdated_version": "Consenso su versione policy obsoleta ({{label}})",
+      "volunteer_register_not_registered": "Non registrato nel libro volontari cartaceo",
+      "volunteer_register_exit_not_recorded": "Uscita non aggiornata nel libro volontari cartaceo",
+      "volunteer_register_start_date_mismatch": "Data iscrizione discordante tra registro digitale e cartaceo",
+      "volunteer_register_end_date_mismatch": "Data uscita discordante tra registro digitale e cartaceo",
+      "fix": "Correggi",
+      "suppress": "Sospendi",
+      "reactivate": "Riattiva",
+      "activeAlerts": "Alert Attivi",
+      "activeAlertsSubtitle": "Problemi correnti con dati o documenti.",
+      "noActiveAlerts": "Nessun alert attivo.",
+      "suppressedAlerts": "Alert Sospesi",
+      "suppressedAlertsSubtitle": "Problemi noti temporaneamente esclusi dalla vista attiva.",
+      "noSuppressedAlerts": "Nessun alert sospeso.",
+      "suppressAlert": "Sospendi Alert",
+      "reason": "Motivazione"
+    },
+    "groups": {
+      "missing_nda": "NDA Mancanti",
+      "missing_form": "Modulistica Mancante",
+      "privacy": "Privacy",
+      "consent": "Consensi",
+      "incomplete_profile": "Profilo Incompleto",
+      "missing_contacts": "Contatti Mancanti",
+      "problematic_documents": "Documenti Problematici",
+      "outdated_documents": "Documenti Obsoleti",
+      "volunteer_register": "Libro Volontari Cartaceo",
+      "other": "Altro"
+    },
+    "badges": {
+      "superseded": "Superato",
+      "outdatedVersion": "Versione obsoleta — i consensi devono essere riraccolti",
+      "consentsNotRecorded": "Consensi non registrati"
+    },
+    "gdprDataProcessingNote": "Il consenso al trattamento dati non è più richiesto — base giuridica: contratto associativo (Art. 6(1)(b) GDPR)"
+  },
+  "people": {
+    "personalDetails": "Dettagli personali",
+    "taxId": "Codice Fiscale",
+    "gender": "Genere",
+    "profession": "Professione",
+    "occupationStatus": "Stato occupazionale",
+    "student": "Studente",
+    "employee": "Lavoratore",
+    "matricola": "Matricola",
+    "phone": "Telefono",
+    "contacts": "Contatti",
+    "identifiers": "Identificativi",
+    "registerResignation": "Registra Dimissioni",
+    "confirmResignation": "Stai registrando le dimissioni di {{name}}.",
+    "rolesAndResponsibilities": "Ruoli e Responsabilità",
+    "activeOperationalRoles": "Ruoli Operativi Attivi",
+    "noActiveRoles": "Nessun ruolo attivo assegnato",
+    "volunteer": "Volontario",
+    "member": "Socio",
+    "filters": {
+      "all": "Tutti",
+      "members": "Soci",
+      "volunteers": "Volontari",
+      "active": "Attivi",
+      "resigned": "Dimessi",
+      "recent": "Ultimi 6 mesi"
+    },
+    "notVolunteer": "Non Volontario",
+    "notMember": "Non Socio",
+    "status": {
+      "active": "Attivo",
+      "resigned": "Dimesso",
+      "pendingResignation": "Dimissioni in sospeso"
+    },
+    "addRole": "Aggiungi Ruolo",
+    "consents": {
+      "third_party": "Consenso alla comunicazione a terzi",
+      "image_use": "Consenso all'uso dell'immagine"
+    }
+  },
+  "timeline": {
+    "title": "Timeline Storica",
+    "subtitle": "Sviluppo verticale dei mandati e delle adunanze.",
+    "agenda": "Ordine del giorno",
+    "members": "Soci",
+    "viewAll": "Vedi tutti",
+    "selectEvent": "Seleziona un evento",
+    "clickPrompt": "Clicca su un evento nella timeline per vedere i dettagli qui sopra.",
+    "pendingVerbal": "Produzione Verbale Necessaria",
+    "complianceError": "Violazione Integrità ODG",
+    "eventDetail": "Dettagli Evento",
+    "assemblyTypes": {
+      "board_council": "Consiglio Direttivo",
+      "ordinary": "Assemblea Ordinaria",
+      "extraordinary": "Assemblea Straordinaria",
+      "constitution": "Assemblea Costitutiva"
+    },
+    "assemblyLabels": {
+      "board_council_n": "Consiglio Direttivo n. {{number}}",
+      "ordinary_n_year": "Assemblea Ordinaria n. {{number}}/{{year}}",
+      "extraordinary_n_year": "Assemblea Straordinaria n. {{number}}/{{year}}",
+      "constitution": "Assemblea Costitutiva",
+      "assembly_n": "Assemblea n. {{total}}"
+    },
+    "membershipEvents": {
+      "admission": "Ammissione: {{name}}",
+      "resignation": "Dimissioni: {{name}}"
+    },
+    "pendingVerbals": {
+      "admission": "Verbale Ammissione Previsto ({{count}})",
+      "resignation": "Verbale Dimissioni Previsto ({{count}})",
+      "descriptionAdmission": "Il verbale per l'ammissione di: {{names}} deve ancora essere prodotto o collegato.",
+      "descriptionResignation": "Il verbale per le dimissioni di: {{names}} deve ancora essere prodotto o collegato."
+    },
+    "complianceErrors": {
+      "stealthChange": "Cambiamento Stealth {{type}}: {{name}}",
+      "descriptionStealthChange": "Questo {{type}} è avvenuto tra la convocazione ({{convocationDate}}) e la seduta ({{sessionDate}}) di {{assemblyName}}.",
+      "missingDocumentLink": "Nessun link documento (Google Doc / PDF). Verbale non prodotto."
+    },
+    "session": "Seduta",
+    "pending": "In sospeso",
+    "copyMembers": "Copia lista soci",
+    "editAssembly": "Modifica assemblea",
+    "noDocumentLinks": "Nessun link documento disponibile",
+    "legend": {
+      "assemblies": "Assemblee",
+      "admissions": "Ammissioni",
+      "resignations": "Dimissioni",
+      "pending": "Verbali in sospeso",
+      "error": "Errori di compliance"
+    },
+    "help": "Clicca su qualunque evento nella timeline per visualizzare informazioni dettagliate. La timeline mostra tutte le sedute assembleari, le ammissioni e dimissioni di soci, i problemi di conformità e i requisiti documentali in sospeso.",
+    "labels": {
+      "admission_short": "Amm.",
+      "resignation_short": "Dim.",
+      "assembly_abbreviated": "Ass.",
+      "assembly_ordinary_short": "Ord",
+      "assembly_extraordinary_short": "Str",
+      "board_council_short": "[CD]",
+      "members_count": "Soci: {{count}}"
+    }
+  },
+  "assemblies": {
+    "selectAssembly": "Seleziona Assemblea",
+    "noSecondAssembly": "Nessuna Seconda Convocazione",
+    "agenda": "Ordine del giorno",
+    "subtitle": "Registro storico delle adunanze e delle deliberazioni.",
+    "newAssembly": "Nuova Assemblea",
+    "types": {
+      "ordinary": "Assemblea Ordinaria",
+      "extraordinary": "Assemblea Straordinaria",
+      "board_council": "Consiglio Direttivo",
+      "constitution": "Assemblea Costitutiva"
+    },
+    "modes": {
+      "in_person": "In Presenza",
+      "remote": "Da remoto",
+      "hybrid": "Ibrida"
+    },
+    "labels": {
+      "assembly": "Assemblea",
+      "convocation": "Convocazione",
+      "document": "Documento",
+      "notes": "Note",
+      "actions": "Azioni"
+    },
+    "convocations": {
+      "addConvocation": "Aggiungi convocazione",
+      "editConvocation": "Modifica convocazione",
+      "saveConvocation": "Salva convocazione"
+    },
+    "depositedOnRunts": "Depositato su RUNTS",
+    "signedPdf": "PDF (firmato)",
+    "notFound": "Assemblea non trovata"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "subtitle": "Backoffice per amministratori, ruoli, permessi e sicurezza account.",
+    "branding": {
+      "title": "Identità dell'organizzazione",
+      "description": "Configura logo, nome e testi base per rendere il progetto riutilizzabile per altre organizzazioni.",
+      "currentCustomization": "Personalizzazione corrente del sistema di gestione. Se il salvataggio viene rifiutato, il backend riconosce il tuo utente come non `core_admin`.",
+      "noLogoUploaded": "Nessun logo caricato",
+      "uploadLogo": "Carica logo",
+      "removeLogo": "Rimuovi logo",
+      "fullOrganizationName": "Nome completo organizzazione",
+      "fullOrganizationNamePlaceholder": "es. Dialogue Explore Bond APS",
+      "shortName": "Nome breve",
+      "shortNamePlaceholder": "es. DEB",
+      "loginDomain": "Dominio di accesso",
+      "loginDomainPlaceholder": "es. deb.org",
+      "tagline": "Tagline",
+      "taglinePlaceholder": "es. Gestionale associazione",
+      "supportEmail": "Email di supporto",
+      "supportEmailPlaceholder": "es. admin@deb.org",
+      "previewTitle": "Anteprima",
+      "previewShortNameDefault": "Short Name Gestionale",
+      "previewOrganizationNameDefault": "Full Organization Name",
+      "accessDomain": "Dominio di accesso: {{domain}}",
+      "saveCustomization": "Salva personalizzazione"
+    },
+    "users": {
+      "inviteUser": "Invita utente",
+      "title": "Utenti amministrativi",
+      "description": "Gestione accessi backoffice con ruoli e permessi.",
+      "addUser": "Aggiungi utente",
+      "loadingUsers": "Caricamento utenti...",
+      "noUsers": "Nessun utente configurato.",
+      "newUserModalTitle": "Nuovo utente admin/backoffice",
+      "emailPlaceholder": "Email",
+      "initialPasswordPlaceholder": "Password iniziale",
+      "createUser": "Crea utente",
+      "saveUserButton": "Salva utente",
+      "resetPasswordSectionTitle": "Reimposta password utente",
+      "resetPasswordPlaceholder": "Nuova password",
+      "confirmResetPasswordPlaceholder": "Conferma nuova password",
+      "resetPasswordErrorMissing": "Inserisci nuova password e conferma.",
+      "resetPasswordErrorMismatch": "Le password non coincidono.",
+      "resetPasswordButton": "Reimposta password",
+      "deleteUserSectionTitle": "Elimina utente",
+      "deleteUserButton": "Elimina utente"
+    },
+    "password": {
+      "title": "Sicurezza account",
+      "description": "Aggiorna la password del tuo account.",
+      "currentPasswordPlaceholder": "Password attuale",
+      "newPasswordPlaceholder": "Nuova password",
+      "confirmPasswordPlaceholder": "Conferma nuova password",
+      "updatePassword": "Aggiorna password"
+    },
+    "inviteUser": {
+      "title": "Invita Utente",
+      "emailLabel": "Email (Facoltativo)",
+      "emailHint": "Se specificato, solo questo utente potrà usare l'invito.",
+      "roleLabel": "Ruolo *",
+      "roles": {
+        "admin": "Amministratore",
+        "manager": "Gestore",
+        "viewer": "Visualizzatore"
+      },
+      "howItWorks": "Come funziona:",
+      "step1": "Condividi il link di invito con l'utente",
+      "step2": "L'utente accetta e accede con Google o email/password",
+      "step3": "L'invito scade dopo 72 ore",
+      "step4": "Può essere usato una sola volta",
+      "createButton": "Crea Invito",
+      "cancelButton": "Annulla",
+      "createdTitle": "Invito Creato",
+      "createdMessage": "L'invito è stato creato con successo. Condividi il link con l'utente.",
+      "copyButton": "Copia Link",
+      "copiedButton": "Copiato!",
+      "newInviteButton": "Nuovo Invito",
+      "closeButton": "Chiudi",
+      "errorCreating": "Errore durante la creazione dell'invito."
+    },
+    "addresses": {
+      "title": "Sede legale",
+      "description": "Storico degli indirizzi della sede legale dell'organizzazione.",
+      "addAddress": "Aggiungi indirizzo",
+      "addressPlaceholder": "Indirizzo completo (es. Via Roma 1, 00100 Roma (RM))",
+      "effectiveFrom": "Valido dal",
+      "notesOptional": "Note (opzionale)",
+      "notesPlaceholder": "Note",
+      "addressAndDateRequired": "Indirizzo e data obbligatori.",
+      "addressAdded": "Indirizzo aggiunto.",
+      "errorSaving": "Errore durante il salvataggio.",
+      "save": "Salva",
+      "loading": "Caricamento…",
+      "noAddresses": "Nessun indirizzo registrato.",
+      "address": "Indirizzo",
+      "notes": "Note",
+      "actions": "Azioni",
+      "currentLabel": "(attuale)",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "confirmDelete": "Confermi l'eliminazione di questo indirizzo?",
+      "errorUpdating": "Errore durante l'aggiornamento.",
+      "errorDeleting": "Errore durante l'eliminazione."
+    },
+    "compliance": {
+      "title": "Regole di compliance",
+      "description": "Definisci tipologie di documenti di compliance, ruoli, ereditarietà e requisiti base. Le modifiche vengono salvate nel database e hanno effetto immediato.",
+      "warning": "⚠ Queste regole guidano il motore di compliance. La loro modifica influisce sugli alert per tutte le persone del sistema.",
+      "labelsInfo": "Le etichette devono essere chiavi i18n (es. {{example}}) presenti nei tuoi file di lingua.",
+      "sections": {
+        "documentTypes": "Tipologie di Documenti",
+        "documentTypesSubtitle": "Definisci tutte le tipologie di documenti di compliance. Ogni chiave è l'identificatore interno (es. nda_dia).",
+        "roles": "Ruoli",
+        "rolesSubtitle": "Definisci ruoli di compliance e i documenti che richiedono. I ruoli possono ereditare requisiti da altri ruoli.",
+        "baseRequirements": "Requisiti Base",
+        "baseRequirementsSubtitle": "Documenti richiesti per tutte le persone in base al loro status (volontario, socio, membro direttivo)."
+      },
+      "fields": {
+        "labelI18nKey": "Etichetta (chiave i18n)",
+        "description": "Descrizione",
+        "consentTypes": "Tipi di Consenso (separati da virgola, es. third_party,image_use)",
+        "availableVersions": "Versioni Disponibili (separate da virgola, opzionale)",
+        "currentRequiredVersion": "Versione Richiesta Attuale",
+        "requiredDocuments": "Documenti Richiesti",
+        "inheritsFrom": "Eredita Da",
+        "key": "Chiave (snake_case)",
+        "none": "Nessuno",
+        "noInheritance": "Nessuna ereditarietà"
+      },
+      "baseRequirementsContexts": {
+        "volunteer": "VOLONTARIO",
+        "member": "SOCIO",
+        "boardMember": "MEMBRO DIRETTIVO"
+      },
+      "forms": {
+        "newDocumentType": "Nuova Tipologia di Documento",
+        "newRole": "Nuovo Ruolo",
+        "addDocumentType": "Aggiungi Tipologia di Documento",
+        "addRole": "Aggiungi Ruolo",
+        "add": "Aggiungi",
+        "cancel": "Annulla",
+        "keyAlreadyExists": "La chiave \"{{key}}\" esiste già.",
+        "keyRequired": "La chiave è obbligatoria."
+      },
+      "delete": {
+        "deleteRole": "Elimina Ruolo",
+        "deleteDocumentType": "Elimina Tipologia di Documento",
+        "roleConfirmation": "Questo ruolo verrà rimosso dalle regole di compliance. Ricorda di salvare dopo la conferma.",
+        "documentTypeConfirmation": "Questa tipologia di documento verrà rimossa da tutti i ruoli e dai requisiti base. Ricorda di salvare dopo la conferma.",
+        "delete": "Elimina"
+      },
+      "save": {
+        "savingButton": "Salvataggio...",
+        "saveComplianceRules": "Salva Regole di Compliance",
+        "successMessage": "Regole di compliance salvate con successo.",
+        "errorMessage": "Errore durante il salvataggio delle regole di compliance."
+      },
+      "preview": "Anteprima:"
+    },
+    "deleteUser": {
+      "title": "Conferma eliminazione utente",
+      "description": "Questa azione eliminerà definitivamente l'utente backoffice. L'accesso verrà revocato immediatamente.",
+      "expectedText": "DELETE {{email}}",
+      "submit": "Elimina utente"
+    },
+    "roles": {
+      "admin": "Admin",
+      "core_admin": "Core Admin",
+      "manager": "Manager",
+      "viewer": "Viewer"
+    },
+    "permissions": {
+      "groups": {
+        "modules": "Moduli",
+        "actions": "Azioni",
+        "documents": "Documenti"
+      }
+    },
+    "messages": {
+      "emailPasswordRequired": "Email e password sono obbligatorie.",
+      "userCreated": "Utente creato con successo.",
+      "errorCreatingUser": "Errore durante la creazione dell'utente.",
+      "userPasswordReset": "Password utente reimpostata con successo.",
+      "errorResettingPassword": "Errore durante la reimpostazione della password utente.",
+      "userDeleted": "Utente eliminato con successo.",
+      "errorDeletingUser": "Errore durante l'eliminazione dell'utente.",
+      "passwordMismatch": "Le nuove password non coincidono.",
+      "passwordUpdated": "Password aggiornata con successo.",
+      "errorUpdatingPassword": "Errore durante l'aggiornamento della password.",
+      "userUpdated": "Utente aggiornato con successo.",
+      "errorUpdatingUser": "Errore durante l'aggiornamento dell'utente.",
+      "errorUploadingLogo": "Errore durante il caricamento del logo.",
+      "customizationSaved": "Personalizzazione aggiornata con successo.",
+      "errorSavingCustomization": "Errore durante il salvataggio della personalizzazione."
+    },
+    "export": {
+      "title": "Esporta / Backup",
+      "description": "Scarica i dati dell'organizzazione come file TSV in un archivio ZIP.",
+      "selectTables": "Seleziona le tabelle da includere:",
+      "exportButton": "Scarica ZIP",
+      "exporting": "Esportazione…",
+      "success": "Esportazione completata con successo.",
+      "error": "Esportazione fallita. Riprova.",
+      "tables": {
+        "people": "Persone",
+        "volunteer_periods": "Periodi Volontariato",
+        "member_periods": "Periodi Associativi",
+        "board": "Consiglio Direttivo (Mandati e Componenti)",
+        "assemblies": "Assemblee",
+        "convocations": "Convocazioni",
+        "organization_settings": "Impostazioni Organizzazione",
+        "compliance_documents": "Documenti Conformità",
+        "compliance_roles": "Ruoli Conformità"
+      }
+    },
+    "import": {
+      "title": "Importa / Ripristina",
+      "description": "Carica un file ZIP precedentemente esportato per ripristinare i dati dell'organizzazione.",
+      "selectFile": "Seleziona il file da importare:",
+      "chooseFile": "Scegli file ZIP",
+      "selectTables": "Le tabelle verranno importate dal file ZIP.",
+      "importButton": "Carica e Importa",
+      "importing": "Importazione…",
+      "success": "Importazione completata con successo.",
+      "error": "Importazione fallita. Verifica il file e riprova.",
+      "invalidFileType": "Seleziona un file ZIP valido.",
+      "noFileSelected": "Seleziona un file da importare.",
+      "warning": "Questo sovrascriverà i record esistenti con ID corrispondenti. Assicurati di importare il backup corretto.",
+      "tables": {
+        "people": "Persone",
+        "volunteer_periods": "Periodi Volontariato",
+        "member_periods": "Periodi Associativi",
+        "board": "Consiglio Direttivo (Mandati e Componenti)",
+        "assemblies": "Assemblee",
+        "convocations": "Convocazioni",
+        "organization_settings": "Impostazioni Organizzazione",
+        "compliance_documents": "Documenti Conformità",
+        "compliance_roles": "Ruoli Conformità"
+      }
+    }
+  },
+  "auth": {
+    "login": "Accedi",
+    "logout": "Esci",
+    "email": "Email",
+    "password": "Password",
+    "invalidCredentials": "Email o password non validi."
+  },
+  "retention": {
+    "title": "Conservazione dati",
+    "subtitle": "Analisi degli obblighi di conservazione dei dati. Indica chi può essere rimosso dalla storia dell'associazione, chi richiede regolarizzazione e chi è permanentemente ancorato.",
+    "recompute": "Ricalcola tutto",
+    "legendTitle": "Come vengono calcolati i flag",
+    "libroVol": "Libro Vol.",
+    "missing": "Manca",
+    "showLess": "Mostra meno",
+    "showAll": "Mostra tutti ({{count}})",
+    "groups": {
+      "canRemove": "Eliminabile",
+      "canRemoveDesc": "Nessun obbligo di conservazione. È sicuro eliminare questi record.",
+      "regularize": "Regolarizzazione necessaria",
+      "regularizeDesc": "Obblighi di conservazione attivi ma dati anagrafici incompleti. Completare prima di poter valutare la rimozione.",
+      "anchored": "Permanentemente ancorato",
+      "anchoredDesc": "Obblighi di conservazione attivi. Dati completi — nessuna azione richiesta."
+    },
+    "legend": {
+      "canRemoveDesc": "Nessun obbligo di conservazione: non compare in verbali depositati su RUNTS, non è nel libro volontari cartaceo (o i 10 anni sono scaduti), nessun ruolo attivo.",
+      "regularizeDesc": "È ancorata ma ha dati anagrafici incompleti (CF, email o telefono mancanti).",
+      "anchoredDesc": "Ha obblighi di conservazione e i dati sono completi.",
+      "flagNote": "I badge {{runts}} e {{libro}} indicano la ragione dell'ancoraggio."
+    },
+    "totals": {
+      "total": "Totale",
+      "canRemove": "Eliminabili",
+      "regularize": "Da regolarizzare",
+      "anchored": "Ancorati"
+    },
+    "libroNote": "Il campo \"Libro Volontari Cartaceo\" e le date di iscrizione/uscita si configurano nel profilo di ogni persona.",
+    "runtsNote": "Il flag \"Depositato su RUNTS\" si imposta nel verbale dell'assemblea. Il ricalcolo aggiorna automaticamente i flag di tutte le persone presenti.",
+    "libroTitle": "Libro Volontari Cartaceo",
+    "inLibro": "Compare nel libro volontari cartaceo",
+    "inLibroYes": "Presente nel libro volontari cartaceo",
+    "inLibroNo": "Non presente nel libro volontari cartaceo",
+    "libroStartDate": "Data di iscrizione (inizio)",
+    "libroEndDate": "Data di uscita (lascia vuoto se ancora attivo)"
+  }
+}

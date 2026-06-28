@@ -1,16 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { API_BASE_URL } from '../config';
 import { useAuth } from '../hooks/useAuth';
 import { useSetupStatus } from '../hooks/useSetupStatus';
-
-const STEPS = [
-  { number: 1, title: 'Informazioni Organizzazione' },
-  { number: 2, title: 'Impostazioni Autenticazione' },
-  { number: 3, title: 'Account Amministratore' },
-  { number: 4, title: 'Riepilogo e Conferma' }
-];
 
 // localStorage state schema
 interface WizardState {
@@ -51,6 +45,7 @@ export default function SetupWizardPage() {
   const [searchParams] = useSearchParams();
   const { login } = useAuth();
   const { deploymentMode, needsSetup, loading: statusLoading, error: statusError } = useSetupStatus();
+  const { t, i18n } = useTranslation();
 
   // Form state
   const [currentStep, setCurrentStep] = useState(1);
@@ -72,31 +67,40 @@ export default function SetupWizardPage() {
   const [googlePreFill, setGooglePreFill] = useState<{ email: string; googleToken: string } | null>(null);
   const [setupToken, setSetupToken] = useState<string | null>(null);
   const [setupTokenExp, setSetupTokenExp] = useState<number | null>(null);
-  const [setupComplete, setSetupComplete] = useState(false);
-  const { isAuthenticated } = useAuth();
   const hasInitialized = useRef(false);
 
-  // ─ Navigate to dashboard once setup is complete and auth state is ready ─
-  useEffect(() => {
-    if (setupComplete && isAuthenticated) {
-      navigate('/');
-    }
-  }, [setupComplete, isAuthenticated, navigate]);
+  const steps = [
+    { number: 1, title: t('setup.steps.orgInfo') },
+    { number: 2, title: t('setup.steps.authSettings') },
+    { number: 3, title: t('setup.steps.adminAccount') },
+    { number: 4, title: t('setup.steps.summary') },
+  ];
 
   // ─ Handle closed mode redirect ─
   useEffect(() => {
     if (!statusLoading) {
       if (deploymentMode === 'closed') {
         if (!needsSetup) {
-          // System is in closed mode and already set up, redirect to login
           navigate('/login');
         } else {
-          // System is in closed mode but not set up — show blocked UI
-          setError('Organization creation is disabled in this system.');
+          setError(t('setup.systemLocked.message'));
         }
       }
     }
-  }, [deploymentMode, needsSetup, statusLoading, navigate]);
+  }, [deploymentMode, needsSetup, statusLoading, navigate, t]);
+
+  const fetchSetupToken = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/setup/token`);
+      const token = response.data.setupToken;
+      setSetupToken(token);
+      // Setup token expires in 30 minutes, refresh 1 minute before expiry
+      setSetupTokenExp(Math.floor(Date.now() / 1000) + 29 * 60);
+    } catch (err) {
+      console.error('Failed to fetch setup token:', err);
+      setError(t('setup.errors.setupTokenError'));
+    }
+  }, [t]);
 
   // ─ Load state from localStorage on mount ─
   useEffect(() => {
@@ -151,7 +155,7 @@ export default function SetupWizardPage() {
     if (deploymentMode !== 'closed') {
       fetchSetupToken();
     }
-  }, [deploymentMode, searchParams]);
+  }, [deploymentMode, searchParams, fetchSetupToken]);
 
   // ─ Save state to localStorage whenever it changes ─
   useEffect(() => {
@@ -175,23 +179,9 @@ export default function SetupWizardPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [currentStep, completedSteps, formData.orgName, formData.shortName, formData.slug, formData.authDomain, formData.domainSignupMode, formData.adminEmail, googlePreFill, setupToken, setupTokenExp]);
 
-  const fetchSetupToken = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/setup/token`);
-      const token = response.data.setupToken;
-      setSetupToken(token);
-      // Setup token expires in 30 minutes, refresh 1 minute before expiry
-      setSetupTokenExp(Math.floor(Date.now() / 1000) + 29 * 60);
-    } catch (err) {
-      console.error('Failed to fetch setup token:', err);
-      setError('Impossibile ottenere il token di configurazione. Riprova.');
-    }
-  };
-
   const ensureSetupToken = async () => {
     const now = Math.floor(Date.now() / 1000);
     if (!setupToken || !setupTokenExp || setupTokenExp - now < 60) {
-      // Token missing or expiring soon — refresh it
       await fetchSetupToken();
     }
   };
@@ -221,53 +211,53 @@ export default function SetupWizardPage() {
 
     if (step === 1) {
       if (!formData.orgName.trim()) {
-        setError('Il nome dell\'organizzazione è obbligatorio.');
+        setError(t('setup.errors.orgNameRequired'));
         return false;
       }
       if (!formData.shortName.trim()) {
-        setError('L\'acronimo è obbligatorio.');
+        setError(t('setup.errors.shortNameRequired'));
         return false;
       }
       if (formData.shortName.length > 10) {
-        setError('L\'acronimo deve essere al massimo 10 caratteri.');
+        setError(t('setup.errors.shortNameTooLong'));
         return false;
       }
       if (!formData.slug.trim()) {
-        setError('Lo slug è obbligatorio.');
+        setError(t('setup.errors.slugRequired'));
         return false;
       }
     }
 
     if (step === 2) {
       if (!formData.domainSignupMode) {
-        setError('Seleziona una modalità di iscrizione.');
+        setError(t('setup.errors.signupModeRequired'));
         return false;
       }
     }
 
     if (step === 3) {
       if (!formData.adminEmail.trim()) {
-        setError('L\'email è obbligatoria.');
+        setError(t('setup.errors.emailRequired'));
         return false;
       }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(formData.adminEmail)) {
-        setError('Inserisci un\'email valida.');
+        setError(t('setup.errors.emailInvalid'));
         return false;
       }
 
       // If not using Google pre-fill, password is required
       if (!googlePreFill) {
         if (!formData.adminPassword) {
-          setError('La password è obbligatoria.');
+          setError(t('setup.errors.passwordRequired'));
           return false;
         }
         if (formData.adminPassword.length < 8) {
-          setError('La password deve essere di almeno 8 caratteri.');
+          setError(t('setup.errors.passwordTooShort'));
           return false;
         }
         if (formData.adminPassword !== formData.confirmPassword) {
-          setError('Le password non corrispondono.');
+          setError(t('setup.errors.passwordMismatch'));
           return false;
         }
       }
@@ -281,7 +271,7 @@ export default function SetupWizardPage() {
       if (!completedSteps.includes(currentStep)) {
         setCompletedSteps(prev => [...prev, currentStep]);
       }
-      setCurrentStep(prev => Math.min(prev + 1, STEPS.length));
+      setCurrentStep(prev => Math.min(prev + 1, steps.length));
     }
   };
 
@@ -295,7 +285,7 @@ export default function SetupWizardPage() {
 
     await ensureSetupToken();
     if (!setupToken) {
-      setError('Impossibile ottenere il token di configurazione. Riprova.');
+      setError(t('setup.errors.setupTokenError'));
       return;
     }
 
@@ -316,7 +306,6 @@ export default function SetupWizardPage() {
       if (googlePreFill?.googleToken) {
         payload.googleToken = googlePreFill.googleToken;
       } else {
-        // Otherwise use password
         payload.adminPassword = formData.adminPassword;
       }
 
@@ -328,15 +317,14 @@ export default function SetupWizardPage() {
 
       const { token, user } = response.data;
       login(token, user);
-      setSetupComplete(true);
+      localStorage.removeItem(STORAGE_KEY);
+      window.location.href = '/';
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
-        setError('Si è verificato un errore durante la configurazione. Riprova.');
+        setError(t('setup.errors.setupError'));
       }
-    } finally {
-      localStorage.removeItem(STORAGE_KEY);
       setLoading(false);
     }
   };
@@ -344,12 +332,18 @@ export default function SetupWizardPage() {
   const handleQuickSetup = async () => {
     await ensureSetupToken();
     if (!setupToken) {
-      setError('Impossibile ottenere il token di configurazione. Riprova.');
+      setError(t('setup.errors.setupTokenError'));
       return;
     }
 
     setLoading(true);
     setError('');
+
+    // These are compile-time constants — never sourced from user input or URL params.
+    // The fallback login uses the exact same values, so nothing external can influence
+    // which account it logs into.
+    const TEST_EMAIL = 'admin@test.test';
+    const TEST_PASSWORD = 'Password123';
 
     try {
       const payload = {
@@ -358,24 +352,41 @@ export default function SetupWizardPage() {
         slug: 'test-organization',
         authDomain: 'test.test',
         domainSignupMode: 'invite_only',
-        adminEmail: 'admin@test.test',
-        adminPassword: 'Password123'
+        adminEmail: TEST_EMAIL,
+        adminPassword: TEST_PASSWORD
       };
 
       const response = await axios.post(`${API_BASE_URL}/setup`, payload, {
-        headers: {
-          'Authorization': `Bearer ${setupToken}`
-        }
+        headers: { 'Authorization': `Bearer ${setupToken}` }
       });
 
       const { token, user } = response.data;
       login(token, user);
-      setSetupComplete(true);
+      window.location.href = '/';
     } catch (err) {
+      // 409 means the test org was already created — fall back to logging in directly.
+      // The login uses the same hardcoded constants above, not any user-supplied value.
+      if (axios.isAxiosError(err) && err.response?.status === 409) {
+        try {
+          const loginResponse = await axios.post(`${API_BASE_URL}/auth/login`, {
+            email: TEST_EMAIL,
+            password: TEST_PASSWORD
+          });
+          login(loginResponse.data.token, loginResponse.data.user);
+          window.location.href = '/';
+        } catch (loginErr) {
+          if (axios.isAxiosError(loginErr) && loginErr.response?.data?.error) {
+            setError(loginErr.response.data.error);
+          } else {
+            setError(t('setup.errors.setupError'));
+          }
+        }
+        return;
+      }
       if (axios.isAxiosError(err) && err.response?.data?.error) {
         setError(err.response.data.error);
       } else {
-        setError('Si è verificato un errore durante la configurazione. Riprova.');
+        setError(t('setup.errors.setupError'));
       }
     } finally {
       setLoading(false);
@@ -386,7 +397,7 @@ export default function SetupWizardPage() {
   if (statusLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-slate-300">Loading...</div>
+        <div className="text-slate-300">{t('setup.loading')}</div>
       </div>
     );
   }
@@ -398,15 +409,13 @@ export default function SetupWizardPage() {
         <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
           <div className="text-center space-y-4">
             <div className="text-4xl">⚠️</div>
-            <h1 className="text-2xl font-bold text-white">Server Unreachable</h1>
-            <p className="text-slate-300">
-              Unable to connect to the server. Please check your connection and try again.
-            </p>
+            <h1 className="text-2xl font-bold text-white">{t('setup.serverUnreachable.title')}</h1>
+            <p className="text-slate-300">{t('setup.serverUnreachable.message')}</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
             >
-              Retry
+              {t('setup.serverUnreachable.retry')}
             </button>
           </div>
         </div>
@@ -421,13 +430,9 @@ export default function SetupWizardPage() {
         <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
           <div className="text-center space-y-4">
             <div className="text-4xl">🔒</div>
-            <h1 className="text-2xl font-bold text-white">System Locked</h1>
-            <p className="text-slate-300">
-              Organization creation is disabled in this system.
-            </p>
-            <p className="text-sm text-slate-400">
-              Please contact your system administrator.
-            </p>
+            <h1 className="text-2xl font-bold text-white">{t('setup.systemLocked.title')}</h1>
+            <p className="text-slate-300">{t('setup.systemLocked.message')}</p>
+            <p className="text-sm text-slate-400">{t('setup.systemLocked.contactAdmin')}</p>
           </div>
         </div>
       </div>
@@ -435,12 +440,20 @@ export default function SetupWizardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative">
+      <button
+        type="button"
+        onClick={() => i18n.changeLanguage(i18n.language === 'it' ? 'en' : 'it')}
+        className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-400 hover:text-white text-xs font-medium transition-all"
+      >
+        {i18n.language === 'it' ? 'EN' : 'IT'}
+      </button>
+
       <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
         {/* Progress Indicator */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
-            {STEPS.map((step) => (
+            {steps.map((step) => (
               <div
                 key={step.number}
                 className={`flex items-center justify-center w-10 h-10 rounded-full font-medium text-sm transition-colors ${
@@ -456,9 +469,9 @@ export default function SetupWizardPage() {
             ))}
           </div>
           <div className="text-center">
-            <h2 className="text-xl font-bold text-white">{STEPS[currentStep - 1].title}</h2>
+            <h2 className="text-xl font-bold text-white">{steps[currentStep - 1].title}</h2>
             <p className="text-slate-400 text-sm mt-1">
-              Passo {currentStep} di {STEPS.length}
+              {t('setup.stepLabel', { current: currentStep, total: steps.length })}
             </p>
           </div>
         </div>
@@ -475,44 +488,44 @@ export default function SetupWizardPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-200 mb-2">
-                Nome Organizzazione *
+                {t('setup.orgInfo.orgName')} *
               </label>
               <input
                 type="text"
                 value={formData.orgName}
                 onChange={(e) => handleOrgNameChange(e.target.value)}
-                placeholder="es. Volontari Solidali"
+                placeholder={t('setup.orgInfo.orgNamePlaceholder')}
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-200 mb-2">
-                Acronimo *
+                {t('setup.orgInfo.shortName')} *
               </label>
               <input
                 type="text"
                 maxLength={10}
                 value={formData.shortName}
                 onChange={(e) => handleInputChange('shortName', e.target.value)}
-                placeholder="es. VS"
+                placeholder={t('setup.orgInfo.shortNamePlaceholder')}
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <p className="text-xs text-slate-400 mt-1">Max 10 caratteri</p>
+              <p className="text-xs text-slate-400 mt-1">{t('setup.orgInfo.shortNameHint')}</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-200 mb-2">
-                Slug (URL-safe) *
+                {t('setup.orgInfo.slug')} *
               </label>
               <input
                 type="text"
                 value={formData.slug}
                 onChange={(e) => handleInputChange('slug', e.target.value)}
-                placeholder="es. volontari-solidali"
+                placeholder={t('setup.orgInfo.slugPlaceholder')}
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <p className="text-xs text-slate-400 mt-1">Generato automaticamente dal nome, puoi modificarlo</p>
+              <p className="text-xs text-slate-400 mt-1">{t('setup.orgInfo.slugHint')}</p>
             </div>
           </div>
         )}
@@ -522,21 +535,21 @@ export default function SetupWizardPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-200 mb-3">
-                Dominio Autenticazione
+                {t('setup.authSettings.authDomain')}
               </label>
               <input
                 type="text"
                 value={formData.authDomain}
                 onChange={(e) => handleInputChange('authDomain', e.target.value)}
-                placeholder="es. volontari.it"
+                placeholder={t('setup.authSettings.authDomainPlaceholder')}
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
-              <p className="text-xs text-slate-400 mt-1">Facoltativo. Se impostato, gli utenti con questo dominio email potranno accedere automaticamente.</p>
+              <p className="text-xs text-slate-400 mt-1">{t('setup.authSettings.authDomainHint')}</p>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-200 mb-3">
-                Modalità Iscrizione
+                {t('setup.authSettings.signupMode')}
               </label>
               <div className="space-y-2">
                 <label className="flex items-center">
@@ -548,7 +561,7 @@ export default function SetupWizardPage() {
                     onChange={(e) => handleInputChange('domainSignupMode', e.target.value)}
                     className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
                   />
-                  <span className="ml-3 text-slate-300">Solo su invito</span>
+                  <span className="ml-3 text-slate-300">{t('setup.authSettings.inviteOnly')}</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -559,7 +572,7 @@ export default function SetupWizardPage() {
                     onChange={(e) => handleInputChange('domainSignupMode', e.target.value)}
                     className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
                   />
-                  <span className="ml-3 text-slate-300">Aperta</span>
+                  <span className="ml-3 text-slate-300">{t('setup.authSettings.open')}</span>
                 </label>
               </div>
             </div>
@@ -571,14 +584,14 @@ export default function SetupWizardPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-200 mb-2">
-                Email Amministratore *
+                {t('setup.adminAccount.adminEmail')} *
               </label>
               <input
                 type="email"
                 value={formData.adminEmail}
                 onChange={(e) => handleInputChange('adminEmail', e.target.value)}
                 disabled={!!googlePreFill}
-                placeholder="admin@volontari.it"
+                placeholder={t('setup.adminAccount.adminEmailPlaceholder')}
                 className={`w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ${
                   googlePreFill ? 'opacity-75 cursor-not-allowed' : ''
                 }`}
@@ -587,34 +600,32 @@ export default function SetupWizardPage() {
 
             {googlePreFill ? (
               <div className="p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
-                <p className="text-blue-200 text-sm">
-                  ✓ Accederai con Google — nessuna password necessaria
-                </p>
+                <p className="text-blue-200 text-sm">{t('setup.adminAccount.googleSignIn')}</p>
               </div>
             ) : (
               <>
                 <div>
                   <label className="block text-sm font-medium text-slate-200 mb-2">
-                    Password *
+                    {t('setup.adminAccount.password')} *
                   </label>
                   <input
                     type="password"
                     value={formData.adminPassword}
                     onChange={(e) => handleInputChange('adminPassword', e.target.value)}
-                    placeholder="Min 8 caratteri"
+                    placeholder={t('setup.adminAccount.passwordPlaceholder')}
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-slate-200 mb-2">
-                    Conferma Password *
+                    {t('setup.adminAccount.confirmPassword')} *
                   </label>
                   <input
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                    placeholder="Conferma"
+                    placeholder={t('setup.adminAccount.confirmPasswordPlaceholder')}
                     className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
@@ -627,27 +638,29 @@ export default function SetupWizardPage() {
         {currentStep === 4 && (
           <div className="space-y-4 text-slate-300 text-sm">
             <div className="bg-slate-700/50 p-4 rounded-lg">
-              <p className="font-medium text-slate-100 mb-2">Organizzazione</p>
+              <p className="font-medium text-slate-100 mb-2">{t('setup.summary.organization')}</p>
               <p>{formData.orgName} ({formData.shortName})</p>
-              <p className="text-xs text-slate-400 mt-1">Slug: {formData.slug}</p>
+              <p className="text-xs text-slate-400 mt-1">{t('setup.summary.slugLabel', { slug: formData.slug })}</p>
             </div>
 
             <div className="bg-slate-700/50 p-4 rounded-lg">
-              <p className="font-medium text-slate-100 mb-2">Configurazione</p>
-              <p>Dominio: {formData.authDomain || 'Non impostato'}</p>
+              <p className="font-medium text-slate-100 mb-2">{t('setup.summary.configuration')}</p>
+              <p>{t('setup.summary.domain', { domain: formData.authDomain || t('setup.summary.domainNotSet') })}</p>
               <p className="text-xs text-slate-400 mt-1">
-                Modalità iscrizione: {formData.domainSignupMode === 'invite_only' ? 'Solo su invito' : 'Aperta'}
+                {t('setup.summary.signupModeLabel', {
+                  mode: formData.domainSignupMode === 'invite_only'
+                    ? t('setup.authSettings.inviteOnly')
+                    : t('setup.authSettings.open')
+                })}
               </p>
             </div>
 
             <div className="bg-slate-700/50 p-4 rounded-lg">
-              <p className="font-medium text-slate-100 mb-2">Amministratore</p>
+              <p className="font-medium text-slate-100 mb-2">{t('setup.summary.administrator')}</p>
               <p>{formData.adminEmail}</p>
             </div>
 
-            <p className="text-xs text-slate-400 italic">
-              Puoi modificare questi dettagli dalle impostazioni dopo l'accesso.
-            </p>
+            <p className="text-xs text-slate-400 italic">{t('setup.summary.editLater')}</p>
           </div>
         )}
 
@@ -659,17 +672,17 @@ export default function SetupWizardPage() {
               disabled={loading}
               className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
-              Indietro
+              {t('setup.navigation.back')}
             </button>
           )}
 
-          {currentStep < STEPS.length ? (
+          {currentStep < steps.length ? (
             <button
               onClick={handleNext}
               disabled={loading}
               className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
-              Avanti
+              {t('setup.navigation.next')}
             </button>
           ) : (
             <button
@@ -677,20 +690,20 @@ export default function SetupWizardPage() {
               disabled={loading}
               className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
-              {loading ? 'Configurazione...' : 'Crea Organizzazione'}
+              {loading ? t('setup.navigation.creating') : t('setup.navigation.createOrganization')}
             </button>
           )}
         </div>
 
         {/* Dev/Testing Section */}
         <div className="mt-6 pt-6 border-t border-slate-700">
-          <p className="text-xs text-slate-500 font-medium mb-3">Testing</p>
+          <p className="text-xs text-slate-500 font-medium mb-3">{t('setup.testing.label')}</p>
           <button
             onClick={handleQuickSetup}
             disabled={loading}
             className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-300 text-sm rounded-lg transition-colors"
           >
-            {loading ? 'Creazione in corso...' : 'Quick Setup (Test Org)'}
+            {loading ? t('setup.testing.creating') : t('setup.testing.quickSetup')}
           </button>
         </div>
       </div>

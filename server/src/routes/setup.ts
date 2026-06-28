@@ -127,7 +127,7 @@ setupRouter.post('/', async (c) => {
         return c.json({ error: 'Organization creation is disabled.' }, 423);
       }
       if (deploymentMode === 'single_org' && completedOrgCount > 0) {
-        return c.json({ error: 'Setup già completato.' }, 409);
+        return c.json({ error: 'Setup already complete.' }, 409);
       }
       if (deploymentMode === 'invite_only' && completedOrgCount > 0 && !hasOrgCreationToken) {
         return c.json({ error: 'A valid org-creation invite is required to create additional organizations.' }, 403);
@@ -162,7 +162,7 @@ setupRouter.post('/', async (c) => {
 
     // ─ Validate required fields ─
     if (!orgName || !shortName || !slug || !adminEmail) {
-      return c.json({ error: 'Tutti i campi obbligatori devono essere compilati.' }, 400);
+      return c.json({ error: 'All required fields must be filled in.' }, 400);
     }
 
     // Google token flow: no password required; standard flow requires password
@@ -172,14 +172,14 @@ setupRouter.post('/', async (c) => {
 
     // Validate password if provided
     if (adminPassword && adminPassword.length < 8) {
-      return c.json({ error: 'La password deve essere di almeno 8 caratteri.' }, 400);
+      return c.json({ error: 'Password must be at least 8 characters.' }, 400);
     }
 
     // ─ Validate slug uniqueness ─
     const existingSlug = await db.select().from(organization).where(eq(organization.slug, slug)).get();
     if (existingSlug) {
       console.error(`Slug conflict: "${slug}" already exists`);
-      return c.json({ error: 'Questo slug è già in uso.' }, 409);
+      return c.json({ error: 'This slug is already in use.' }, 409);
     }
 
     // ─ Validate domain uniqueness if provided ─
@@ -187,7 +187,7 @@ setupRouter.post('/', async (c) => {
       const existingDomain = await db.select().from(organization).where(eq(organization.authDomain, authDomain)).get();
       if (existingDomain) {
         console.error(`Domain conflict: "${authDomain}" already exists`);
-        return c.json({ error: "Questo dominio è già in uso da un'altra organizzazione." }, 409);
+        return c.json({ error: 'This domain is already in use by another organization.' }, 409);
       }
     }
 
@@ -195,7 +195,7 @@ setupRouter.post('/', async (c) => {
     const existingUser = await db.select().from(user).where(eq(user.email, adminEmail)).get();
     if (existingUser) {
       console.error(`Email already registered: "${adminEmail}"`);
-      return c.json({ error: 'Questo indirizzo email è già registrato.' }, 409);
+      return c.json({ error: 'This email address is already registered.' }, 409);
     }
 
     // ─ Hash password (or null for Google-only users) ─
@@ -373,10 +373,10 @@ setupRouter.post('/', async (c) => {
     if (error.message && error.message.includes('UNIQUE')) {
       console.error('UNIQUE constraint violation details:', error.message);
       if (error.message.includes('slug')) {
-        return c.json({ error: 'Questo slug è già in uso.' }, 409);
+        return c.json({ error: 'This slug is already in use.' }, 409);
       }
       if (error.message.includes('authDomain')) {
-        return c.json({ error: "Questo dominio è già in uso da un'altra organizzazione." }, 409);
+        return c.json({ error: 'This domain is already in use by another organization.' }, 409);
       }
       return c.json({ error: 'Organization already exists (concurrent creation detected).' }, 409);
     }

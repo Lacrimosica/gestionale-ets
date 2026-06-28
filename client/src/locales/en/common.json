@@ -569,7 +569,102 @@
     "logout": "Logout",
     "email": "Email",
     "password": "Password",
-    "invalidCredentials": "Invalid email or password."
+    "invalidCredentials": "Invalid email or password.",
+    "loginPage": {
+      "signInWithGoogle": "Sign in with Google",
+      "or": "or",
+      "emailPlaceholder": "email@domain",
+      "passwordPlaceholder": "password",
+      "continue": "Continue",
+      "signIn": "Sign in",
+      "sessionExpired": "Your session has expired. Sign in again to continue.",
+      "noAccount": "Don't have an account?",
+      "createOrganization": "Create an organization",
+      "emailInvalid": "Please enter a valid email address.",
+      "authError": "Authentication error"
+    }
+  },
+  "setup": {
+    "steps": {
+      "orgInfo": "Organization Information",
+      "authSettings": "Authentication Settings",
+      "adminAccount": "Administrator Account",
+      "summary": "Summary & Confirm"
+    },
+    "stepLabel": "Step {{current}} of {{total}}",
+    "loading": "Loading...",
+    "serverUnreachable": {
+      "title": "Server Unreachable",
+      "message": "Unable to connect to the server. Please check your connection and try again.",
+      "retry": "Retry"
+    },
+    "systemLocked": {
+      "title": "System Locked",
+      "message": "Organization creation is disabled in this system.",
+      "contactAdmin": "Please contact your system administrator."
+    },
+    "orgInfo": {
+      "orgName": "Organization Name",
+      "orgNamePlaceholder": "e.g. Solidarity Volunteers",
+      "shortName": "Short Name (Acronym)",
+      "shortNamePlaceholder": "e.g. SV",
+      "shortNameHint": "Max 10 characters",
+      "slug": "Slug (URL-safe)",
+      "slugPlaceholder": "e.g. solidarity-volunteers",
+      "slugHint": "Auto-generated from the name, you can edit it"
+    },
+    "authSettings": {
+      "authDomain": "Authentication Domain",
+      "authDomainPlaceholder": "e.g. volunteers.org",
+      "authDomainHint": "Optional. If set, users with this email domain will be able to sign up automatically.",
+      "signupMode": "Signup Mode",
+      "inviteOnly": "Invite only",
+      "open": "Open"
+    },
+    "adminAccount": {
+      "adminEmail": "Administrator Email",
+      "adminEmailPlaceholder": "admin@volunteers.org",
+      "googleSignIn": "✓ You will sign in with Google — no password needed",
+      "password": "Password",
+      "passwordPlaceholder": "Min 8 characters",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm"
+    },
+    "summary": {
+      "organization": "Organization",
+      "slugLabel": "Slug: {{slug}}",
+      "configuration": "Configuration",
+      "domain": "Domain: {{domain}}",
+      "domainNotSet": "Not set",
+      "signupModeLabel": "Signup mode: {{mode}}",
+      "administrator": "Administrator",
+      "editLater": "You can edit these details from the settings after signing in."
+    },
+    "navigation": {
+      "back": "Back",
+      "next": "Next",
+      "creating": "Creating...",
+      "createOrganization": "Create Organization"
+    },
+    "errors": {
+      "orgNameRequired": "Organization name is required.",
+      "shortNameRequired": "Short name is required.",
+      "shortNameTooLong": "Short name must be at most 10 characters.",
+      "slugRequired": "Slug is required.",
+      "signupModeRequired": "Please select a signup mode.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email.",
+      "passwordRequired": "Password is required.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "passwordMismatch": "Passwords do not match.",
+      "setupTokenError": "Unable to get the setup token. Please try again.",
+      "setupError": "An error occurred during setup. Please try again."
+    },
+    "testing": {
+      "label": "Testing",
+      "quickSetup": "Quick Setup (Test Org)",
+      "creating": "Creating..."
+    }
   },
   "retention": {
     "title": "Data Retention",

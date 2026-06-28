@@ -68,7 +68,7 @@ function App() {
     );
   }
 
-  if (needsSetup) {
+  if (!isAuthenticated && needsSetup) {
     // In open/SaaS mode, show login first; user creates org after authenticating
     if (deploymentMode === 'open') {
       return (

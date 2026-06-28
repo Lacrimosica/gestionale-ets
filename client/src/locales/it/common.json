@@ -551,7 +551,102 @@
     "logout": "Esci",
     "email": "Email",
     "password": "Password",
-    "invalidCredentials": "Email o password non validi."
+    "invalidCredentials": "Email o password non validi.",
+    "loginPage": {
+      "signInWithGoogle": "Accedi con Google",
+      "or": "oppure",
+      "emailPlaceholder": "email@dominio",
+      "passwordPlaceholder": "password",
+      "continue": "Continua",
+      "signIn": "Accedi",
+      "sessionExpired": "La tua sessione è scaduta. Accedi di nuovo per continuare.",
+      "noAccount": "Non hai un account?",
+      "createOrganization": "Crea un'organizzazione",
+      "emailInvalid": "Inserisci un indirizzo email valido.",
+      "authError": "Errore durante l'autenticazione"
+    }
+  },
+  "setup": {
+    "steps": {
+      "orgInfo": "Informazioni Organizzazione",
+      "authSettings": "Impostazioni Autenticazione",
+      "adminAccount": "Account Amministratore",
+      "summary": "Riepilogo e Conferma"
+    },
+    "stepLabel": "Passo {{current}} di {{total}}",
+    "loading": "Caricamento...",
+    "serverUnreachable": {
+      "title": "Server Non Raggiungibile",
+      "message": "Impossibile connettersi al server. Controlla la connessione e riprova.",
+      "retry": "Riprova"
+    },
+    "systemLocked": {
+      "title": "Sistema Bloccato",
+      "message": "La creazione di organizzazioni è disabilitata in questo sistema.",
+      "contactAdmin": "Contatta il tuo amministratore di sistema."
+    },
+    "orgInfo": {
+      "orgName": "Nome Organizzazione",
+      "orgNamePlaceholder": "es. Volontari Solidali",
+      "shortName": "Acronimo",
+      "shortNamePlaceholder": "es. VS",
+      "shortNameHint": "Max 10 caratteri",
+      "slug": "Slug (URL-safe)",
+      "slugPlaceholder": "es. volontari-solidali",
+      "slugHint": "Generato automaticamente dal nome, puoi modificarlo"
+    },
+    "authSettings": {
+      "authDomain": "Dominio Autenticazione",
+      "authDomainPlaceholder": "es. volontari.it",
+      "authDomainHint": "Facoltativo. Se impostato, gli utenti con questo dominio email potranno accedere automaticamente.",
+      "signupMode": "Modalità Iscrizione",
+      "inviteOnly": "Solo su invito",
+      "open": "Aperta"
+    },
+    "adminAccount": {
+      "adminEmail": "Email Amministratore",
+      "adminEmailPlaceholder": "admin@volontari.it",
+      "googleSignIn": "✓ Accederai con Google — nessuna password necessaria",
+      "password": "Password",
+      "passwordPlaceholder": "Min 8 caratteri",
+      "confirmPassword": "Conferma Password",
+      "confirmPasswordPlaceholder": "Conferma"
+    },
+    "summary": {
+      "organization": "Organizzazione",
+      "slugLabel": "Slug: {{slug}}",
+      "configuration": "Configurazione",
+      "domain": "Dominio: {{domain}}",
+      "domainNotSet": "Non impostato",
+      "signupModeLabel": "Modalità iscrizione: {{mode}}",
+      "administrator": "Amministratore",
+      "editLater": "Puoi modificare questi dettagli dalle impostazioni dopo l'accesso."
+    },
+    "navigation": {
+      "back": "Indietro",
+      "next": "Avanti",
+      "creating": "Configurazione...",
+      "createOrganization": "Crea Organizzazione"
+    },
+    "errors": {
+      "orgNameRequired": "Il nome dell'organizzazione è obbligatorio.",
+      "shortNameRequired": "L'acronimo è obbligatorio.",
+      "shortNameTooLong": "L'acronimo deve essere al massimo 10 caratteri.",
+      "slugRequired": "Lo slug è obbligatorio.",
+      "signupModeRequired": "Seleziona una modalità di iscrizione.",
+      "emailRequired": "L'email è obbligatoria.",
+      "emailInvalid": "Inserisci un'email valida.",
+      "passwordRequired": "La password è obbligatoria.",
+      "passwordTooShort": "La password deve essere di almeno 8 caratteri.",
+      "passwordMismatch": "Le password non corrispondono.",
+      "setupTokenError": "Impossibile ottenere il token di configurazione. Riprova.",
+      "setupError": "Si è verificato un errore durante la configurazione. Riprova."
+    },
+    "testing": {
+      "label": "Testing",
+      "quickSetup": "Quick Setup (Test Org)",
+      "creating": "Creazione in corso..."
+    }
   },
   "retention": {
     "title": "Conservazione dati",

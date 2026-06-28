@@ -1,5 +1,10 @@
 #!/bin/sh
 
+# GUI git clients (GitKraken, etc.) launch with a stripped PATH that excludes nvm.
+# Source nvm so that node/npm/npx are available.
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
 # Lint & auto-fix staged TypeScript/React files (client only — server has no ESLint)
 npx lint-staged
 

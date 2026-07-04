@@ -1,5 +1,4 @@
 import { Hono } from 'hono';
-import { drizzle } from 'drizzle-orm/d1';
 import { eq, sql, isNull, isNotNull, and } from 'drizzle-orm';
 import { getTableColumns } from 'drizzle-orm';
 import { alertSuppression, complianceDocumentFlag, complianceDocument, complianceRole, person, volunteerPeriod, memberPeriod, boardGeneration, boardMember, attendance, user, organizationUser } from '../db/schema';
@@ -8,43 +7,17 @@ import { z } from 'zod';
 import { italianMunicipalityCodes } from '../lib/italian-municipality-codes';
 import { validateCodiceFiscale, getPlace } from '../lib/fiscal-code';
 import { hashPassword } from '../lib/auth';
+import { orgContext, type JwtPayload } from '../lib/org-context';
 
 type Bindings = {
   DB: D1Database;
 };
 
 type Variables = {
-  jwtPayload: {
-    sub: string;
-    email: string;
-    orgId: string;
-    role: string;
-    permissions?: string[];
-    exp: number;
-  };
+  jwtPayload: JwtPayload;
 };
 
 const peopleRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
-
-const parsePermissions = (value?: string | null) => {
-  try {
-    const parsed = value ? JSON.parse(value) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const requirePermission = async (c: any, permission: string) => {
-  const payload = c.get('jwtPayload');
-  // Permissions now come from JWT payload (sourced from organization_user table)
-  const permissions = payload.permissions || [];
-  if (!permissions.includes(permission)) {
-    return c.json({ error: 'Forbidden' }, 403);
-  }
-
-  return null;
-};
 
 // Zod schemas for validation
 const insertPersonSchema = createInsertSchema(person);
@@ -68,11 +41,9 @@ peopleRouter.get('/comuni', (c) => {
 
 // GET /api/people?filter=all|members|volunteers|active|resigned|recent|missing_cf|cf_invalid|cf_unchecked|no_contacts
 peopleRouter.get('/', async (c) => {
-  const denied = await requirePermission(c, 'people.view');
-  if (denied) return denied;
-
-  const db = drizzle(c.env.DB);
-  const { orgId } = c.get('jwtPayload');
+  const ctx = orgContext(c, 'people.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
   const filter = c.req.query('filter') || 'all';
 
   // Status subquery columns (org-scoped at request time)
@@ -105,30 +76,28 @@ peopleRouter.get('/', async (c) => {
   })();
 
   const result = whereClause
-    ? await db.select(personStatusColumns).from(person).where(and(whereClause, eq(person.orgId, orgId))).all()
-    : await db.select(personStatusColumns).from(person).where(eq(person.orgId, orgId)).all();
+    ? await db.select(personStatusColumns).from(person).where(ctx.scoped(person.orgId, whereClause)).all()
+    : await db.select(personStatusColumns).from(person).where(ctx.scoped(person.orgId)).all();
 
   return c.json(result);
 });
 
 // GET /api/people/:id - Get person by ID with history
 peopleRouter.get('/:id', async (c) => {
-  const denied = await requirePermission(c, 'people.view');
-  if (denied) return denied;
-
+  const ctx = orgContext(c, 'people.view');
+  if (ctx instanceof Response) return ctx;
+  const { db } = ctx;
   const id = c.req.param('id');
-  const { orgId } = c.get('jwtPayload');
-  const db = drizzle(c.env.DB);
 
-  const result = await db.select().from(person).where(and(eq(person.id, id), eq(person.orgId, orgId))).get();
+  const result = await db.select().from(person).where(ctx.scoped(person.orgId, eq(person.id, id))).get();
 
   if (!result) {
     return c.json({ error: 'Person not found' }, 404);
   }
 
   // Fetch history
-  const vPeriods = await db.select().from(volunteerPeriod).where(and(eq(volunteerPeriod.personId, id), eq(volunteerPeriod.orgId, orgId))).all();
-  const sPeriods = await db.select().from(memberPeriod).where(and(eq(memberPeriod.personId, id), eq(memberPeriod.orgId, orgId))).all();
+  const vPeriods = await db.select().from(volunteerPeriod).where(ctx.scoped(volunteerPeriod.orgId, eq(volunteerPeriod.personId, id))).all();
+  const sPeriods = await db.select().from(memberPeriod).where(ctx.scoped(memberPeriod.orgId, eq(memberPeriod.personId, id))).all();
 
   // Fetch board roles joined with generation details
   const dRoles = await db.select({
@@ -137,7 +106,7 @@ peopleRouter.get('/:id', async (c) => {
   })
     .from(boardMember)
     .innerJoin(boardGeneration, eq(boardMember.generationId, boardGeneration.id))
-    .where(and(eq(boardMember.personId, id), eq(boardMember.orgId, orgId)))
+    .where(ctx.scoped(boardMember.orgId, eq(boardMember.personId, id)))
     .all();
 
   return c.json({
@@ -150,12 +119,11 @@ peopleRouter.get('/:id', async (c) => {
 
 // POST /api/people - Create a new person
 peopleRouter.post('/', async (c) => {
-  const denied = await requirePermission(c, 'people.edit');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'people.edit');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
   const body = await c.req.json();
-  const { orgId } = c.get('jwtPayload');
-  const db = drizzle(c.env.DB);
 
   if (body.taxId === '') {
     body.taxId = null;
@@ -200,13 +168,11 @@ peopleRouter.post('/', async (c) => {
 
 // PATCH /api/people/:id - Update person details
 peopleRouter.patch('/:id', async (c) => {
-  const denied = await requirePermission(c, 'people.edit');
-  if (denied) return denied;
-
+  const ctx = orgContext(c, 'people.edit');
+  if (ctx instanceof Response) return ctx;
+  const { db } = ctx;
   const id = c.req.param('id');
-  const { orgId } = c.get('jwtPayload');
   const body = await c.req.json();
-  const db = drizzle(c.env.DB);
 
   if (body.taxId === '') {
     body.taxId = null;
@@ -233,7 +199,7 @@ peopleRouter.patch('/:id', async (c) => {
   try {
     const result = await db.update(person)
       .set(validation.data)
-      .where(and(eq(person.id, id), eq(person.orgId, orgId)))
+      .where(ctx.scoped(person.orgId, eq(person.id, id)))
       .returning()
       .get();
 
@@ -257,28 +223,26 @@ peopleRouter.patch('/:id', async (c) => {
 
 // DELETE /api/people/:id - Delete person and all associated data
 peopleRouter.delete('/:id', async (c) => {
-  const denied = await requirePermission(c, 'people.edit');
-  if (denied) return denied;
-
+  const ctx = orgContext(c, 'people.edit');
+  if (ctx instanceof Response) return ctx;
+  const { db } = ctx;
   const id = c.req.param('id');
-  const { orgId } = c.get('jwtPayload');
-  const db = drizzle(c.env.DB);
 
   try {
-    const docs = await db.select({ id: complianceDocument.id }).from(complianceDocument).where(and(eq(complianceDocument.personId, id), eq(complianceDocument.orgId, orgId))).all();
+    const docs = await db.select({ id: complianceDocument.id }).from(complianceDocument).where(ctx.scoped(complianceDocument.orgId, eq(complianceDocument.personId, id))).all();
     const docDeletes = docs.map((doc) => db.delete(complianceDocumentFlag).where(eq(complianceDocumentFlag.documentId, doc.id)));
 
     const batchItems: [any, ...any[]] = [
-      db.delete(person).where(and(eq(person.id, id), eq(person.orgId, orgId))),
+      db.delete(person).where(ctx.scoped(person.orgId, eq(person.id, id))),
       ...docDeletes,
-      db.delete(alertSuppression).where(and(eq(alertSuppression.personId, id), eq(alertSuppression.orgId, orgId))),
-      db.delete(complianceDocument).where(and(eq(complianceDocument.personId, id), eq(complianceDocument.orgId, orgId))),
-      db.delete(complianceRole).where(and(eq(complianceRole.personId, id), eq(complianceRole.orgId, orgId))),
-      db.delete(memberPeriod).where(and(eq(memberPeriod.personId, id), eq(memberPeriod.orgId, orgId))),
-      db.delete(volunteerPeriod).where(and(eq(volunteerPeriod.personId, id), eq(volunteerPeriod.orgId, orgId))),
-      db.delete(boardMember).where(and(eq(boardMember.personId, id), eq(boardMember.orgId, orgId))),
-      db.update(attendance).set({ delegatorId: null }).where(and(eq(attendance.delegatorId, id), eq(attendance.orgId, orgId))),
-      db.delete(attendance).where(and(eq(attendance.personId, id), eq(attendance.orgId, orgId)))
+      db.delete(alertSuppression).where(ctx.scoped(alertSuppression.orgId, eq(alertSuppression.personId, id))),
+      db.delete(complianceDocument).where(ctx.scoped(complianceDocument.orgId, eq(complianceDocument.personId, id))),
+      db.delete(complianceRole).where(ctx.scoped(complianceRole.orgId, eq(complianceRole.personId, id))),
+      db.delete(memberPeriod).where(ctx.scoped(memberPeriod.orgId, eq(memberPeriod.personId, id))),
+      db.delete(volunteerPeriod).where(ctx.scoped(volunteerPeriod.orgId, eq(volunteerPeriod.personId, id))),
+      db.delete(boardMember).where(ctx.scoped(boardMember.orgId, eq(boardMember.personId, id))),
+      db.update(attendance).set({ delegatorId: null }).where(ctx.scoped(attendance.orgId, eq(attendance.delegatorId, id))),
+      db.delete(attendance).where(ctx.scoped(attendance.orgId, eq(attendance.personId, id)))
     ];
 
     await db.batch(batchItems);
@@ -292,13 +256,11 @@ peopleRouter.delete('/:id', async (c) => {
 
 // POST /api/people/:id/verify-cf — verify one person's codice fiscale and persist result
 peopleRouter.post('/:id/verify-cf', async (c) => {
-  const denied = await requirePermission(c, 'people.view');
-  if (denied) return denied;
-
+  const ctx = orgContext(c, 'people.view');
+  if (ctx instanceof Response) return ctx;
+  const { db } = ctx;
   const id = c.req.param('id');
-  const { orgId } = c.get('jwtPayload');
-  const db = drizzle(c.env.DB);
-  const [p] = await db.select().from(person).where(and(eq(person.id, id), eq(person.orgId, orgId)));
+  const [p] = await db.select().from(person).where(ctx.scoped(person.orgId, eq(person.id, id)));
   if (!p) return c.json({ error: 'Not found' }, 404);
 
   if (!p.taxId) {
@@ -328,23 +290,20 @@ peopleRouter.post('/:id/verify-cf', async (c) => {
   });
 
   const cfValidation = result.valid ? 'OK' : JSON.stringify(result.errors);
-  await db.update(person).set({ cfValidation, updatedAt: new Date().toISOString() }).where(and(eq(person.id, id), eq(person.orgId, orgId)));
+  await db.update(person).set({ cfValidation, updatedAt: new Date().toISOString() }).where(ctx.scoped(person.orgId, eq(person.id, id)));
 
   return c.json({ valid: result.valid, errors: result.errors, cfValidation });
 });
 
 // POST /api/people/:id/create-user - Create a user account for a person and link them
 peopleRouter.post('/:id/create-user', async (c) => {
-  const denied = await requirePermission(c, 'settings.users.manage');
-  if (denied) return denied;
-
+  const ctx = orgContext(c, 'settings.users.manage');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
   const id = c.req.param('id');
-  const payload = c.get('jwtPayload');
-  const db = drizzle(c.env.DB);
 
   // Fetch person
-  const { orgId } = payload;
-  const [person_record] = await db.select().from(person).where(and(eq(person.id, id), eq(person.orgId, orgId)));
+  const [person_record] = await db.select().from(person).where(ctx.scoped(person.orgId, eq(person.id, id)));
   if (!person_record) {
     return c.json({ error: 'Person not found' }, 404);
   }
@@ -380,12 +339,7 @@ peopleRouter.post('/:id/create-user', async (c) => {
       updatedAt: now,
     });
 
-    // Create organizationUser link
-    const orgId = payload.orgId; // orgId should be in JWT payload
-    if (!orgId) {
-      return c.json({ error: 'Organization context missing' }, 400);
-    }
-
+    // Create organizationUser link (orgId comes from the verified request context)
     const permissions = body.permissions || [];
     await db.insert(organizationUser).values({
       id: crypto.randomUUID(),
@@ -397,8 +351,8 @@ peopleRouter.post('/:id/create-user', async (c) => {
       joinedAt: now,
     });
 
-    // Link person to user
-    await db.update(person).set({ userId: newUserId, updatedAt: now }).where(eq(person.id, id));
+    // Link person to user — org-scoped so a person from another tenant can't be linked
+    await db.update(person).set({ userId: newUserId, updatedAt: now }).where(ctx.scoped(person.orgId, eq(person.id, id)));
 
     return c.json({
       person: {
@@ -423,12 +377,10 @@ peopleRouter.post('/:id/create-user', async (c) => {
 
 // POST /api/people/verify-cf/all — verify all people with enough data and persist results
 peopleRouter.post('/verify-cf/all', async (c) => {
-  const denied = await requirePermission(c, 'people.view');
-  if (denied) return denied;
-
-  const { orgId } = c.get('jwtPayload');
-  const db = drizzle(c.env.DB);
-  const everyone = await db.select().from(person).where(eq(person.orgId, orgId));
+  const ctx = orgContext(c, 'people.view');
+  if (ctx instanceof Response) return ctx;
+  const { db } = ctx;
+  const everyone = await db.select().from(person).where(ctx.scoped(person.orgId));
   const now = new Date().toISOString();
 
   let checked = 0, ok = 0, failed = 0, skipped = 0;
@@ -454,7 +406,7 @@ peopleRouter.post('/verify-cf/all', async (c) => {
       place: placeForLookup,
     });
     const cfValidation = result.valid ? 'OK' : JSON.stringify(result.errors);
-    await db.update(person).set({ cfValidation, updatedAt: now }).where(and(eq(person.id, p.id), eq(person.orgId, orgId)));
+    await db.update(person).set({ cfValidation, updatedAt: now }).where(ctx.scoped(person.orgId, eq(person.id, p.id)));
     checked++;
     result.valid ? ok++ : failed++;
   }

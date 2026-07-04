@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'crypto';
+import { eq } from 'drizzle-orm';
 import { getMiniflareDB } from './miniflare-context';
 import * as schema from '../../src/db/schema';
 
@@ -68,6 +69,7 @@ export async function createTestPerson(
 
   const person = {
     id: generateUuid(),
+    orgId,
     firstName: `Test`,
     lastName: `Person ${Date.now()}`,
     createdAt: new Date().toISOString(),
@@ -102,7 +104,7 @@ export async function getOrganizationBySlug(slug: string) {
   const result = await db
     .select()
     .from(schema.organization)
-    .where((t) => t.slug === slug)
+    .where(eq(schema.organization.slug, slug))
     .limit(1)
     .all();
   return result[0] || null;
@@ -113,7 +115,7 @@ export async function getUserByEmail(email: string) {
   const result = await db
     .select()
     .from(schema.user)
-    .where((t) => t.email === email)
+    .where(eq(schema.user.email, email))
     .limit(1)
     .all();
   return result[0] || null;

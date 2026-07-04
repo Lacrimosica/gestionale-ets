@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import { drizzle } from 'drizzle-orm/d1';
 import { user as userSchema, organizationSetting as organizationSettingSchema, organization, organizationUser, invite } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 type Bindings = {
   DB: D1Database;
@@ -100,7 +100,7 @@ authRouter.post('/login', async (c) => {
     if (foundOrg) {
       org = foundOrg;
       orgUser = await db.select().from(organizationUser)
-        .where(eq(organizationUser.userId, user.id) && eq(organizationUser.orgId, foundOrg.id))
+        .where(and(eq(organizationUser.userId, user.id), eq(organizationUser.orgId, foundOrg.id)))
         .get();
     }
   }
@@ -114,7 +114,7 @@ authRouter.post('/login', async (c) => {
     if (foundOrg) {
       org = foundOrg;
       orgUser = await db.select().from(organizationUser)
-        .where(eq(organizationUser.userId, user.id) && eq(organizationUser.orgId, foundOrg.id))
+        .where(and(eq(organizationUser.userId, user.id), eq(organizationUser.orgId, foundOrg.id)))
         .get();
     }
   }

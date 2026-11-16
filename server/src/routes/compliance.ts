@@ -25,6 +25,7 @@ import {
   type ComplianceRules,
 } from '../lib/compliance';
 import { organizationSetting } from '../db/schema';
+import { ownedByOrg } from '../lib/org-context';
 
 type Bindings = {
   DB: D1Database;
@@ -320,6 +321,9 @@ complianceRouter.post('/roles', async (c) => {
   const body = await c.req.json();
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
+  if (!body.personId || !(await ownedByOrg(db, orgId, person, body.personId))) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
+  }
   const now = new Date().toISOString();
 
   const created = await db
@@ -416,6 +420,9 @@ complianceRouter.post('/documents', async (c) => {
   const body = await c.req.json();
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
+  if (!body.personId || !(await ownedByOrg(db, orgId, person, body.personId))) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
+  }
   const now = new Date().toISOString();
 
   await db
@@ -534,6 +541,9 @@ complianceRouter.post('/documents/:id/flags', async (c) => {
   const { orgId } = c.get('jwtPayload');
   const body = await c.req.json();
   const db = drizzle(c.env.DB);
+  if (!(await ownedByOrg(db, orgId, complianceDocument, documentId))) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
+  }
   const now = new Date().toISOString();
 
   const created = await db
@@ -608,6 +618,9 @@ complianceRouter.post('/consent-records', async (c) => {
   const body = await c.req.json();
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
+  if (!body.personId || !(await ownedByOrg(db, orgId, person, body.personId)) || !(await ownedByOrg(db, orgId, complianceDocument, body.documentId))) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
+  }
   const now = new Date().toISOString();
 
   const created = await db.insert(consentRecord).values({
@@ -650,6 +663,9 @@ complianceRouter.post('/suppressions', async (c) => {
   const body = await c.req.json();
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
+  if (!(await ownedByOrg(db, orgId, person, body.personId))) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
+  }
   const now = new Date().toISOString();
 
   const existing = await db.select().from(alertSuppression).where(and(eq(alertSuppression.alertKey, body.alertKey), eq(alertSuppression.orgId, orgId))).all();

@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
-import { volunteerPeriod, memberPeriod, person, user } from '../db/schema';
+import { volunteerPeriod, memberPeriod, person, user, assembly } from '../db/schema';
+import { ownedByOrg } from '../lib/org-context';
 import { eq, and, isNull, isNotNull } from 'drizzle-orm';
 
 type Bindings = {
@@ -29,6 +30,8 @@ const parsePermissions = (value?: string | null) => {
   }
 };
 
+const invalidReference = (c: any) => c.json({ error: 'Referenced record not found in this organization' }, 404);
+
 const requirePermission = async (c: any, permission: string) => {
   const payload = c.get('jwtPayload');
   // Permissions now come from JWT payload (sourced from organization_user table)
@@ -50,6 +53,10 @@ periodsRouter.post('/volunteers', async (c) => {
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
   const id = crypto.randomUUID();
+
+  if (!body.personId || !(await ownedByOrg(db, orgId, person, body.personId))) {
+    return invalidReference(c);
+  }
 
   const newPeriod = {
     id,
@@ -118,7 +125,7 @@ periodsRouter.get('/volunteers/active', async (c) => {
     period: volunteerPeriod
   })
   .from(volunteerPeriod)
-  .innerJoin(person, eq(volunteerPeriod.personId, person.id))
+  .innerJoin(person, and(eq(volunteerPeriod.personId, person.id), eq(person.orgId, orgId)))
   .where(and(
     eq(volunteerPeriod.status, 'active'),
     eq(volunteerPeriod.orgId, orgId),
@@ -147,7 +154,7 @@ periodsRouter.get('/members/unlinked', async (c) => {
       lastName: person.lastName,
     })
     .from(memberPeriod)
-    .innerJoin(person, eq(memberPeriod.personId, person.id))
+    .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
     .where(and(isNull(memberPeriod.admissionAssemblyId), eq(memberPeriod.orgId, orgId)))
     .all(),
 
@@ -159,7 +166,7 @@ periodsRouter.get('/members/unlinked', async (c) => {
       lastName: person.lastName,
     })
     .from(memberPeriod)
-    .innerJoin(person, eq(memberPeriod.personId, person.id))
+    .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
     .where(and(
       isNull(memberPeriod.exitAssemblyId),
       isNotNull(memberPeriod.resignationDate),
@@ -180,6 +187,14 @@ periodsRouter.post('/members', async (c) => {
   const db = drizzle(c.env.DB);
   const id = crypto.randomUUID();
   const admissionDate = body.admissionDate || new Date().toISOString().split('T')[0];
+
+  const refsOwned = body.personId && body.volunteerPeriodId
+    && await ownedByOrg(db, orgId, person, body.personId)
+    && await ownedByOrg(db, orgId, volunteerPeriod, body.volunteerPeriodId)
+    && await ownedByOrg(db, orgId, assembly, body.admissionAssemblyId);
+  if (!refsOwned) {
+    return invalidReference(c);
+  }
 
   const newPeriod = {
     id,
@@ -204,6 +219,10 @@ periodsRouter.patch('/members/:id/resignation', async (c) => {
   const { orgId } = c.get('jwtPayload');
   const body = await c.req.json();
   const db = drizzle(c.env.DB);
+
+  if (!(await ownedByOrg(db, orgId, assembly, body.exitAssemblyId))) {
+    return invalidReference(c);
+  }
 
   await db.update(memberPeriod)
     .set({
@@ -232,6 +251,9 @@ periodsRouter.patch('/members/:id/set-assembly', async (c) => {
 
   if (Object.keys(updateData).length === 0) {
     return c.json({ error: 'No fields to update' }, 400);
+  }
+  if (!(await ownedByOrg(db, orgId, assembly, [updateData.admissionAssemblyId, updateData.exitAssemblyId]))) {
+    return invalidReference(c);
   }
 
   await db.update(memberPeriod)
@@ -262,6 +284,9 @@ periodsRouter.patch('/members/:id', async (c) => {
 
   if (Object.keys(updateData).length === 0) {
     return c.json({ error: 'No fields to update' }, 400);
+  }
+  if (!(await ownedByOrg(db, orgId, assembly, [updateData.admissionAssemblyId, updateData.exitAssemblyId]))) {
+    return invalidReference(c);
   }
 
   await db.update(memberPeriod)
@@ -295,7 +320,7 @@ periodsRouter.get('/members/active', async (c) => {
     period: memberPeriod
   })
   .from(memberPeriod)
-  .innerJoin(person, eq(memberPeriod.personId, person.id))
+  .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
   .where(and(
     isNull(memberPeriod.resignationDate),
     eq(memberPeriod.orgId, orgId)
@@ -316,7 +341,7 @@ periodsRouter.get('/members', async (c) => {
     period: memberPeriod
   })
   .from(memberPeriod)
-  .innerJoin(person, eq(memberPeriod.personId, person.id))
+  .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
   .where(eq(memberPeriod.orgId, orgId))
   .all();
 

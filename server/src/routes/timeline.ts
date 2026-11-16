@@ -111,7 +111,7 @@ timelineRouter.get('/', async (c) => {
       canBeRemoved: person.canBeRemoved
     })
       .from(memberPeriod)
-      .innerJoin(person, eq(memberPeriod.personId, person.id))
+      .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
       .where(eq(memberPeriod.orgId, orgId))
       .all(),
     // Join agendaItem → convocation to recover assembly association

@@ -1,8 +1,26 @@
 import { Hono } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { convocation, user, assembly, agendaItem, agendaItemPerson, person } from '../db/schema';
-import { eq, or, and } from 'drizzle-orm';
+import { eq, or, and, inArray } from 'drizzle-orm';
 import { withoutServerOwnedFields } from '../lib/request-body';
+import { ownedByOrg } from '../lib/org-context';
+
+const invalidReference = (c: any) => c.json({ error: 'Referenced record not found in this organization' }, 404);
+
+/**
+ * Keep only ids of people in the caller's org. Agenda members are best-effort
+ * links (the picker can send display names), so unknown values are dropped
+ * rather than rejected — but another org's person ids must never be linked.
+ */
+const ownPersonIds = async (db: Parameters<typeof ownedByOrg>[0], orgId: string, ids: unknown): Promise<string[]> => {
+  if (!Array.isArray(ids)) return [];
+  const candidates = [...new Set(ids.filter((id): id is string => typeof id === 'string' && id !== ''))];
+  if (candidates.length === 0) return [];
+  const rows = await db.select({ id: person.id }).from(person)
+    .where(and(eq(person.orgId, orgId), inArray(person.id, candidates)))
+    .all();
+  return rows.map((r) => r.id);
+};
 
 type Bindings = { DB: D1Database };
 
@@ -152,6 +170,9 @@ convocationsRouter.post('/', async (c) => {
   if (body.secondAssemblyId && body.secondAssemblyId === body.assemblyId) {
     return c.json({ error: 'The two linked assemblies must be different' }, 400);
   }
+  if (!(await ownedByOrg(db, orgId, assembly, [body.assemblyId, body.secondAssemblyId]))) {
+    return invalidReference(c);
+  }
 
   const row = {
     id,
@@ -191,6 +212,9 @@ convocationsRouter.patch('/:id', async (c) => {
 
   if (effectiveSecondAssemblyId && effectiveSecondAssemblyId === effectiveAssemblyId) {
     return c.json({ error: 'The two linked assemblies must be different' }, 400);
+  }
+  if (!(await ownedByOrg(db, orgId, assembly, [body.assemblyId, body.secondAssemblyId]))) {
+    return invalidReference(c);
   }
 
   await db.update(convocation)
@@ -249,9 +273,9 @@ convocationsRouter.post('/:id/agenda', async (c) => {
   await db.insert(agendaItem).values(newItem).run();
 
   // Write members to junction table
-  if (Array.isArray(memberIds) && memberIds.length > 0) {
-    const junctionRows = memberIds
-      .filter((id: string) => id && typeof id === 'string')
+  const linkedPersonIds = await ownPersonIds(db, orgId, memberIds);
+  if (linkedPersonIds.length > 0) {
+    const junctionRows = linkedPersonIds
       .map((personId: string) => ({
         id: crypto.randomUUID(),
         agendaItemId: itemId,
@@ -278,6 +302,10 @@ convocationsRouter.patch('/:id/agenda/:itemId', async (c) => {
   const body = await c.req.json();
   const db = drizzle(c.env.DB);
 
+  const item = await db.select({ id: agendaItem.id }).from(agendaItem)
+    .where(and(eq(agendaItem.id, itemId), eq(agendaItem.orgId, orgId))).get();
+  if (!item) return c.json({ error: 'Agenda item not found' }, 404);
+
   const workflowData = body.workflowData ? { ...body.workflowData } : undefined;
   const memberIds = workflowData?.members || body.memberIds;
   if (workflowData) {
@@ -298,9 +326,9 @@ convocationsRouter.patch('/:id/agenda/:itemId', async (c) => {
     await db.delete(agendaItemPerson).where(and(eq(agendaItemPerson.agendaItemId, itemId), eq(agendaItemPerson.orgId, orgId))).run();
 
     // Insert new members
-    if (memberIds.length > 0) {
-      const junctionRows = memberIds
-        .filter((id: string) => id && typeof id === 'string')
+    const linkedPersonIds = await ownPersonIds(db, orgId, memberIds);
+    if (linkedPersonIds.length > 0) {
+      const junctionRows = linkedPersonIds
         .map((personId: string) => ({
           id: crypto.randomUUID(),
           agendaItemId: itemId,

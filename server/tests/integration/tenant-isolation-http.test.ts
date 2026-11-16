@@ -367,6 +367,71 @@ describe('Tenant isolation over HTTP', () => {
     });
   });
 
+  describe('references to another org are rejected', () => {
+    it('periods, attendance, board and compliance writes refuse foreign ids', async () => {
+      const { org1, org2, user1, person1, person2 } = await seedTwoOrgs();
+      const ownAssembly = await seedAssembly(org1.id);
+      const foreignAssembly = await seedAssembly(org2.id);
+      const foreignGeneration = crypto.randomUUID();
+      await getMiniflareDB().insert(schema.boardGeneration).values({
+        id: foreignGeneration, orgId: org2.id, name: 'B', startDate: '2025-01-01', createdAt: now,
+      });
+      const token = await mintToken(user1.id, org1.id, [
+        'people.edit', 'assemblies.edit', 'convocations.edit', 'settings.users.manage',
+      ]);
+
+      const attempts: Array<[string, string, unknown]> = [
+        ['POST', '/api/periods/volunteers', { personId: person2.id }],
+        ['POST', `/api/assemblies/${ownAssembly}/attendance`, { personId: person2.id, mode: 'in_person' }],
+        ['POST', `/api/assemblies/${ownAssembly}/attendance`, { personId: person1.id, mode: 'proxy', delegatorId: person2.id }],
+        ['POST', `/api/assemblies/${foreignAssembly}/attendance`, { personId: person1.id, mode: 'in_person' }],
+        ['POST', `/api/generations/board/${foreignGeneration}/members`, { personId: person1.id, role: 'president' }],
+        ['POST', '/api/convocations', { assemblyId: foreignAssembly }],
+        ['POST', '/api/compliance/roles', { personId: person2.id, roleType: 'Presidente' }],
+      ];
+      for (const [method, path, body] of attempts) {
+        const res = await call(method, path, token, body);
+        expect(res.status, `${method} ${path} ${JSON.stringify(body)}`).toBe(404);
+      }
+
+      const planted = await getMiniflareDB().select().from(schema.volunteerPeriod)
+        .where(eq(schema.volunteerPeriod.personId, person2.id)).all();
+      expect(planted).toEqual([]);
+    });
+
+    it('agenda members outside the org are not linked', async () => {
+      const { org1, user1, person1, person2 } = await seedTwoOrgs();
+      const assemblyId = await seedAssembly(org1.id);
+      const convocationId = crypto.randomUUID();
+      await getMiniflareDB().insert(schema.convocation).values({
+        id: convocationId, orgId: org1.id, assemblyId, date: '2025-03-01', createdAt: now, updatedAt: now,
+      });
+      const token = await mintToken(user1.id, org1.id, ['assemblies.edit']);
+
+      const res = await call('POST', `/api/convocations/${convocationId}/agenda`, token, {
+        number: 1, title: 'Ammissione', memberIds: [person1.id, person2.id],
+      });
+
+      expect(res.status).toBe(201);
+      const { id: itemId } = (await res.json()) as { id: string };
+      const links = await getMiniflareDB().select().from(schema.agendaItemPerson)
+        .where(eq(schema.agendaItemPerson.agendaItemId, itemId)).all();
+      expect(links.map((l) => l.personId)).toEqual([person1.id]);
+    });
+
+    it('a foreign person planted directly in the DB is not exposed through member listings', async () => {
+      const { org1, user1, person2 } = await seedTwoOrgs();
+      await seedActiveMember(org1.id, person2.id); // org1 period row pointing at org2's person
+      const token = await mintToken(user1.id, org1.id, ['people.view']);
+
+      const res = await call('GET', '/api/periods/members', token);
+
+      expect(res.status).toBe(200);
+      const rows = (await res.json()) as Array<{ person: { id: string } }>;
+      expect(rows.map((r) => r.person.id)).not.toContain(person2.id);
+    });
+  });
+
   describe('compliance', () => {
     const RULES = (tag: string) => ({
       documentTypes: { [tag]: { label: tag } },

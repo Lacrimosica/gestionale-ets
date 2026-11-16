@@ -4,6 +4,7 @@ import { boardGeneration, boardMember, person, user } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { isValidRole, normalizeRole } from '../lib/board-roles';
 import { withoutServerOwnedFields } from '../lib/request-body';
+import { ownedByOrg } from '../lib/org-context';
 
 type Bindings = {
   DB: D1Database;
@@ -82,7 +83,7 @@ generationsRouter.get('/board/:id/members', async (c) => {
     person: person
   })
   .from(boardMember)
-  .innerJoin(person, eq(boardMember.personId, person.id))
+  .innerJoin(person, and(eq(boardMember.personId, person.id), eq(person.orgId, orgId)))
   .where(and(eq(boardMember.generationId, id), eq(boardMember.orgId, orgId)))
   .all();
 
@@ -141,6 +142,13 @@ generationsRouter.post('/board/:id/members', async (c) => {
     return c.json({ error: `Invalid role "${body.role}". Valid roles are: president, vice_president, treasurer, secretary, councilor` }, 400);
   }
 
+  const refsOwned = body.personId
+    && await ownedByOrg(db, orgId, boardGeneration, generationId)
+    && await ownedByOrg(db, orgId, person, body.personId);
+  if (!refsOwned) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
+  }
+
   const id = crypto.randomUUID();
   // Server-set keys go last so the body cannot override them (generationId comes from the URL).
   const newMember = {
@@ -172,6 +180,11 @@ generationsRouter.put('/board/members/:id', async (c) => {
       return c.json({ error: `Invalid role "${body.role}". Valid roles are: president, vice_president, treasurer, secretary, councilor` }, 400);
     }
     body.role = normalizedRole;
+  }
+  const refsOwned = await ownedByOrg(db, orgId, boardGeneration, body.generationId)
+    && await ownedByOrg(db, orgId, person, body.personId);
+  if (!refsOwned) {
+    return c.json({ error: 'Referenced record not found in this organization' }, 404);
   }
 
   const result = await db.update(boardMember)

@@ -1,9 +1,10 @@
 import { Hono } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
-import { assembly, agendaItem, attendance, user, convocation, memberPeriod, documentGenerationLog, person } from '../db/schema';
+import { assembly, agendaItem, attendance, user, convocation, memberPeriod, documentGenerationLog, person, boardGeneration } from '../db/schema';
 import { recomputeRetentionForAssembly } from '../lib/retention';
 import { eq, desc, and, not, sql, or, lte, gte, isNull } from 'drizzle-orm';
 import { withoutServerOwnedFields } from '../lib/request-body';
+import { ownedByOrg } from '../lib/org-context';
 
 type Bindings = {
   DB: D1Database;
@@ -30,6 +31,13 @@ const parsePermissions = (value?: string | null) => {
     return [];
   }
 };
+
+const invalidReference = (c: any) => c.json({ error: 'Referenced record not found in this organization' }, 404);
+
+/** Board generation and officer ids an assembly may carry must belong to the caller's org. */
+const assemblyRefsOwned = async (db: Parameters<typeof ownedByOrg>[0], orgId: string, fields: Record<string, unknown>) =>
+  await ownedByOrg(db, orgId, boardGeneration, fields.boardGenerationId as string | undefined)
+  && await ownedByOrg(db, orgId, person, [fields.presidentId, fields.secretaryId] as Array<string | undefined>);
 
 const requirePermission = async (c: any, permission: string) => {
   const payload = c.get('jwtPayload');
@@ -144,6 +152,10 @@ assembliesRouter.post('/', async (c) => {
   const db = drizzle(c.env.DB);
   const id = crypto.randomUUID();
 
+  if (!(await assemblyRefsOwned(db, orgId, body))) {
+    return invalidReference(c);
+  }
+
   // 1. Calculate totalNumber
   const lastTotal = await db.select({ max: sql<number>`max(total_number)` }).from(assembly).where(eq(assembly.orgId, orgId)).get();
   const totalNumber = (Number(lastTotal?.max) || 0) + 1;
@@ -178,8 +190,8 @@ assembliesRouter.post('/', async (c) => {
   const { convocationDate: bodyConvDate, ...assemblyFields } = body;
 
   const newAssembly = {
+    ...(withoutServerOwnedFields(assemblyFields) as typeof assemblyFields),
     id,
-    ...assemblyFields,
     orgId: orgId,
     boardGenerationId: body.boardGenerationId || null,
     totalNumber,
@@ -223,6 +235,9 @@ assembliesRouter.patch('/:id', async (c) => {
   const body = await c.req.json();
   const { convocationDate: bodyConvDate, presidentName: _pn, secretaryName: _sn, ...rawAssemblyFields } = body;
   const assemblyFields = withoutServerOwnedFields(rawAssemblyFields);
+  if (!(await assemblyRefsOwned(drizzle(c.env.DB), orgId, assemblyFields))) {
+    return invalidReference(c);
+  }
   const db = drizzle(c.env.DB);
 
   const existing = await db.select().from(assembly).where(and(eq(assembly.id, id), eq(assembly.orgId, orgId))).get();
@@ -326,7 +341,7 @@ assembliesRouter.get('/:id/member-links', async (c) => {
       lastName: person.lastName,
     })
     .from(memberPeriod)
-    .innerJoin(person, eq(memberPeriod.personId, person.id))
+    .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
     .where(and(eq(memberPeriod.admissionAssemblyId, id), eq(memberPeriod.orgId, orgId)))
     .all(),
 
@@ -338,7 +353,7 @@ assembliesRouter.get('/:id/member-links', async (c) => {
       lastName: person.lastName,
     })
     .from(memberPeriod)
-    .innerJoin(person, eq(memberPeriod.personId, person.id))
+    .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
     .where(and(eq(memberPeriod.exitAssemblyId, id), eq(memberPeriod.orgId, orgId)))
     .all(),
   ]);
@@ -367,7 +382,7 @@ assembliesRouter.get('/:id/eligible-members', async (c) => {
     lastName: person.lastName,
   })
     .from(memberPeriod)
-    .innerJoin(person, eq(memberPeriod.personId, person.id))
+    .innerJoin(person, and(eq(memberPeriod.personId, person.id), eq(person.orgId, orgId)))
     .where(
       and(
         eq(person.isPresumedNonExistent, 0),
@@ -398,6 +413,13 @@ assembliesRouter.post('/:id/attendance', async (c) => {
   const { orgId } = c.get('jwtPayload');
   const body = await c.req.json();
   const db = drizzle(c.env.DB);
+
+  const refsOwned = body.personId
+    && await ownedByOrg(db, orgId, assembly, id)
+    && await ownedByOrg(db, orgId, person, [body.personId, body.delegatorId]);
+  if (!refsOwned) {
+    return invalidReference(c);
+  }
 
   const existing = await db.select().from(attendance)
     .where(and(eq(attendance.assemblyId, id), eq(attendance.personId, body.personId), eq(attendance.orgId, orgId)))

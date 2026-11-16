@@ -1,7 +1,7 @@
 import type { Context } from 'hono';
 import { drizzle, type DrizzleD1Database } from 'drizzle-orm/d1';
-import { and, eq, type SQL } from 'drizzle-orm';
-import type { AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
+import { and, eq, inArray, type SQL } from 'drizzle-orm';
+import type { AnySQLiteColumn, SQLiteTable } from 'drizzle-orm/sqlite-core';
 
 /**
  * Shape of the JWT payload issued by the auth route and validated by the
@@ -34,6 +34,34 @@ export type OrgContext = {
    */
   scoped: (orgColumn: AnySQLiteColumn, ...conditions: Array<SQL | undefined>) => SQL;
 };
+
+type OrgScopedTable = SQLiteTable & { id: AnySQLiteColumn; orgId: AnySQLiteColumn };
+
+/**
+ * Check that every referenced id exists in `table` under `orgId`.
+ *
+ * Use on ids taken from a request body before inserting or linking them: an id
+ * that belongs to another org would otherwise plant a cross-tenant reference that
+ * later surfaces the other org's data through joins. Null/undefined/empty ids are
+ * ignored, so optional references can be passed straight through.
+ */
+export async function ownedByOrg(
+  db: DrizzleD1Database,
+  orgId: string,
+  table: OrgScopedTable,
+  ids: ReadonlyArray<string | null | undefined> | string | null | undefined,
+): Promise<boolean> {
+  const list = (Array.isArray(ids) ? ids : [ids]).filter((id): id is string => typeof id === 'string' && id !== '');
+  const unique = [...new Set(list)];
+  if (unique.length === 0) return true;
+
+  const rows = await db
+    .select({ id: table.id })
+    .from(table)
+    .where(and(eq(table.orgId, orgId), inArray(table.id, unique)))
+    .all();
+  return rows.length === unique.length;
+}
 
 /**
  * Resolve the org-scoped context for a protected route handler.

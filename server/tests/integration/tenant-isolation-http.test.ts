@@ -476,6 +476,34 @@ describe('Tenant isolation over HTTP', () => {
     });
   });
 
+  describe('setup', () => {
+    // env() sets no DEPLOYMENT_MODE, so this runs as single_org: a stray org row
+    // would make every later setup attempt fail.
+    it('a rejected Google setup token leaves no organization behind', async () => {
+      const setupSession = await sign(
+        { type: 'setup_session', exp: Math.floor(Date.now() / 1000) + 600 },
+        JWT_SECRET,
+      );
+      const post = (body: unknown) => app.request(
+        '/api/setup',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${setupSession}` },
+          body: JSON.stringify(body),
+        },
+        env(),
+      );
+      const base = { orgName: 'Nuova', shortName: 'NU', slug: 'nuova', adminEmail: 'founder@nuova.local' };
+
+      const bad = await post({ ...base, googleToken: 'not-a-valid-token' });
+      expect(bad.status).toBe(400);
+      expect(await getMiniflareDB().select().from(schema.organization).all()).toEqual([]);
+
+      const good = await post({ ...base, adminPassword: 'long-enough-pw' });
+      expect(good.status).toBeLessThan(300);
+    });
+  });
+
   describe('session', () => {
     it('a demotion applies to existing tokens immediately', async () => {
       const { org1, user1 } = await seedTwoOrgs();

@@ -229,27 +229,7 @@ setupRouter.post('/', async (c) => {
       'settings.users.reset_password',
     ];
 
-    // ─ Insert organization ─
-    try {
-      await db.insert(organization).values({
-        id: orgId,
-        name: orgName,
-        shortName: shortName,
-        slug: slug,
-        authDomain: authDomain || null,
-        domainSignupMode: domainSignupMode || 'invite_only',
-        isSetupComplete: 1,
-        createdAt: now
-      });
-    } catch (err: any) {
-      console.error(`Organization insert failed:`, err.message, err);
-      if (err.message && err.message.includes('UNIQUE')) {
-        return c.json({ error: 'Organization already exists (concurrent creation detected).' }, 409);
-      }
-      throw err;
-    }
-
-    // ─ Insert user ─
+    // ─ Verify Google setup token before writing anything ─
     let googleId: string | null = null;
     if (googleToken) {
       try {
@@ -264,52 +244,71 @@ setupRouter.post('/', async (c) => {
       }
     }
 
-    await db.insert(user).values({
-      id: userId,
-      email: adminEmail,
-      password: passwordHash,
-      googleId: googleId,
-      createdAt: now,
-      updatedAt: now
-    });
-
-    // ─ Insert organization_user ─
-    await db.insert(organizationUser).values({
-      id: orgUserId,
-      userId: userId,
-      orgId: orgId,
-      role: 'core_admin',
-      permissions: JSON.stringify(coreAdminPermissions),
-      isOwner: 1,
-      joinedAt: now,
-      invitedByUserId: null
-    });
-
-    // ─ Insert organization_setting ─
-    await db.insert(organizationSetting).values({
-      id: getOrganizationSettingId(orgId),
-      complianceRules: null,
-      city: null,
-      statuteArticleConvocation: null,
-      statuteArticleProxies: null,
-      statuteArticleMembers: null,
-      statuteArticleBoardVote: null,
-      statuteArticleBoardElection: null,
-      maxProxies: null,
-      outputFolderId: null,
-      templateConvocationId: null,
-      templateMinutes1aId: null,
-      templateMinutes2aId: null,
-      templateConvocationExtraordinaryStatuteId: null,
-      templateConvocationExtraordinaryDissolutionId: null,
-      templateConvocationBoardId: null,
-      templateMinutesBoardId: null,
-      varieDefaultText: null,
-      miscellaneousDefaultText: null,
-      orgId: orgId,
-      createdAt: now,
-      updatedAt: now
-    });
+    // ─ Create org, admin user, membership and settings atomically ─
+    // A partial write (e.g. org row without its admin) would permanently block
+    // setup in single_org mode, so all rows go in one batch or none do.
+    try {
+      await db.batch([
+        db.insert(organization).values({
+          id: orgId,
+          name: orgName,
+          shortName: shortName,
+          slug: slug,
+          authDomain: authDomain || null,
+          domainSignupMode: domainSignupMode || 'invite_only',
+          isSetupComplete: 1,
+          createdAt: now
+        }),
+        db.insert(user).values({
+          id: userId,
+          email: adminEmail,
+          password: passwordHash,
+          googleId: googleId,
+          createdAt: now,
+          updatedAt: now
+        }),
+        db.insert(organizationUser).values({
+          id: orgUserId,
+          userId: userId,
+          orgId: orgId,
+          role: 'core_admin',
+          permissions: JSON.stringify(coreAdminPermissions),
+          isOwner: 1,
+          joinedAt: now,
+          invitedByUserId: null
+        }),
+        db.insert(organizationSetting).values({
+          id: getOrganizationSettingId(orgId),
+          complianceRules: null,
+          city: null,
+          statuteArticleConvocation: null,
+          statuteArticleProxies: null,
+          statuteArticleMembers: null,
+          statuteArticleBoardVote: null,
+          statuteArticleBoardElection: null,
+          maxProxies: null,
+          outputFolderId: null,
+          templateConvocationId: null,
+          templateMinutes1aId: null,
+          templateMinutes2aId: null,
+          templateConvocationExtraordinaryStatuteId: null,
+          templateConvocationExtraordinaryDissolutionId: null,
+          templateConvocationBoardId: null,
+          templateMinutesBoardId: null,
+          varieDefaultText: null,
+          miscellaneousDefaultText: null,
+          orgId: orgId,
+          createdAt: now,
+          updatedAt: now
+        }),
+      ]);
+    } catch (err: any) {
+      console.error('Organization setup insert failed:', err.message, err);
+      if (err.message && err.message.includes('UNIQUE')) {
+        return c.json({ error: 'Organization already exists (concurrent creation detected).' }, 409);
+      }
+      throw err;
+    }
 
     // ─ Mark org-creation invite as used (if applicable) ─
     if (hasOrgCreationToken && completedOrgCount > 0 && orgCreationToken) {

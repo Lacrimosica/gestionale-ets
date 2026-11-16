@@ -364,9 +364,13 @@ settingsRouter.post('/users/:id/reset-password', async (c) => {
     return c.json({ error: 'Missing required fields' }, 400);
   }
 
-  const targetUser = await db.select().from(user).where(eq(user.id, id)).get();
-  if (!targetUser) {
-    return c.json({ error: 'User not found' }, 404);
+  // user rows are global; without this membership check a core_admin of any
+  // org could reset (and take over) accounts belonging to other orgs.
+  const orgUser = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), eq(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (!orgUser) {
+    return c.json({ error: 'User not found in this organization' }, 404);
   }
 
   await db.update(user).set({

@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { convocation, user, assembly, agendaItem, agendaItemPerson, person } from '../db/schema';
 import { eq, or, and } from 'drizzle-orm';
+import { withoutServerOwnedFields } from '../lib/request-body';
 
 type Bindings = { DB: D1Database };
 
@@ -193,7 +194,7 @@ convocationsRouter.patch('/:id', async (c) => {
   }
 
   await db.update(convocation)
-    .set({ ...body, updatedAt: new Date().toISOString() })
+    .set({ ...withoutServerOwnedFields(body), updatedAt: new Date().toISOString() })
     .where(and(eq(convocation.id, id), eq(convocation.orgId, orgId)))
     .run();
   return c.json({ success: true });

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { and, eq } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import {
@@ -57,7 +58,7 @@ describe('Multi-Tenant Isolation — Organization Boundaries', () => {
     const org1Users = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.userId === user.id && t.orgId === org1.id)
+      .where(and(eq(schema.organizationUser.userId, user.id), eq(schema.organizationUser.orgId, org1.id)))
       .all();
 
     expect(org1Users.length).toBe(1);
@@ -66,7 +67,7 @@ describe('Multi-Tenant Isolation — Organization Boundaries', () => {
     const org2Users = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.userId === user.id && t.orgId === org2.id)
+      .where(and(eq(schema.organizationUser.userId, user.id), eq(schema.organizationUser.orgId, org2.id)))
       .all();
 
     expect(org2Users.length).toBe(0);
@@ -97,7 +98,7 @@ describe('Multi-Tenant Isolation — Organization Boundaries', () => {
     const memberships = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.userId === user.id)
+      .where(eq(schema.organizationUser.userId, user.id))
       .all();
 
     expect(memberships.length).toBe(2);
@@ -129,13 +130,13 @@ describe('Multi-Tenant Isolation — Organization Boundaries', () => {
     const org1Membership = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.userId === user.id && t.orgId === org1.id)
+      .where(and(eq(schema.organizationUser.userId, user.id), eq(schema.organizationUser.orgId, org1.id)))
       .get();
 
     const org2Membership = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.userId === user.id && t.orgId === org2.id)
+      .where(and(eq(schema.organizationUser.userId, user.id), eq(schema.organizationUser.orgId, org2.id)))
       .get();
 
     expect(org1Membership?.role).toBe('core_admin');
@@ -233,13 +234,13 @@ describe('Multi-Tenant Isolation — Organization Boundaries', () => {
     const org1Settings = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.orgId === org1.id)
+      .where(eq(schema.organizationSetting.orgId, org1.id))
       .all();
 
     const org2Settings = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.orgId === org2.id)
+      .where(eq(schema.organizationSetting.orgId, org2.id))
       .all();
 
     expect(org1Settings.length).toBeGreaterThan(0);
@@ -294,14 +295,14 @@ describe('Multi-Tenant Isolation — Organization Boundaries', () => {
     const org1Events = await db
       .select()
       .from(schema.auditEvent)
-      .where((t) => t.orgId === org1.id)
+      .where(eq(schema.auditEvent.orgId, org1.id))
       .all();
 
     // Query events for org2
     const org2Events = await db
       .select()
       .from(schema.auditEvent)
-      .where((t) => t.orgId === org2.id)
+      .where(eq(schema.auditEvent.orgId, org2.id))
       .all();
 
     expect(org1Events.length).toBeGreaterThan(0);

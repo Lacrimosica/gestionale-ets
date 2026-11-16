@@ -7,6 +7,7 @@ import { BOARD_ROLES, type BoardRole } from '../lib/board-roles';
 import { type WorkflowInput, type WorkflowType, type OrgSettings, runGeneration } from '../lib/document-engine';
 import { formatItalianDate } from '../lib/date-utils';
 import { refreshAccessToken } from '../services/google-auth';
+import { orgContext } from '../lib/org-context';
 
 type Bindings = {
   DB: D1Database;
@@ -37,24 +38,6 @@ const ALL_WORKFLOW_TYPES: WorkflowType[] = [
   'member_resignation',
 ];
 
-const SETTINGS_ID = 'branding';
-
-function parsePermissions(value?: string | null, role?: string): string[] {
-  try {
-    const parsed = value ? JSON.parse(value) : [];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-async function requirePermission(c: any, permission: string) {
-  const payload = c.get('jwtPayload');
-  // Permissions now come from JWT payload (sourced from organization_user table)
-  const permissions = payload.permissions || [];
-  if (!permissions.includes(permission)) return c.json({ error: 'Forbidden' }, 403);
-  return null;
-}
 
 // GET /api/documents/drive-status — check if current user has Drive connected
 documentsRouter.get('/drive-status', async (c) => {
@@ -93,15 +76,19 @@ documentsRouter.get('/drive-auth-url', async (c) => {
 
 // GET /api/documents/board-officers — returns deduplicated name lists for presidente and segretario suggestions
 documentsRouter.get('/board-officers', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
   const rows = await db
     .select({ firstName: person.firstName, lastName: person.lastName, role: boardMember.role })
     .from(boardMember)
     .innerJoin(person, eq(boardMember.personId, person.id))
-    .where(inArray(boardMember.role, [BOARD_ROLES.PRESIDENT, BOARD_ROLES.VICE_PRESIDENT, BOARD_ROLES.SECRETARY]))
+    .where(and(
+      eq(boardMember.orgId, orgId),
+      eq(person.orgId, orgId),
+      inArray(boardMember.role, [BOARD_ROLES.PRESIDENT, BOARD_ROLES.VICE_PRESIDENT, BOARD_ROLES.SECRETARY]),
+    ))
     .all();
 
   const presidenteRoles: Set<BoardRole> = new Set([BOARD_ROLES.PRESIDENT, BOARD_ROLES.VICE_PRESIDENT]);
@@ -130,13 +117,13 @@ documentsRouter.get('/board-officers', async (c) => {
 // GET /api/documents/board-officers-by-date?date=YYYY-MM-DD
 // Returns the active president and secretary based on compliance roles on a given date
 documentsRouter.get('/board-officers-by-date', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
   const date = c.req.query('date');
   if (!date) return c.json({ error: 'date query param required (YYYY-MM-DD)' }, 400);
 
-  const db = drizzle(c.env.DB);
 
   const roles = await db
     .select({ roleType: complianceRole.roleType, firstName: person.firstName, lastName: person.lastName })
@@ -144,6 +131,8 @@ documentsRouter.get('/board-officers-by-date', async (c) => {
     .innerJoin(person, eq(complianceRole.personId, person.id))
     .where(
       and(
+        eq(complianceRole.orgId, orgId),
+        eq(person.orgId, orgId),
         or(isNull(complianceRole.startDate), lte(complianceRole.startDate, date)),
         or(isNull(complianceRole.endDate), gte(complianceRole.endDate, date))
       )
@@ -166,16 +155,16 @@ documentsRouter.get('/board-officers-by-date', async (c) => {
 
 // GET /api/documents/member-candidates — active volunteers without an active membership (for nuoviSoci / sociEsclusi pickers)
 documentsRouter.get('/member-candidates', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
 
   // Find person IDs that already have an active membership (no resignationDate)
   const activeMembers = await db
     .select({ personId: memberPeriod.personId })
     .from(memberPeriod)
-    .where(isNull(memberPeriod.resignationDate))
+    .where(and(eq(memberPeriod.orgId, orgId), isNull(memberPeriod.resignationDate)))
     .all();
   const activeMemberIds = new Set(activeMembers.map((m) => m.personId));
 
@@ -184,7 +173,7 @@ documentsRouter.get('/member-candidates', async (c) => {
     .select({ id: person.id, firstName: person.firstName, lastName: person.lastName })
     .from(volunteerPeriod)
     .innerJoin(person, eq(volunteerPeriod.personId, person.id))
-    .where(eq(volunteerPeriod.status, 'active'))
+    .where(and(eq(volunteerPeriod.orgId, orgId), eq(person.orgId, orgId), eq(volunteerPeriod.status, 'active')))
     .all();
 
   // Deduplicate by personId and exclude those already members
@@ -202,10 +191,10 @@ documentsRouter.get('/member-candidates', async (c) => {
 
 // GET /api/documents/resigned-members — members with a recorded resignation date (for dimissioni picker)
 documentsRouter.get('/resigned-members', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
 
   const rows = await db
     .select({
@@ -216,7 +205,12 @@ documentsRouter.get('/resigned-members', async (c) => {
     })
     .from(memberPeriod)
     .innerJoin(person, eq(memberPeriod.personId, person.id))
-    .where(and(isNotNull(memberPeriod.exitReason), isNotNull(memberPeriod.resignationDate)))
+    .where(and(
+      eq(memberPeriod.orgId, orgId),
+      eq(person.orgId, orgId),
+      isNotNull(memberPeriod.exitReason),
+      isNotNull(memberPeriod.resignationDate),
+    ))
     .all();
 
   // Deduplicate — keep most recent resignation per person
@@ -238,15 +232,15 @@ documentsRouter.get('/resigned-members', async (c) => {
 
 // GET /api/documents/active-members — currently active members (no resignationDate) for exclusion / dimissioni pickers
 documentsRouter.get('/active-members', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
   const rows = await db
     .select({ id: person.id, firstName: person.firstName, lastName: person.lastName })
     .from(memberPeriod)
     .innerJoin(person, eq(memberPeriod.personId, person.id))
-    .where(isNull(memberPeriod.resignationDate))
+    .where(and(eq(memberPeriod.orgId, orgId), eq(person.orgId, orgId), isNull(memberPeriod.resignationDate)))
     .all();
 
   const seen = new Set<string>();
@@ -263,15 +257,15 @@ documentsRouter.get('/active-members', async (c) => {
 
 // GET /api/documents/active-volunteers — all active volunteers for board election picker
 documentsRouter.get('/active-volunteers', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
   const rows = await db
     .select({ id: person.id, firstName: person.firstName, lastName: person.lastName })
     .from(volunteerPeriod)
     .innerJoin(person, eq(volunteerPeriod.personId, person.id))
-    .where(eq(volunteerPeriod.status, 'active'))
+    .where(and(eq(volunteerPeriod.orgId, orgId), eq(person.orgId, orgId), eq(volunteerPeriod.status, 'active')))
     .all();
 
   const seen = new Set<string>();
@@ -288,23 +282,24 @@ documentsRouter.get('/active-volunteers', async (c) => {
 
 // GET /api/documents/all-volunteers-with-status — all persons with a volunteer period, labelled by current status
 documentsRouter.get('/all-volunteers-with-status', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
 
   // All persons who have ever had a volunteer period
   const volRows = await db
     .select({ id: person.id, firstName: person.firstName, lastName: person.lastName, volStatus: volunteerPeriod.status })
     .from(volunteerPeriod)
     .innerJoin(person, eq(volunteerPeriod.personId, person.id))
+    .where(and(eq(volunteerPeriod.orgId, orgId), eq(person.orgId, orgId)))
     .all();
 
   // Current active member person IDs
   const memberRows = await db
     .select({ personId: memberPeriod.personId })
     .from(memberPeriod)
-    .where(isNull(memberPeriod.resignationDate))
+    .where(and(eq(memberPeriod.orgId, orgId), isNull(memberPeriod.resignationDate)))
     .all();
   const activeMemberIds = new Set(memberRows.map((r) => r.personId));
 
@@ -331,8 +326,9 @@ documentsRouter.get('/all-volunteers-with-status', async (c) => {
 
 // POST /api/documents/generate
 documentsRouter.post('/generate', async (c) => {
-  const denied = await requirePermission(c, 'documents.generate');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.generate');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
   const payload = c.get('jwtPayload');
   const body = await c.req.json<WorkflowInput & { assemblyId?: string }>();
@@ -377,25 +373,32 @@ documentsRouter.post('/generate', async (c) => {
     }
   }
 
-  const db = drizzle(c.env.DB);
   const now = new Date().toISOString();
   const id = crypto.randomUUID();
 
   // ── Auto-detect and merge workflow data if assemblyId is provided ────────────────
   if (body.assemblyId) {
-    const assemblyRes = await db.select().from(assembly).where(eq(assembly.id, body.assemblyId)).get();
-    if (assemblyRes && assemblyRes.endTime) {
+    const assemblyRes = await db.select().from(assembly)
+      .where(and(eq(assembly.orgId, orgId), eq(assembly.id, body.assemblyId)))
+      .get();
+    if (!assemblyRes) {
+      return c.json({ error: 'Assembly not found' }, 404);
+    }
+    if (assemblyRes.endTime) {
       body.secondCallEnd = assemblyRes.endTime;
     }
 
     // Find convocation for this assembly
     const convRes = await db.select().from(convocation)
-      .where(or(eq(convocation.assemblyId, body.assemblyId), eq(convocation.secondAssemblyId, body.assemblyId)))
+      .where(and(
+        eq(convocation.orgId, orgId),
+        or(eq(convocation.assemblyId, body.assemblyId), eq(convocation.secondAssemblyId, body.assemblyId)),
+      ))
       .get();
 
     if (convRes) {
       const items = await db.select().from(agendaItem)
-        .where(eq(agendaItem.convocationId, convRes.id))
+        .where(and(eq(agendaItem.orgId, orgId), eq(agendaItem.convocationId, convRes.id)))
         .all();
 
       // Sort items by number
@@ -419,13 +422,13 @@ documentsRouter.post('/generate', async (c) => {
             // Fetch member person names from junction table
             const members = await db.select({ personId: agendaItemPerson.personId })
               .from(agendaItemPerson)
-              .where(eq(agendaItemPerson.agendaItemId, item.id))
+              .where(and(eq(agendaItemPerson.orgId, orgId), eq(agendaItemPerson.agendaItemId, item.id)))
               .all();
 
             if (members.length > 0) {
               const personDetails = await db.select({ firstName: person.firstName, lastName: person.lastName })
                 .from(person)
-                .where(inArray(person.id, members.map((m: any) => m.personId)))
+                .where(and(eq(person.orgId, orgId), inArray(person.id, members.map((m) => m.personId))))
                 .all();
               const memberNames = personDetails.map((p: any) => `${p.firstName} ${p.lastName}`).join('\n');
 
@@ -504,7 +507,7 @@ documentsRouter.post('/generate', async (c) => {
   let assemblySubtype: string | null = null;
   if (body.assemblyId) {
     const asmRecord = await db.select({ type: assembly.type, subtype: assembly.subtype })
-      .from(assembly).where(eq(assembly.id, body.assemblyId)).get();
+      .from(assembly).where(and(eq(assembly.orgId, orgId), eq(assembly.id, body.assemblyId))).get();
     if (asmRecord) {
       assemblyType = asmRecord.type;
       assemblySubtype = asmRecord.subtype ?? null;
@@ -528,7 +531,9 @@ documentsRouter.post('/generate', async (c) => {
 
   // Resolve org address: pick the most recent entry with effectiveFrom <= assembly date
   const assemblyDateStr = body.firstCallStart.slice(0, 10); // ISO date portion
-  const allAddresses = await db.select().from(organizationAddress).all();
+  const allAddresses = await db.select().from(organizationAddress)
+    .where(eq(organizationAddress.orgId, orgId))
+    .all();
   const resolvedAddress = allAddresses
     .filter((a) => a.effectiveFrom <= assemblyDateStr)
     .sort((a, b) => b.effectiveFrom.localeCompare(a.effectiveFrom))[0]?.address ?? '';
@@ -601,7 +606,7 @@ documentsRouter.post('/generate', async (c) => {
       await db
         .update(assembly)
         .set({ googleDocsLink: result.minutes2a.driveUrl, pdfLink: result.minutes2a.pdfUrl, updatedAt: now })
-        .where(eq(assembly.id, body.assemblyId))
+        .where(and(eq(assembly.orgId, orgId), eq(assembly.id, body.assemblyId)))
         .run();
     }
 
@@ -630,16 +635,17 @@ documentsRouter.post('/generate', async (c) => {
 
 // GET /api/documents/history
 documentsRouter.get('/history', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
   const limit = Math.min(Number(c.req.query('limit') ?? 50), 100);
   const offset = Number(c.req.query('offset') ?? 0);
-  const db = drizzle(c.env.DB);
 
   const records = await db
     .select()
     .from(documentGenerationLog)
+    .where(eq(documentGenerationLog.orgId, orgId))
     .orderBy(desc(documentGenerationLog.createdAt))
     .limit(limit)
     .offset(offset)
@@ -650,14 +656,14 @@ documentsRouter.get('/history', async (c) => {
 
 // GET /api/documents/history/:id
 documentsRouter.get('/history/:id', async (c) => {
-  const denied = await requirePermission(c, 'documents.view');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.view');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
   const record = await db
     .select()
     .from(documentGenerationLog)
-    .where(eq(documentGenerationLog.id, c.req.param('id')))
+    .where(and(eq(documentGenerationLog.orgId, orgId), eq(documentGenerationLog.id, c.req.param('id'))))
     .get();
 
   if (!record) return c.json({ error: 'Not found' }, 404);
@@ -666,17 +672,17 @@ documentsRouter.get('/history/:id', async (c) => {
 
 // PATCH /api/documents/history/:id — update notes only
 documentsRouter.patch('/history/:id', async (c) => {
-  const denied = await requirePermission(c, 'documents.manage');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.manage');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
   const { id } = c.req.param();
   const { notes } = await c.req.json<{ notes: string }>();
 
   const existing = await db
     .select()
     .from(documentGenerationLog)
-    .where(eq(documentGenerationLog.id, id))
+    .where(and(eq(documentGenerationLog.orgId, orgId), eq(documentGenerationLog.id, id)))
     .get();
 
   if (!existing) return c.json({ error: 'Not found' }, 404);
@@ -684,13 +690,13 @@ documentsRouter.patch('/history/:id', async (c) => {
   await db
     .update(documentGenerationLog)
     .set({ notes: notes ?? null })
-    .where(eq(documentGenerationLog.id, id))
+    .where(and(eq(documentGenerationLog.orgId, orgId), eq(documentGenerationLog.id, id)))
     .run();
 
   const updated = await db
     .select()
     .from(documentGenerationLog)
-    .where(eq(documentGenerationLog.id, id))
+    .where(and(eq(documentGenerationLog.orgId, orgId), eq(documentGenerationLog.id, id)))
     .get();
 
   return c.json(updated);
@@ -698,21 +704,21 @@ documentsRouter.patch('/history/:id', async (c) => {
 
 // DELETE /api/documents/history/:id
 documentsRouter.delete('/history/:id', async (c) => {
-  const denied = await requirePermission(c, 'documents.manage');
-  if (denied) return denied;
+  const ctx = orgContext(c, 'documents.manage');
+  if (ctx instanceof Response) return ctx;
+  const { db, orgId } = ctx;
 
-  const db = drizzle(c.env.DB);
   const { id } = c.req.param();
 
   const existing = await db
     .select()
     .from(documentGenerationLog)
-    .where(eq(documentGenerationLog.id, id))
+    .where(and(eq(documentGenerationLog.orgId, orgId), eq(documentGenerationLog.id, id)))
     .get();
 
   if (!existing) return c.json({ error: 'Not found' }, 404);
 
-  await db.delete(documentGenerationLog).where(eq(documentGenerationLog.id, id)).run();
+  await db.delete(documentGenerationLog).where(and(eq(documentGenerationLog.orgId, orgId), eq(documentGenerationLog.id, id))).run();
   return c.json({ success: true });
 });
 

@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import { assembly, agendaItem, attendance, user, convocation, memberPeriod, documentGenerationLog, person } from '../db/schema';
 import { recomputeRetentionForAssembly } from '../lib/retention';
 import { eq, desc, and, not, sql, or, lte, gte, isNull } from 'drizzle-orm';
+import { withoutServerOwnedFields } from '../lib/request-body';
 
 type Bindings = {
   DB: D1Database;
@@ -220,7 +221,8 @@ assembliesRouter.patch('/:id', async (c) => {
   const id = c.req.param('id');
   const { orgId } = c.get('jwtPayload');
   const body = await c.req.json();
-  const { convocationDate: bodyConvDate, presidentName: _pn, secretaryName: _sn, ...assemblyFields } = body;
+  const { convocationDate: bodyConvDate, presidentName: _pn, secretaryName: _sn, ...rawAssemblyFields } = body;
+  const assemblyFields = withoutServerOwnedFields(rawAssemblyFields);
   const db = drizzle(c.env.DB);
 
   const existing = await db.select().from(assembly).where(and(eq(assembly.id, id), eq(assembly.orgId, orgId))).get();

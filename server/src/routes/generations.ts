@@ -3,6 +3,7 @@ import { drizzle } from 'drizzle-orm/d1';
 import { boardGeneration, boardMember, person, user } from '../db/schema';
 import { eq, and } from 'drizzle-orm';
 import { isValidRole, normalizeRole } from '../lib/board-roles';
+import { withoutServerOwnedFields } from '../lib/request-body';
 
 type Bindings = {
   DB: D1Database;
@@ -98,7 +99,7 @@ generationsRouter.put('/board/:id', async (c) => {
   const db = drizzle(c.env.DB);
 
   const result = await db.update(boardGeneration)
-    .set(body)
+    .set(withoutServerOwnedFields(body))
     .where(and(eq(boardGeneration.id, id), eq(boardGeneration.orgId, orgId)))
     .returning()
     .get();
@@ -141,7 +142,15 @@ generationsRouter.post('/board/:id/members', async (c) => {
   }
 
   const id = crypto.randomUUID();
-  const newMember = { id, generationId, ...body, orgId: orgId, role: normalizedRole, createdAt: new Date().toISOString() };
+  // Server-set keys go last so the body cannot override them (generationId comes from the URL).
+  const newMember = {
+    ...(withoutServerOwnedFields(body, ['generationId']) as typeof body),
+    id,
+    generationId,
+    orgId,
+    role: normalizedRole,
+    createdAt: new Date().toISOString(),
+  };
   await db.insert(boardMember).values(newMember).run();
 
   return c.json(newMember, 201);
@@ -166,7 +175,7 @@ generationsRouter.put('/board/members/:id', async (c) => {
   }
 
   const result = await db.update(boardMember)
-    .set(body)
+    .set(withoutServerOwnedFields(body))
     .where(and(eq(boardMember.id, id), eq(boardMember.orgId, orgId)))
     .returning()
     .get();

@@ -21,7 +21,10 @@ const peopleRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 // Zod schemas for validation
 const insertPersonSchema = createInsertSchema(person);
-const patchPersonSchema = insertPersonSchema.partial();
+// id, orgId and createdAt are server-owned; userId is only linked via POST /:id/create-user.
+const patchPersonSchema = insertPersonSchema
+  .omit({ id: true, orgId: true, createdAt: true, userId: true })
+  .partial();
 
 // GET /api/people/comuni?q=... - Search comuni by name
 peopleRouter.get('/comuni', (c) => {

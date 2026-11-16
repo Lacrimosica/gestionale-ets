@@ -168,6 +168,55 @@ describe('Tenant isolation over HTTP', () => {
     });
   });
 
+  describe('updates cannot reassign server-owned fields', () => {
+    it('PATCH /people/:id ignores orgId and userId in the body', async () => {
+      const { org1, org2, user1, person1 } = await seedTwoOrgs();
+      const token = await mintToken(user1.id, org1.id, ['people.edit']);
+
+      const res = await call('PATCH', `/api/people/${person1.id}`, token, {
+        firstName: 'Alicia',
+        orgId: org2.id,
+        userId: user1.id,
+      });
+
+      expect(res.status).toBe(200);
+      const after = await getMiniflareDB().select().from(schema.person).where(eq(schema.person.id, person1.id)).get();
+      expect(after?.orgId).toBe(org1.id);
+      expect(after?.firstName).toBe('Alicia');
+      expect(after?.userId ?? null).toBeNull();
+    });
+
+    it('PATCH /assemblies/:id ignores orgId in the body', async () => {
+      const { org1, org2, user1 } = await seedTwoOrgs();
+      const assemblyId = await seedAssembly(org1.id);
+      const token = await mintToken(user1.id, org1.id, ['assemblies.edit']);
+
+      const res = await call('PATCH', `/api/assemblies/${assemblyId}`, token, { notes: 'n', orgId: org2.id });
+
+      expect(res.status).toBe(200);
+      const after = await getMiniflareDB().select().from(schema.assembly).where(eq(schema.assembly.id, assemblyId)).get();
+      expect(after?.orgId).toBe(org1.id);
+      expect(after?.notes).toBe('n');
+    });
+
+    it('PATCH /convocations/:id ignores orgId in the body', async () => {
+      const { org1, org2, user1 } = await seedTwoOrgs();
+      const assemblyId = await seedAssembly(org1.id);
+      const convocationId = crypto.randomUUID();
+      await getMiniflareDB().insert(schema.convocation).values({
+        id: convocationId, orgId: org1.id, assemblyId, date: '2025-03-01', createdAt: now, updatedAt: now,
+      });
+      const token = await mintToken(user1.id, org1.id, ['convocations.edit']);
+
+      const res = await call('PATCH', `/api/convocations/${convocationId}`, token, { notes: 'n', orgId: org2.id });
+
+      expect(res.status).toBe(200);
+      const after = await getMiniflareDB().select().from(schema.convocation)
+        .where(eq(schema.convocation.id, convocationId)).get();
+      expect(after?.orgId).toBe(org1.id);
+    });
+  });
+
   describe('import', () => {
     function tsv(header: string[], rows: string[][]) {
       return [header, ...rows].map((r) => r.join('\t')).join('\n');

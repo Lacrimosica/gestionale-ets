@@ -80,6 +80,7 @@ const defaultPermissionsByRole: Record<string, string[]> = {
 const getPermissionsForRole = (role: string) => defaultPermissionsByRole[role] ?? defaultPermissionsByRole.viewer;
 
 import { hashPassword, verifyPassword } from '../lib/auth';
+import { decodeGoogleIdToken, rejectGoogleIdentity } from '../lib/google-identity';
 
 authRouter.post('/login', async (c) => {
   const { email, password, slug } = await c.req.json() as { email: string; password: string; slug?: string };
@@ -231,13 +232,16 @@ authRouter.get('/google/callback', async (c) => {
 
     const { id_token } = await tokenRes.json<{ id_token: string }>();
 
-    // Decode id_token payload (no signature verification needed — it came directly from Google)
-    const b64 = id_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-    const padded = b64.padEnd(b64.length + (4 - (b64.length % 4)) % 4, '=');
-    const { email, sub: googleId } = JSON.parse(atob(padded)) as { email: string; sub: string };
+    const claims = decodeGoogleIdToken(id_token);
+    const { email, sub: googleId } = claims;
 
     const db = drizzle(c.env.DB);
     let existingUser = await db.select().from(userSchema).where(eq(userSchema.email, email)).get();
+
+    const identityError = rejectGoogleIdentity(claims, existingUser);
+    if (identityError) {
+      return c.redirect(`${appUrl}/auth/callback?error=${encodeURIComponent(identityError)}`);
+    }
     let inviteRecord = null;
     let targetOrgId = null;
     let targetRole = 'viewer';

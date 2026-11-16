@@ -8,6 +8,7 @@ import { italianMunicipalityCodes } from '../lib/italian-municipality-codes';
 import { validateCodiceFiscale, getPlace } from '../lib/fiscal-code';
 import { hashPassword } from '../lib/auth';
 import { orgContext, type JwtPayload } from '../lib/org-context';
+import { rejectGrant } from '../lib/roles';
 
 type Bindings = {
   DB: D1Database;
@@ -318,6 +319,10 @@ peopleRouter.post('/:id/create-user', async (c) => {
   const body = await c.req.json<{ email: string; password: string; role: string; permissions?: string[] }>();
   if (!body.email || !body.password || !body.role) {
     return c.json({ error: 'Missing required fields: email, password, role' }, 400);
+  }
+  const grantError = rejectGrant(ctx.payload, body.role, body.permissions?.length ? body.permissions : undefined);
+  if (grantError) {
+    return c.json({ error: grantError }, 403);
   }
 
   // Check for duplicate email

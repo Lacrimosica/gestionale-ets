@@ -297,6 +297,76 @@ describe('Tenant isolation over HTTP', () => {
     });
   });
 
+  describe('privilege boundaries', () => {
+    const ADMIN_PERMS = ['settings.users.view', 'settings.users.manage', 'people.view'];
+
+    async function seedAdmin() {
+      const seeded = await seedTwoOrgs();
+      const admin = await createTestUser({ email: 'admin@org1.local' });
+      await createTestOrganizationUser(admin.id, seeded.org1.id, {
+        role: 'admin',
+        permissions: JSON.stringify(ADMIN_PERMS),
+      });
+      const token = await mintToken(admin.id, seeded.org1.id, ADMIN_PERMS, 'admin');
+      return { ...seeded, admin, token };
+    }
+
+    it('an admin cannot create a core_admin or grant permissions they lack', async () => {
+      const { token } = await seedAdmin();
+
+      const asCore = await call('POST', '/api/settings/users', token, {
+        email: 'new1@org1.local', password: 'pw-123456', role: 'core_admin',
+      });
+      expect(asCore.status).toBe(403);
+
+      const extraPerm = await call('POST', '/api/settings/users', token, {
+        email: 'new2@org1.local', password: 'pw-123456', role: 'manager',
+        permissions: ['settings.users.reset_password'],
+      });
+      expect(extraPerm.status).toBe(403);
+
+      const ok = await call('POST', '/api/settings/users', token, {
+        email: 'new3@org1.local', password: 'pw-123456', role: 'manager', permissions: ['people.view'],
+      });
+      expect(ok.status).toBe(201);
+    });
+
+    it('an admin cannot change the email of a core_admin', async () => {
+      const { token, user1 } = await seedAdmin();
+
+      const res = await call('PUT', `/api/settings/users/${user1.id}`, token, { email: 'attacker@evil.test' });
+
+      expect(res.status).toBe(403);
+      const after = await getMiniflareDB().select().from(schema.user).where(eq(schema.user.id, user1.id)).get();
+      expect(after?.email).toBe('admin1@org1.local');
+    });
+
+    it('nobody can change the email of a user who also belongs to another org', async () => {
+      const { org1, org2, user1 } = await seedTwoOrgs();
+      const shared = await createTestUser({ email: 'shared@both.local' });
+      await createTestOrganizationUser(shared.id, org1.id, { role: 'viewer' });
+      await createTestOrganizationUser(shared.id, org2.id, { role: 'core_admin' });
+      const token = await mintToken(user1.id, org1.id, ['settings.users.manage']);
+
+      const res = await call('PUT', `/api/settings/users/${shared.id}`, token, { email: 'attacker@evil.test' });
+
+      expect(res.status).toBe(403);
+    });
+
+    it('invites cannot target another org or exceed the inviter’s role', async () => {
+      const { token, org2 } = await seedAdmin();
+
+      const otherOrg = await call('POST', '/api/auth/invites', token, { role: 'viewer', orgId: org2.id });
+      expect(otherOrg.status).toBe(403);
+
+      const tooHigh = await call('POST', '/api/auth/invites', token, { role: 'core_admin' });
+      expect(tooHigh.status).toBe(403);
+
+      const ok = await call('POST', '/api/auth/invites', token, { role: 'manager' });
+      expect(ok.status).toBe(200);
+    });
+  });
+
   describe('settings: user password reset', () => {
     it('rejects resetting the password of a user in another org', async () => {
       const { org1, user1, user2 } = await seedTwoOrgs();

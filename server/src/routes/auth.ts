@@ -81,6 +81,7 @@ const getPermissionsForRole = (role: string) => defaultPermissionsByRole[role] ?
 
 import { hashPassword, verifyPassword } from '../lib/auth';
 import { decodeGoogleIdToken, rejectGoogleIdentity } from '../lib/google-identity';
+import { rejectGrant } from '../lib/roles';
 
 authRouter.post('/login', async (c) => {
   const { email, password, slug } = await c.req.json() as { email: string; password: string; slug?: string };
@@ -696,32 +697,37 @@ authRouter.post('/invites', async (c) => {
       return c.json({ error: 'Role is required' }, 400);
     }
 
-    const validRoles = ['core_admin', 'admin', 'manager', 'viewer'];
-    if (!validRoles.includes(role)) {
-      return c.json({ error: 'Invalid role' }, 400);
+    // Invites are always for the org of the caller's current session.
+    const targetOrgId = payload.orgId as string | undefined;
+    if (!targetOrgId || (requestOrgId && requestOrgId !== targetOrgId)) {
+      return c.json({ error: 'Permission denied: must be admin in this organization' }, 403);
     }
 
     const db = drizzle(c.env.DB);
 
-    // Get current user's organization
-    const currentOrgUser = await db.select().from(organizationUser)
-      .where(eq(organizationUser.userId, payload.sub))
+    // /api/auth skips the session middleware, so check membership here — and use the
+    // role and permissions from the DB rather than the possibly stale JWT.
+    const managerCheck = await db.select().from(organizationUser)
+      .where(and(eq(organizationUser.userId, payload.sub), eq(organizationUser.orgId, targetOrgId)))
       .get();
 
-    if (!currentOrgUser) {
-      return c.json({ error: 'User not found in organization' }, 403);
+    if (!managerCheck || !['core_admin', 'admin'].includes(managerCheck.role)) {
+      return c.json({ error: 'Permission denied: must be admin in this organization' }, 403);
     }
 
-    // Use provided orgId or current user's org
-    const targetOrgId = requestOrgId || currentOrgUser.orgId;
-
-    // Verify user can manage this org (must be core_admin or admin in target org)
-    const managerCheck = await db.select().from(organizationUser)
-      .where(eq(organizationUser.userId, payload.sub))
-      .get();
-
-    if (managerCheck?.orgId !== targetOrgId || !['core_admin', 'admin'].includes(managerCheck?.role || '')) {
-      return c.json({ error: 'Permission denied: must be admin in this organization' }, 403);
+    let managerPermissions: string[] = [];
+    try {
+      managerPermissions = managerCheck.permissions ? JSON.parse(managerCheck.permissions) : [];
+    } catch {
+      managerPermissions = [];
+    }
+    const grantError = rejectGrant(
+      { role: managerCheck.role, permissions: managerPermissions.length ? managerPermissions : getPermissionsForRole(managerCheck.role) },
+      role,
+      permissionsOverride?.length ? permissionsOverride : undefined,
+    );
+    if (grantError) {
+      return c.json({ error: grantError }, grantError === 'Invalid role' ? 400 : 403);
     }
 
     // Create invite token (signed JWT with type='invite')

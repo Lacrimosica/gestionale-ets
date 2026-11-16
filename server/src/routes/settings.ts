@@ -4,6 +4,7 @@ import { and, eq, ne, isNotNull, isNull } from 'drizzle-orm';
 import { organizationSetting, user, organizationAddress, convocationModalityOption, userSetting, organizationUser, organization } from '../db/schema';
 import { desc } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../lib/auth';
+import { rejectGrant, canActOn } from '../lib/roles';
 
 type Bindings = {
   DB: D1Database;
@@ -253,6 +254,10 @@ settingsRouter.post('/users', async (c) => {
   if (!email || !password || !role) {
     return c.json({ error: 'Missing required fields' }, 400);
   }
+  const grantError = rejectGrant(payload, role, permissions?.length ? permissions : undefined);
+  if (grantError) {
+    return c.json({ error: grantError }, 403);
+  }
 
   const db = drizzle(c.env.DB);
   const existing = await db.select().from(user).where(eq(user.email, email)).get();
@@ -313,6 +318,18 @@ settingsRouter.put('/users/:id', async (c) => {
     .get();
   if (!orgUser) {
     return c.json({ error: 'User not found in this organization' }, 404);
+  }
+  if (!canActOn(payload, orgUser.role)) {
+    return c.json({ error: 'You cannot modify a user with a higher role' }, 403);
+  }
+
+  // The email lives on the global user row and is the Google sign-in key, so an
+  // admin of one org must not be able to redirect an account used in other orgs.
+  const otherMembership = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), ne(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (otherMembership) {
+    return c.json({ error: 'This user belongs to other organizations; only they can change their email' }, 403);
   }
 
   const targetUser = await db.select().from(user).where(eq(user.id, id)).get();

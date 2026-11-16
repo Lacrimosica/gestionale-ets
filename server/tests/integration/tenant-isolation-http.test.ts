@@ -75,6 +75,98 @@ describe('Tenant isolation over HTTP', () => {
     return { org1, org2, user1, user2, person1, person2 };
   }
 
+  const now = new Date().toISOString();
+
+  async function seedActiveMember(orgId: string, personId: string) {
+    const db = getMiniflareDB();
+    const volunteerPeriodId = crypto.randomUUID();
+    await db.insert(schema.volunteerPeriod).values({
+      id: volunteerPeriodId, orgId, personId, status: 'active', enrollmentDate: '2025-01-01', createdAt: now,
+    });
+    await db.insert(schema.memberPeriod).values({
+      id: crypto.randomUUID(), orgId, personId, volunteerPeriodId, admissionDate: '2025-02-01', createdAt: now,
+    });
+  }
+
+  async function seedAssembly(orgId: string) {
+    const id = crypto.randomUUID();
+    await getMiniflareDB().insert(schema.assembly).values({
+      id, orgId, type: 'ordinary', totalNumber: 1, referenceNumber: 1,
+      location: 'Sede', mode: 'in_person', createdAt: now, updatedAt: now,
+    });
+    return id;
+  }
+
+  async function seedGenerationLog(orgId: string) {
+    const id = crypto.randomUUID();
+    await getMiniflareDB().insert(schema.documentGenerationLog).values({
+      id, orgId, workflowType: 'budget_approval', assemblyNumber: 1, firstCallDate: '01/01/2025',
+      triggeredBy: 'someone@org.local', status: 'success', createdAt: now,
+    });
+    return id;
+  }
+
+  describe('documents', () => {
+    it('member and volunteer pickers list only the caller org', async () => {
+      const { org1, org2, user1, person1, person2 } = await seedTwoOrgs();
+      await seedActiveMember(org1.id, person1.id);
+      await seedActiveMember(org2.id, person2.id);
+      const token = await mintToken(user1.id, org1.id, ['documents.view']);
+
+      for (const path of ['active-members', 'active-volunteers', 'all-volunteers-with-status']) {
+        const res = await call('GET', `/api/documents/${path}`, token);
+        expect(res.status, path).toBe(200);
+        const ids = ((await res.json()) as Array<{ id: string }>).map((r) => r.id);
+        expect(ids, path).toContain(person1.id);
+        expect(ids, path).not.toContain(person2.id);
+      }
+    });
+
+    it('history is scoped to the caller org for list, read, update and delete', async () => {
+      const { org1, org2, user1 } = await seedTwoOrgs();
+      const ownLog = await seedGenerationLog(org1.id);
+      const foreignLog = await seedGenerationLog(org2.id);
+      const token = await mintToken(user1.id, org1.id, ['documents.view', 'documents.manage']);
+
+      const list = await call('GET', '/api/documents/history', token);
+      const ids = ((await list.json()) as Array<{ id: string }>).map((r) => r.id);
+      expect(ids).toEqual([ownLog]);
+
+      expect((await call('GET', `/api/documents/history/${foreignLog}`, token)).status).toBe(404);
+      expect((await call('PATCH', `/api/documents/history/${foreignLog}`, token, { notes: 'x' })).status).toBe(404);
+      expect((await call('DELETE', `/api/documents/history/${foreignLog}`, token)).status).toBe(404);
+
+      const stillThere = await getMiniflareDB().select().from(schema.documentGenerationLog)
+        .where(eq(schema.documentGenerationLog.id, foreignLog)).get();
+      expect(stillThere?.notes ?? null).toBeNull();
+    });
+
+    it('generate rejects an assembly from another org', async () => {
+      const { org1, org2, user1 } = await seedTwoOrgs();
+      const foreignAssembly = await seedAssembly(org2.id);
+      const token = await mintToken(user1.id, org1.id, ['documents.generate']);
+
+      const res = await call('POST', '/api/documents/generate', token, {
+        assemblyId: foreignAssembly,
+        workflowTypes: ['budget_approval'],
+        budgetYear: 2025,
+        assemblyNumber: 1,
+        firstCallStart: '2025-04-01T10:00',
+        secondCallStart: '2025-04-02T10:00',
+        totalMembers: 10,
+        presentMembers: 6,
+        president: 'P',
+        secretary: 'S',
+        signatoryRole: 'Presidente',
+        firstCallModality: 'in_person',
+        secondCallModality: 'in_person',
+        minutesOpeningModality: 'in_person',
+      });
+
+      expect(res.status).toBe(404);
+    });
+  });
+
   describe('settings: user password reset', () => {
     it('rejects resetting the password of a user in another org', async () => {
       const { org1, user1, user2 } = await seedTwoOrgs();

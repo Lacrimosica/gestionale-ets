@@ -21,6 +21,63 @@ const importRouter = new Hono<{ Bindings: Bindings; Variables: Variables }>();
 
 const IMPORTABLE_TABLES = ['people', 'volunteer_periods', 'member_periods', 'board_generations', 'board_members', 'assemblies', 'convocations', 'organization_settings', 'compliance_documents', 'compliance_roles'] as const;
 const MAX_ZIP_SIZE = 10 * 1024 * 1024; // 10MB
+// Compressed size alone doesn't bound memory: a small archive can inflate to GBs.
+const MAX_UNZIPPED_SIZE = 50 * 1024 * 1024; // 50MB
+const MAX_ROWS_PER_TABLE = 50_000;
+
+/**
+ * Columns that reference org-scoped tables. A row is rejected when the referenced
+ * id already exists under a different org, so an import cannot link the caller's
+ * data to another tenant's records. Ids not yet present are allowed, because
+ * import order is not guaranteed and the referenced row may come later in the file.
+ */
+const ORG_SCOPED_REFERENCES: Record<string, string> = {
+  personId: 'person',
+  presidentId: 'person',
+  secretaryId: 'person',
+  volunteerPeriodId: 'volunteer_period',
+  assemblyId: 'assembly',
+  secondAssemblyId: 'assembly',
+  admissionAssemblyId: 'assembly',
+  exitAssemblyId: 'assembly',
+  generationId: 'board_generation',
+  boardGenerationId: 'board_generation',
+};
+
+function toSnakeCase(col: string): string {
+  return col
+    .replace(/([a-z])([A-Z])/g, '$1_$2') // camelCase transitions
+    .replace(/([a-zA-Z])(\d)/g, '$1_$2') // letter to number transitions
+    .toLowerCase();
+}
+
+/** Returns a reason the row must be skipped, or null if its references are safe. */
+async function findForeignReference(
+  rawDb: D1Database,
+  row: Record<string, unknown>,
+  orgId: string,
+): Promise<string | null> {
+  for (const [column, table] of Object.entries(ORG_SCOPED_REFERENCES)) {
+    const refId = row[column];
+    if (refId === null || refId === undefined) continue;
+    const foreign = await rawDb
+      .prepare(`SELECT 1 FROM ${table} WHERE id = ? AND org_id != ? LIMIT 1`)
+      .bind(refId, orgId)
+      .first();
+    if (foreign) return `${column} references a record outside this organization`;
+  }
+
+  // user rows are global, so linking is only allowed to members of this org
+  if (row.userId !== null && row.userId !== undefined) {
+    const member = await rawDb
+      .prepare('SELECT 1 FROM organization_user WHERE user_id = ? AND org_id = ? LIMIT 1')
+      .bind(row.userId, orgId)
+      .first();
+    if (!member) return 'userId is not a member of this organization';
+  }
+
+  return null;
+}
 
 const TABLE_SCHEMA: Record<
   typeof IMPORTABLE_TABLES[number],
@@ -279,9 +336,21 @@ importRouter.post('/', async (c) => {
     const buffer = await file.arrayBuffer();
     let zipFiles: Record<string, Uint8Array>;
 
+    let unzippedTotal = 0;
     try {
-      zipFiles = unzipSync(new Uint8Array(buffer));
-    } catch {
+      zipFiles = unzipSync(new Uint8Array(buffer), {
+        filter: (entry) => {
+          unzippedTotal += entry.originalSize;
+          if (unzippedTotal > MAX_UNZIPPED_SIZE) {
+            throw new RangeError('ZIP contents too large');
+          }
+          return true;
+        },
+      });
+    } catch (err) {
+      if (err instanceof RangeError) {
+        return c.json({ error: `ZIP contents too large (max ${MAX_UNZIPPED_SIZE / 1024 / 1024}MB uncompressed)` }, 400);
+      }
       return c.json({ error: 'Invalid ZIP file' }, 400);
     }
 
@@ -327,6 +396,9 @@ importRouter.post('/', async (c) => {
       if (rows.length === 0) {
         rowCounts[tableKey] = 0;
         continue;
+      }
+      if (rows.length > MAX_ROWS_PER_TABLE) {
+        return c.json({ error: `Too many rows in table "${tableKey}" (max ${MAX_ROWS_PER_TABLE})` }, 400);
       }
 
       // Validate schema: check that no columns are unknown
@@ -379,41 +451,47 @@ importRouter.post('/', async (c) => {
         return sqlRow;
       });
 
-      // Use raw INSERT OR REPLACE for upsert behavior
-      const columns = Object.keys(sqlRows[0]).join(', ');
-      const placeholders = Object.keys(sqlRows[0]).map(() => '?').join(', ');
-      const sqlColumns = Object.keys(sqlRows[0])
-        .map((col) => {
-          // Convert camelCase to snake_case: handle uppercase letters and transitions to numbers
-          return col
-            .replace(/([a-z])([A-Z])/g, '$1_$2')  // camelCase transitions
-            .replace(/([a-zA-Z])(\d)/g, '$1_$2')  // letter to number transitions
-            .toLowerCase();
-        })
+      // Upsert guarded by org: an id that already exists under another org is left
+      // untouched (the conflict UPDATE's WHERE fails and the statement changes nothing).
+      // INSERT OR REPLACE must not be used here — it deletes the conflicting row first.
+      const camelColumns = Object.keys(sqlRows[0]);
+      const snakeColumns = camelColumns.map(toSnakeCase);
+      const updateAssignments = snakeColumns
+        .filter((col) => col !== 'id')
+        .map((col) => `${col} = excluded.${col}`)
         .join(', ');
+      const query =
+        `INSERT INTO ${schema.sqlTableName} (${snakeColumns.join(', ')}) ` +
+        `VALUES (${camelColumns.map(() => '?').join(', ')}) ` +
+        `ON CONFLICT(id) DO UPDATE SET ${updateAssignments} ` +
+        `WHERE ${schema.sqlTableName}.org_id = excluded.org_id`;
 
       let importedCount = 0;
       let skippedCount = 0;
-      const skippedReasons: string[] = [];
 
       for (let i = 0; i < sqlRows.length; i++) {
         const row = sqlRows[i];
-        const values = Object.values(row);
-        const query = `INSERT OR REPLACE INTO ${schema.sqlTableName} (${sqlColumns}) VALUES (${Object.keys(row)
-          .map(() => '?')
-          .join(', ')})`;
+
+        if (await findForeignReference(c.env.DB, row, orgId)) {
+          skippedCount++;
+          continue;
+        }
 
         try {
-          await c.env.DB.prepare(query).bind(...values).run();
-          importedCount++;
+          const result = await c.env.DB.prepare(query).bind(...camelColumns.map((col) => row[col])).run();
+          if (result.meta.changes === 0) {
+            // id belongs to another organization
+            skippedCount++;
+          } else {
+            importedCount++;
+          }
         } catch (err) {
           const errStr = String(err);
-          // Skip rows with foreign key constraint failures
-          if (errStr.includes('FOREIGN KEY constraint failed')) {
+          if (errStr.includes('FOREIGN KEY constraint failed') || errStr.includes('UNIQUE constraint failed')) {
             skippedCount++;
-            skippedReasons.push(`Row ${i + 1}: FK reference not found`);
           } else {
-            return c.json({ error: `Failed to import row in table "${tableKey}": ${errStr}` }, 400);
+            console.error(`Import failed for table ${tableKey}, row ${i + 1}:`, errStr);
+            return c.json({ error: `Failed to import row ${i + 1} in table "${tableKey}"` }, 400);
           }
         }
       }

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { sign } from 'hono/jwt';
+import { zipSync, strToU8 } from 'fflate';
 import app from '../../src/index';
 import {
   initializeMiniflare,
@@ -164,6 +165,86 @@ describe('Tenant isolation over HTTP', () => {
       });
 
       expect(res.status).toBe(404);
+    });
+  });
+
+  describe('import', () => {
+    function tsv(header: string[], rows: string[][]) {
+      return [header, ...rows].map((r) => r.join('\t')).join('\n');
+    }
+
+    async function importZip(token: string, files: Record<string, string | Uint8Array>) {
+      const tables = Object.keys(files)
+        .filter((f) => f.endsWith('.tsv'))
+        .map((f) => f.replace('.tsv', ''));
+      const entries: Record<string, Uint8Array> = {
+        'MANIFEST.json': strToU8(JSON.stringify({ tables })),
+      };
+      for (const [name, content] of Object.entries(files)) {
+        entries[name] = typeof content === 'string' ? strToU8(content) : content;
+      }
+      const form = new FormData();
+      form.append('file', new File([zipSync(entries)], 'backup.zip', { type: 'application/zip' }));
+      return app.request(
+        '/api/import',
+        { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form },
+        env(),
+      );
+    }
+
+    it('does not overwrite or take over a row whose id belongs to another org', async () => {
+      const { org1, org2, user1, person2 } = await seedTwoOrgs();
+      const token = await mintToken(user1.id, org1.id, []);
+
+      const res = await importZip(token, {
+        'people.tsv': tsv(['id', 'firstName', 'lastName'], [[person2.id, 'Hijacked', 'Row']]),
+      });
+
+      expect(res.status).toBe(200);
+      const after = await getMiniflareDB().select().from(schema.person).where(eq(schema.person.id, person2.id)).get();
+      expect(after?.orgId).toBe(org2.id);
+      expect(after?.firstName).toBe('Bob');
+    });
+
+    it('still updates the caller org’s own rows on re-import', async () => {
+      const { org1, user1, person1 } = await seedTwoOrgs();
+      const token = await mintToken(user1.id, org1.id, []);
+
+      const res = await importZip(token, {
+        'people.tsv': tsv(['id', 'firstName', 'lastName'], [[person1.id, 'Alicia', 'Restored']]),
+      });
+
+      expect(res.status).toBe(200);
+      const after = await getMiniflareDB().select().from(schema.person).where(eq(schema.person.id, person1.id)).get();
+      expect(after?.firstName).toBe('Alicia');
+      expect(after?.orgId).toBe(org1.id);
+    });
+
+    it('skips rows that reference another org’s records', async () => {
+      const { org1, user1, person2 } = await seedTwoOrgs();
+      const token = await mintToken(user1.id, org1.id, []);
+      const plantedId = crypto.randomUUID();
+
+      const res = await importZip(token, {
+        'volunteer_periods.tsv': tsv(
+          ['id', 'personId', 'status', 'enrollmentDate'],
+          [[plantedId, person2.id, 'active', '2025-01-01']],
+        ),
+      });
+
+      expect(res.status).toBe(200);
+      const planted = await getMiniflareDB().select().from(schema.volunteerPeriod)
+        .where(eq(schema.volunteerPeriod.id, plantedId)).get();
+      expect(planted).toBeUndefined();
+    });
+
+    it('rejects archives that inflate past the size limit', async () => {
+      const { org1, user1 } = await seedTwoOrgs();
+      const token = await mintToken(user1.id, org1.id, []);
+
+      const res = await importZip(token, { 'padding.bin': new Uint8Array(60 * 1024 * 1024) });
+
+      expect(res.status).toBe(400);
     });
   });
 

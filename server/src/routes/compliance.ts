@@ -47,8 +47,9 @@ complianceRouter.get('/rules', async (c) => {
   const denied = await requirePermission(c, 'people.view');
   if (denied) return denied;
 
+  const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
-  const activeRules = await loadRules(db);
+  const activeRules = await loadRules(db, orgId);
   return c.json(activeRules);
 });
 
@@ -235,7 +236,7 @@ complianceRouter.get('/summary', async (c) => {
 
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
-  const [state, activeRules] = await Promise.all([buildState(db, orgId), loadRules(db)]);
+  const [state, activeRules] = await Promise.all([buildState(db, orgId), loadRules(db, orgId)]);
   const alerts = computeComplianceAlerts(state, activeRules);
 
   const activeAlerts = alerts.filter((alert) => !alert.suppression);
@@ -261,7 +262,7 @@ complianceRouter.get('/alerts', async (c) => {
   const { orgId } = c.get('jwtPayload');
   const includeSuppressed = c.req.query('includeSuppressed') === 'true';
   const db = drizzle(c.env.DB);
-  const [state, activeRules] = await Promise.all([buildState(db, orgId), loadRules(db)]);
+  const [state, activeRules] = await Promise.all([buildState(db, orgId), loadRules(db, orgId)]);
   const alerts = computeComplianceAlerts(state, activeRules);
 
   return c.json({
@@ -277,7 +278,7 @@ complianceRouter.get('/person/:personId', async (c) => {
   const personId = c.req.param('personId');
   const { orgId } = c.get('jwtPayload');
   const db = drizzle(c.env.DB);
-  const [state, activeRules] = await Promise.all([buildState(db, orgId), loadRules(db)]);
+  const [state, activeRules] = await Promise.all([buildState(db, orgId), loadRules(db, orgId)]);
 
   const foundPerson = state.people.find((item) => item.id === personId);
   if (!foundPerson) {

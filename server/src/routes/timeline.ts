@@ -212,7 +212,7 @@ timelineRouter.get('/', async (c) => {
   let retentionReasonsByPerson: Record<string, string[]> = {};
   if (anchoredPersonIds.size > 0) {
     const { getRetentionReasons } = await import('../lib/retention');
-    retentionReasonsByPerson = await getRetentionReasons(db, Array.from(anchoredPersonIds));
+    retentionReasonsByPerson = await getRetentionReasons(db, Array.from(anchoredPersonIds), orgId);
   }
 
   // Create "Pending Verbal" entries for unlinked groups

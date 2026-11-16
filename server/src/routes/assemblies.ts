@@ -268,7 +268,7 @@ assembliesRouter.patch('/:id', async (c) => {
     (body.depositedOnRunts ? 1 : 0) !== (existing.depositedOnRunts ? 1 : 0);
 
   if (depositChanged) {
-    await recomputeRetentionForAssembly(db, id);
+    await recomputeRetentionForAssembly(db, id, orgId);
   }
 
   return c.json({ success: true });

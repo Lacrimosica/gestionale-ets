@@ -1,5 +1,5 @@
 import { complianceDocumentFlag, complianceDocument, complianceRole, alertSuppression, person, organizationSetting, consentRecord } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNotNull } from 'drizzle-orm';
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -37,12 +37,16 @@ export interface ComplianceRules {
  * Load compliance rules from the DB (organization_setting row).
  * Returns null if no rules are configured in the DB.
  */
-export const loadRules = async (db: any): Promise<ComplianceRules> => {
+export const loadRules = async (db: any, orgId: string): Promise<ComplianceRules> => {
   try {
-    const setting = await db.select({ complianceRules: organizationSetting.complianceRules })
+    // An org may have both a legacy settings row (backfilled with its org_id) and the
+    // `branding_<orgId>` row written by PUT /rules; the latter wins so updates apply.
+    const rows: Array<{ id: string; complianceRules: string | null }> = await db
+      .select({ id: organizationSetting.id, complianceRules: organizationSetting.complianceRules })
       .from(organizationSetting)
-      .where(eq(organizationSetting.id, 'branding'))
-      .get();
+      .where(and(eq(organizationSetting.orgId, orgId), isNotNull(organizationSetting.complianceRules)))
+      .all();
+    const setting = rows.find((r) => r.id === `branding_${orgId}`) ?? rows[0];
 
     if (setting?.complianceRules) {
       const parsed = JSON.parse(setting.complianceRules);

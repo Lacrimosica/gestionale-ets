@@ -367,6 +367,42 @@ describe('Tenant isolation over HTTP', () => {
     });
   });
 
+  describe('compliance', () => {
+    const RULES = (tag: string) => ({
+      documentTypes: { [tag]: { label: tag } },
+      roles: {},
+      baseRequirements: { isVolunteer: [tag], isSocio: [], isBoard: [] },
+    });
+
+    it('rules are stored and read per org', async () => {
+      const { org1, org2, user1, user2 } = await seedTwoOrgs();
+      const token1 = await mintToken(user1.id, org1.id, ['people.view']);
+      const token2 = await mintToken(user2.id, org2.id, ['people.view']);
+
+      expect((await call('PUT', '/api/compliance/rules', token1, RULES('org1doc'))).status).toBe(200);
+      expect((await call('PUT', '/api/compliance/rules', token2, RULES('org2doc'))).status).toBe(200);
+
+      const rules1 = (await (await call('GET', '/api/compliance/rules', token1)).json()) as ReturnType<typeof RULES>;
+      const rules2 = (await (await call('GET', '/api/compliance/rules', token2)).json()) as ReturnType<typeof RULES>;
+      expect(Object.keys(rules1.documentTypes)).toEqual(['org1doc']);
+      expect(Object.keys(rules2.documentTypes)).toEqual(['org2doc']);
+    });
+
+    it('a role row planted by another org does not anchor a person’s retention', async () => {
+      const { org1, org2, user2, person2 } = await seedTwoOrgs();
+      await getMiniflareDB().insert(schema.complianceRole).values({
+        id: crypto.randomUUID(), orgId: org1.id, personId: person2.id, roleType: 'Presidente',
+        createdAt: now, updatedAt: now,
+      });
+      const token2 = await mintToken(user2.id, org2.id, ['people.edit']);
+
+      expect((await call('POST', '/api/compliance/recompute', token2)).status).toBe(200);
+
+      const after = await getMiniflareDB().select().from(schema.person).where(eq(schema.person.id, person2.id)).get();
+      expect(after?.canBeRemoved).toBe(1);
+    });
+  });
+
   describe('settings: user password reset', () => {
     it('rejects resetting the password of a user in another org', async () => {
       const { org1, user1, user2 } = await seedTwoOrgs();

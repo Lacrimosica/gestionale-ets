@@ -21,12 +21,17 @@ import { hashPassword, verifyPassword } from '../lib/auth';
 import { decodeGoogleIdToken, rejectGoogleIdentity } from '../lib/google-identity';
 import { rejectGrant } from '../lib/roles';
 
+// A valid "salt:hash" that no password matches; verified against when the user is unknown.
+const DUMMY_PASSWORD_HASH = 'AAAAAAAAAAAAAAAAAAAAAA==:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+
 authRouter.post('/login', async (c) => {
   const { email, password, slug } = await c.req.json() as { email: string; password: string; slug?: string };
   const db = drizzle(c.env.DB);
   const user = await db.select().from(userSchema).where(eq(userSchema.email, email)).get();
 
-  if (!user || !user.password || !(await verifyPassword(password, user.password))) {
+  // Always run the PBKDF2 check so response time doesn't reveal whether the email exists.
+  const passwordOk = await verifyPassword(password ?? '', user?.password ?? DUMMY_PASSWORD_HASH);
+  if (!user || !user.password || !passwordOk) {
     return c.json({ error: 'Invalid credentials' }, 401);
   }
 
@@ -148,7 +153,9 @@ authRouter.get('/google/callback', async (c) => {
 
   try {
     // Verify state is a valid signed JWT we issued
-    const statePayload = await verify(state, JWT_SECRET, 'HS256') as any;
+    const statePayload = await verify(state, JWT_SECRET, 'HS256') as { type?: string; inviteToken?: string };
+    // Every token type shares JWT_SECRET, so reject anything that isn't a login state.
+    if (statePayload.type !== 'login') throw new Error('Invalid state');
     const inviteToken = statePayload.inviteToken;
 
     // Exchange authorization code for tokens

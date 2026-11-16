@@ -79,5 +79,14 @@ export async function verifyPassword(password: string, stored: string): Promise<
   const exportedKey = await crypto.subtle.exportKey('raw', key);
   const derivedHash = btoa(String.fromCharCode(...new Uint8Array(exportedKey as ArrayBuffer)));
 
-  return hash === derivedHash;
+  return constantTimeEqual(hash, derivedHash);
+}
+
+/** Compare two strings without short-circuiting on the first differing character. */
+function constantTimeEqual(a: string, b: string): boolean {
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return diff === 0;
 }

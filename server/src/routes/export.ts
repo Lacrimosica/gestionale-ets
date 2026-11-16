@@ -14,6 +14,7 @@ import {
   complianceDocument,
   complianceRole,
 } from '../db/schema';
+import { protectCell } from '../lib/spreadsheet-cell';
 
 type Bindings = { DB: D1Database };
 type Variables = { jwtPayload: { orgId: string; role: string } };
@@ -36,7 +37,7 @@ type AllowedTable = typeof ALLOWED_TABLES[number];
 
 function escapeField(value: unknown): string {
   if (value === null || value === undefined) return '';
-  const str = String(value);
+  const str = protectCell(String(value));
   if (str.includes('\t') || str.includes('\n') || str.includes('\r') || str.includes('"')) {
     return '"' + str.replaceAll('"', '""') + '"';
   }

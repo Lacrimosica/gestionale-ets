@@ -13,6 +13,7 @@ import {
   complianceDocument,
   complianceRole,
 } from '../db/schema';
+import { unprotectCell } from '../lib/spreadsheet-cell';
 
 type Bindings = { DB: D1Database };
 type Variables = { jwtPayload: { orgId: string; role: string } };
@@ -418,7 +419,7 @@ importRouter.post('/', async (c) => {
       const sqlRows: Record<string, any>[] = rows.map((row) => {
         const sqlRow: Record<string, any> = {};
         for (const [key, value] of Object.entries(row)) {
-          sqlRow[key] = value === '' ? null : value;
+          sqlRow[key] = value === '' ? null : typeof value === 'string' ? unprotectCell(value) : value;
         }
         // Inject orgId for all tables
         sqlRow['orgId'] = orgId;

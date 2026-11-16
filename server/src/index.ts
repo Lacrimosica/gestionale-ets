@@ -4,6 +4,7 @@ import { jwt } from 'hono/jwt';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq, and } from 'drizzle-orm';
 import { organizationUser } from './db/schema';
+import { sessionPermissions } from './lib/session-permissions';
 import { peopleRouter } from './routes/people';
 import periodsRouter from './routes/periods';
 import { assembliesRouter } from './routes/assemblies';
@@ -110,6 +111,12 @@ app.use('*', async (c, next) => {
   return corsMiddleware(c, next);
 });
 
+// Match whole path segments so e.g. a future /api/settings/publicXyz route is not
+// accidentally exempted from authentication.
+const PUBLIC_API_PREFIXES = ['/api/auth', '/api/setup', '/api/settings/public'];
+const isPublicApiPath = (path: string) =>
+  PUBLIC_API_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+
 // Authentication routes (Public)
 app.route('/api/auth', authRouter);
 app.route('/api/setup', setupRouter);
@@ -118,7 +125,7 @@ app.route('/api/setup', setupRouter);
 app.use('/api/*', async (c, next) => {
   const path = c.req.path;
   // Skip JWT for public endpoints: auth (login/Google), setup, and public settings
-  const isPublic = path.startsWith('/api/auth') || path.startsWith('/api/setup') || path.startsWith('/api/settings/public');
+  const isPublic = isPublicApiPath(path);
   if (isPublic) return next();
 
   if (!c.env.JWT_SECRET) {
@@ -138,7 +145,7 @@ app.use('/api/*', async (c, next) => {
 app.use('/api/*', async (c, next) => {
   const path = c.req.path;
   // Skip validation for public endpoints
-  const isPublic = path.startsWith('/api/auth') || path.startsWith('/api/setup') || path.startsWith('/api/settings/public');
+  const isPublic = isPublicApiPath(path);
   if (isPublic) return next();
 
   const payload = c.get('jwtPayload') as {
@@ -155,7 +162,7 @@ app.use('/api/*', async (c, next) => {
 
   const db = drizzle(c.env.DB);
   const membership = await db
-    .select({ id: organizationUser.id })
+    .select({ id: organizationUser.id, role: organizationUser.role, permissions: organizationUser.permissions })
     .from(organizationUser)
     .where(
       and(
@@ -168,6 +175,10 @@ app.use('/api/*', async (c, next) => {
   if (!membership) {
     return c.json({ error: 'Session invalid: user or organization no longer exists' }, 401);
   }
+
+  // Role and permissions can change after the token was issued (e.g. a demotion);
+  // handlers must see the current values, not the ones frozen into the JWT.
+  c.set('jwtPayload', { ...payload, role: membership.role, permissions: sessionPermissions(membership) });
 
   return next();
 });

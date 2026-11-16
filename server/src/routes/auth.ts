@@ -15,69 +15,7 @@ type Bindings = {
 
 const authRouter = new Hono<{ Bindings: Bindings }>();
 
-const defaultPermissionsByRole: Record<string, string[]> = {
-  core_admin: [
-    'dashboard.view',
-    'people.view',
-    'people.edit',
-    'board.view',
-    'assemblies.view',
-    'assemblies.edit',
-    'convocations.view',
-    'convocations.edit',
-    'timeline.view',
-    'resignations.view',
-    'settings.view',
-    'settings.users.view',
-    'settings.users.manage',
-    'settings.password.manage',
-    'settings.users.reset_password',
-  ],
-  admin: [
-    'dashboard.view',
-    'people.view',
-    'people.edit',
-    'board.view',
-    'assemblies.view',
-    'assemblies.edit',
-    'convocations.view',
-    'convocations.edit',
-    'timeline.view',
-    'resignations.view',
-    'settings.view',
-    'settings.users.view',
-    'settings.users.manage',
-    'settings.password.manage',
-    'settings.users.reset_password',
-  ],
-  manager: [
-    'dashboard.view',
-    'people.view',
-    'people.edit',
-    'board.view',
-    'assemblies.view',
-    'assemblies.edit',
-    'convocations.view',
-    'convocations.edit',
-    'timeline.view',
-    'resignations.view',
-    'settings.view',
-    'settings.password.manage',
-  ],
-  viewer: [
-    'dashboard.view',
-    'people.view',
-    'board.view',
-    'assemblies.view',
-    'convocations.view',
-    'timeline.view',
-    'resignations.view',
-    'settings.view',
-    'settings.password.manage',
-  ],
-};
-
-const getPermissionsForRole = (role: string) => defaultPermissionsByRole[role] ?? defaultPermissionsByRole.viewer;
+import { getPermissionsForRole, sessionPermissions } from '../lib/session-permissions';
 
 import { hashPassword, verifyPassword } from '../lib/auth';
 import { decodeGoogleIdToken, rejectGoogleIdentity } from '../lib/google-identity';
@@ -137,7 +75,7 @@ authRouter.post('/login', async (c) => {
     return c.json({ error: 'Nessun\'organizzazione trovata per questo account' }, 403);
   }
 
-  const permissions = orgUser.permissions ? JSON.parse(orgUser.permissions) : getPermissionsForRole(orgUser.role);
+  const permissions = sessionPermissions(orgUser);
 
   const payload = {
     sub: user.id,
@@ -488,9 +426,7 @@ authRouter.get('/google/callback', async (c) => {
       return c.json({ error: 'Organization not found' }, 500);
     }
 
-    const permissions = orgUser.permissions
-      ? JSON.parse(orgUser.permissions)
-      : getPermissionsForRole(orgUser.role);
+    const permissions = sessionPermissions(orgUser);
 
     const jwtPayload = {
       sub: existingUser.id,
@@ -570,9 +506,7 @@ authRouter.post('/set-password', async (c) => {
       return c.json({ error: 'Organizzazione non trovata.' }, 500);
     }
 
-    const permissions = orgUser.permissions
-      ? JSON.parse(orgUser.permissions)
-      : getPermissionsForRole(orgUser.role);
+    const permissions = sessionPermissions(orgUser);
 
     const jwtPayload = {
       sub: user.id,

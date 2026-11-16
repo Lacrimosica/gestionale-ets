@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { sign } from 'hono/jwt';
 import { zipSync, strToU8 } from 'fflate';
 import app from '../../src/index';
@@ -34,7 +34,15 @@ describe('Tenant isolation over HTTP', () => {
     await cleanupMiniflare();
   });
 
+  /**
+   * Issue a session token and store the same role/permissions on the membership,
+   * since the session middleware reloads them from the DB on every request.
+   */
   async function mintToken(userId: string, orgId: string, permissions: string[], role = 'core_admin') {
+    await getMiniflareDB().update(schema.organizationUser)
+      .set({ role, permissions: JSON.stringify(permissions) })
+      .where(and(eq(schema.organizationUser.userId, userId), eq(schema.organizationUser.orgId, orgId)))
+      .run();
     return sign(
       {
         sub: userId,
@@ -465,6 +473,21 @@ describe('Tenant isolation over HTTP', () => {
 
       const after = await getMiniflareDB().select().from(schema.person).where(eq(schema.person.id, person2.id)).get();
       expect(after?.canBeRemoved).toBe(1);
+    });
+  });
+
+  describe('session', () => {
+    it('a demotion applies to existing tokens immediately', async () => {
+      const { org1, user1 } = await seedTwoOrgs();
+      const token = await mintToken(user1.id, org1.id, ['people.view']);
+      expect((await call('GET', '/api/people', token)).status).toBe(200);
+
+      await getMiniflareDB().update(schema.organizationUser)
+        .set({ role: 'viewer', permissions: JSON.stringify([]) })
+        .where(and(eq(schema.organizationUser.userId, user1.id), eq(schema.organizationUser.orgId, org1.id)))
+        .run();
+
+      expect((await call('GET', '/api/people', token)).status).toBe(403);
     });
   });
 

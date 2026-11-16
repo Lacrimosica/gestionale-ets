@@ -33,7 +33,13 @@ describe('People route — orgContext scoping (issue #3)', () => {
     await cleanupMiniflare();
   });
 
+  // The session middleware reloads role/permissions from the membership row, so
+  // keep it in sync with what the token claims.
   async function mintToken(userId: string, orgId: string, permissions: string[]) {
+    await getMiniflareDB().update(schema.organizationUser)
+      .set({ role: 'core_admin', permissions: JSON.stringify(permissions) })
+      .where(and(eq(schema.organizationUser.userId, userId), eq(schema.organizationUser.orgId, orgId)))
+      .run();
     return sign(
       {
         sub: userId,

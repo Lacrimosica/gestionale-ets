@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useCallback, type SetStateAction } from 'react';
 import { AGENDA_TEMPLATES } from '../components/assemblies/assemblyConstants';
 import type { Assembly } from './useAssemblies';
+import type { Candidate } from '../types/assembly';
+import { formatItalianList, resolveMemberNames } from '../lib/agenda-members';
 
 interface AgendaItem {
   title: string;
   workflowType: string;
   number: number;
-  workflowData?: any;
+  /** Person ids, sent as memberIds when the agenda item is created. */
+  memberIds?: string[];
 }
 
 interface AssemblyForm {
@@ -36,8 +39,22 @@ const computeConvocationDate = (firstCallDate: string) => {
   return d.toISOString().split('T')[0];
 };
 
-export const useAssemblyForm = () => {
-  const [form, setForm] = useState<AssemblyForm>(() => {
+/** @param memberCandidates people offered by the agenda member picker, used to name them in auto-generated titles. */
+const withTypeDefaults = (form: AssemblyForm): AssemblyForm => {
+  switch (form.type) {
+    case 'board_council':
+      return { ...form, subtype: 'ordinary' };
+    case 'extraordinary':
+      return { ...form, subtype: 'generic' };
+    case 'constitution':
+      return { ...form, subtype: '', firstCallTime: '' };
+    default:
+      return { ...form, subtype: '' };
+  }
+};
+
+export const useAssemblyForm = (memberCandidates: Candidate[] = []) => {
+  const [form, setFormState] = useState<AssemblyForm>(() => {
     const firstCallDate = new Date().toISOString().split('T')[0];
     return {
       type: 'ordinary' as Assembly['type'],
@@ -60,54 +77,47 @@ export const useAssemblyForm = () => {
     };
   });
 
+  /**
+   * Form setter that applies per-type defaults whenever the assembly type
+   * changes. Done in the update itself (rather than an effect on form.type) so
+   * consumers never see a render with a stale subtype.
+   */
+  const setForm = useCallback((update: SetStateAction<AssemblyForm>) => {
+    setFormState((prev) => {
+      const next = typeof update === 'function' ? update(prev) : update;
+      return next.type === prev.type ? next : withTypeDefaults(next);
+    });
+  }, []);
+
   const [newAgendaTitle, setNewAgendaTitle] = useState('');
-  const [newAgendaWorkflow, setNewAgendaWorkflow] = useState('');
-  const [newAgendaMembers, setNewAgendaMembers] = useState<string[]>([]);
+  const [newAgendaWorkflow, setNewAgendaWorkflowState] = useState('');
+  const [newAgendaMemberIds, setNewAgendaMemberIdsState] = useState<string[]>([]);
 
-  // Reset subtype and time defaults when type changes
-  useEffect(() => {
-    if (form.type === 'board_council') {
-      setForm(prev => ({ ...prev, subtype: 'ordinary' }));
-    } else if (form.type === 'extraordinary') {
-      setForm(prev => ({ ...prev, subtype: 'generic' }));
-    } else if (form.type === 'constitution') {
-      setForm(prev => ({ ...prev, subtype: '', firstCallTime: '' }));
-    } else {
-      setForm(prev => ({ ...prev, subtype: '' }));
-    }
-  }, [form.type]);
-
-  const formatItalianList = (items: string[]) => {
-    if (items.length === 0) return '';
-    if (items.length === 1) return items[0];
-    const last = items[items.length - 1];
-    const others = items.slice(0, -1);
-    return `${others.join(', ')} e ${last}`;
+  /** Changing the workflow clears picked members and proposes a default title. */
+  const setNewAgendaWorkflow = (workflow: string) => {
+    setNewAgendaWorkflowState(workflow);
+    setNewAgendaMemberIdsState([]);
+    if (workflow === 'member_admission') setNewAgendaTitle('Ammissione soci');
+    if (workflow === 'member_resignation') setNewAgendaTitle("Presa d'atto dimissioni");
   };
 
-  // Auto-generate title based on members
-  useEffect(() => {
-    if (!newAgendaWorkflow || newAgendaMembers.length === 0) return;
+  /** Picking members regenerates the title from their names. */
+  const setNewAgendaMemberIds = (memberIds: string[]) => {
+    setNewAgendaMemberIdsState(memberIds);
+    if (!newAgendaWorkflow || memberIds.length === 0) return;
 
-    const names = formatItalianList(newAgendaMembers);
+    const names = formatItalianList(resolveMemberNames(memberIds, [], memberCandidates).map((m) => m.name));
     if (newAgendaWorkflow === 'member_admission') {
       setNewAgendaTitle(`Approvazione dell'ammissione alla qualità di socio di ${names}`);
     } else if (newAgendaWorkflow === 'member_resignation') {
       setNewAgendaTitle(`Presa d'atto delle dimissioni dalla qualità di soci di ${names}`);
     }
-  }, [newAgendaWorkflow, newAgendaMembers]);
-
-  // Reset members when workflow changes
-  useEffect(() => {
-    setNewAgendaMembers([]);
-    if (newAgendaWorkflow === 'member_admission') setNewAgendaTitle('Ammissione soci');
-    if (newAgendaWorkflow === 'member_resignation') setNewAgendaTitle("Presa d'atto dimissioni");
-  }, [newAgendaWorkflow]);
+  };
 
   const addAgendaItem = (title: string, workflowType: string) => {
     if (!title.trim()) return;
 
-    const workflowData = newAgendaMembers.length > 0 ? { members: newAgendaMembers } : undefined;
+    const memberIds = newAgendaMemberIds.length > 0 ? newAgendaMemberIds : undefined;
 
     setForm((prev) => ({
       ...prev,
@@ -117,13 +127,13 @@ export const useAssemblyForm = () => {
           title,
           workflowType,
           number: prev.initialAgenda.length + 1,
-          workflowData,
+          memberIds,
         },
       ],
     }));
     setNewAgendaTitle('');
-    setNewAgendaWorkflow('');
-    setNewAgendaMembers([]);
+    setNewAgendaWorkflowState('');
+    setNewAgendaMemberIdsState([]);
   };
 
   const removeAgendaItem = (index: number) => {
@@ -161,8 +171,8 @@ export const useAssemblyForm = () => {
     setNewAgendaTitle,
     newAgendaWorkflow,
     setNewAgendaWorkflow,
-    newAgendaMembers,
-    setNewAgendaMembers,
+    newAgendaMemberIds,
+    setNewAgendaMemberIds,
     addAgendaItem,
     removeAgendaItem,
     applyCurrentTemplate,

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Pencil, Trash2, ChevronDown, Check, X, Loader2 } from 'lucide-react';
-import type { AgendaItem, WorkflowItemType } from '../../types/assembly';
+import type { AgendaItem, Candidate, WorkflowItemData, WorkflowItemType } from '../../types/assembly';
 import { WorkflowItemConfigurator } from './WorkflowItemConfigurator';
 import { VotingResultsField } from './VotingResultsField';
 
@@ -24,10 +24,11 @@ interface AgendaItemCardProps {
   onCancel: () => void;
   onDelete: (itemId: string) => void;
   onToggleExpand: (itemId: string) => void;
-  onWorkflowDataChange: (workflowData: any) => void;
+  onWorkflowDataChange: (workflowData: WorkflowItemData) => void;
+  onMembersChange: (memberIds: string[]) => void;
   onSaveWorkflow: () => void;
   savingWorkflow: boolean;
-  candidates: any[];
+  candidates: Candidate[];
   candidatesLoading: boolean;
 }
 
@@ -55,6 +56,7 @@ export const AgendaItemCard = ({
   onDelete,
   onToggleExpand,
   onWorkflowDataChange,
+  onMembersChange,
   onSaveWorkflow,
   savingWorkflow,
   candidates,
@@ -166,9 +168,12 @@ export const AgendaItemCard = ({
               <WorkflowItemConfigurator
                 workflowType={item.workflowType}
                 workflowData={item.workflowData ?? undefined}
+                memberIds={item.memberIds ?? []}
+                members={item.members ?? []}
                 candidates={candidates}
                 candidatesLoading={candidatesLoading}
                 onWorkflowDataChange={onWorkflowDataChange}
+                onMembersChange={onMembersChange}
               />
 
               {item.workflowType !== 'member_resignation' && (

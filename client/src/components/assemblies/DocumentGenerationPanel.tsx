@@ -5,10 +5,12 @@ import {
 import { useDocuments, type GenerateInput, type WorkflowType, type GenerateResult } from '../../hooks/useDocuments';
 import { useModalityOptions, useDocumentSettings } from '../../hooks/useSettings';
 import type {
+  AgendaItem,
   GenConfig,
   AssemblyDetailData,
   ConvocationDetail,
 } from '../../types/assembly';
+import { agendaMemberNames } from '../../lib/agenda-members';
 
 const DOC_INPUT_CLS = 'w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all';
 
@@ -70,6 +72,11 @@ export const DocumentGenerationPanel = ({
     const electionItem = convocationDetail.agendaItems.find((i) => i.workflowType === 'board_election');
     const budgetItem = convocationDetail.agendaItems.find((i) => i.workflowType === 'budget_approval');
     const resignationItem = convocationDetail.agendaItems.find((i) => i.workflowType === 'member_resignation');
+    // Linked people's names, or legacy text names; undefined keeps the manual value.
+    const namesOrUndefined = (item?: AgendaItem) => {
+      const names = item ? agendaMemberNames(item) : [];
+      return names.length > 0 ? names : undefined;
+    };
 
     const genericItemIds = convocationDetail.agendaItems
       .filter((item) => {
@@ -85,8 +92,8 @@ export const DocumentGenerationPanel = ({
       activeWorkflows: odgWorkflows.length > 0 ? odgWorkflows : genConfig.activeWorkflows,
       selectedAgendaItemIds: genericItemIds,
       includeResignations: !!resignationItem,
-      secondCallDate: (convocationDetail.assembly2 as any)?.firstCallDate || genConfig.secondCallDate,
-      secondCallTime: (convocationDetail.assembly2 as any)?.firstCallTime || genConfig.secondCallTime,
+      secondCallDate: convocationDetail.assembly2?.firstCallDate || genConfig.secondCallDate,
+      secondCallTime: convocationDetail.assembly2?.firstCallTime || genConfig.secondCallTime,
       city: docSettings?.city || genConfig.city,
       venue: data?.location || genConfig.venue,
 
@@ -96,11 +103,11 @@ export const DocumentGenerationPanel = ({
 
       data: {
         ...genConfig.data,
-        newMembers: admissionItem?.workflowData?.members || genConfig.data.newMembers,
-        excludedMembers: exclusionItem?.workflowData?.members || genConfig.data.excludedMembers,
-        newBoard: electionItem?.workflowData?.members || genConfig.data.newBoard,
+        newMembers: namesOrUndefined(admissionItem) || genConfig.data.newMembers,
+        excludedMembers: namesOrUndefined(exclusionItem) || genConfig.data.excludedMembers,
+        newBoard: namesOrUndefined(electionItem) || genConfig.data.newBoard,
         budgetYear: budgetItem?.workflowData?.budgetYear ? String(budgetItem.workflowData.budgetYear) : genConfig.data.budgetYear,
-        resignations: resignationItem?.workflowData?.members?.map((m: any) => ({ name: m, date: resignationItem?.workflowData?.resignationDate || '' })) || genConfig.data.resignations,
+        resignations: namesOrUndefined(resignationItem)?.map((name) => ({ name, date: resignationItem?.workflowData?.resignationDate || '' })) || genConfig.data.resignations,
       }
     });
   }, [genConfig.isOpen, convocationDetail, docSettings, data?.location]);
@@ -230,9 +237,9 @@ export const DocumentGenerationPanel = ({
 
       const res = await generateDocuments(input);
       setDocResult(res);
-    } catch (err: any) {
-      const apiError = err?.response?.data?.error;
-      setDocGenError(apiError ?? err.message ?? 'Errore durante la generazione');
+    } catch (err: unknown) {
+      const apiError = (err as { response?: { data?: { error?: string } } } | null)?.response?.data?.error;
+      setDocGenError(apiError ?? (err instanceof Error ? err.message : undefined) ?? 'Errore durante la generazione');
     } finally {
       setDocGenerating(false);
     }

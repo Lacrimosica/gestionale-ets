@@ -4,6 +4,10 @@ import type { WorkflowType, VotingResult, DimissioneSocio } from '../hooks/useDo
 export type WorkflowItemType = 'member_admission' | 'member_resignation' | 'member_exclusion' | 'budget_approval' | 'board_election';
 
 export interface WorkflowItemData {
+  /**
+   * Legacy only: display names stored as text before agenda members were linked
+   * to people. Current members live in AgendaItem.memberIds (junction table).
+   */
   members?: string[];
   budgetYear?: number;
   voting?: VotingResult[];
@@ -18,6 +22,15 @@ export interface AgendaItem {
   resolution?: string | null;
   workflowType?: WorkflowItemType | null;
   workflowData?: WorkflowItemData | null;
+  /** Person ids linked to this item (agenda_item_person). */
+  memberIds?: string[];
+  /** Linked people with display names, as returned by the API. */
+  members?: AgendaMember[];
+}
+
+export interface AgendaMember {
+  id: string;
+  name: string;
 }
 
 export interface ConvocationDetail {

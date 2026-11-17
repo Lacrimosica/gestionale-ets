@@ -1,5 +1,18 @@
 # Deployment Modes & Configuration
 
+## Where each environment deploys
+
+| Environment | Worker | Config used | How it deploys |
+|---|---|---|---|
+| Production | `gestionale-server` | top-level `wrangler.toml` | Automatically on every push to `main` (Cloudflare Workers Builds). `npm run deploy` does the same by hand. |
+| Staging | `gestionale-server-staging` | `[env.staging]` | `npm run deploy:staging` |
+
+`wrangler deploy --env production` does **not** update production: it creates a separate
+`gestionale-server-production` worker with no secrets. Don't use it.
+
+Local `wrangler dev` reads the top-level config too, so local-only overrides (such as
+`DEPLOYMENT_MODE=open`) belong in `.dev.vars`, never in the top-level `[vars]`.
+
 Gestionale-ETS supports four deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable. This replaces the older boolean `ALLOW_ORG_CREATION` flag with a more flexible enum-based approach.
 
 ---
@@ -38,7 +51,7 @@ Gestionale-ETS supports four deployment modes, controlled by the `DEPLOYMENT_MOD
 **Setup:**
 - Set `DEPLOYMENT_MODE = "open"` in `wrangler.toml` `[vars]`
 - Optionally set in environment-specific sections: `[env.staging.vars]` / `[env.production.vars]`
-- Deploy with `wrangler deploy --env staging` (or `production`)
+- Deploy staging with `npm run deploy:staging`; production deploys from `main` (see [Where each environment deploys](#where-each-environment-deploys))
 
 **Behavior:**
 - First user to visit the app sees the setup wizard and creates organization #1
@@ -186,11 +199,11 @@ No database migration needed — the mode only controls the app's acceptance of 
 ## Production Checklist
 
 - [ ] Choose appropriate `DEPLOYMENT_MODE` for your use case
-- [ ] Set `DEPLOYMENT_MODE` in `[env.production.vars]` section of `wrangler.toml`
+- [ ] Set `DEPLOYMENT_MODE` in the top-level `[vars]` section of `wrangler.toml` (production uses the top-level config, not `[env.production]`)
 - [ ] Run all pending migrations: `npm run db:migrate:production`
 - [ ] Verify `CORS_ORIGIN` is set to your production frontend URL
 - [ ] Verify `GOOGLE_REDIRECT_BASE_URL` matches your Workers URL (registered in Google Cloud Console)
-- [ ] Set `JWT_SECRET` via Cloudflare dashboard: `wrangler secret put JWT_SECRET --env production`
+- [ ] Set `JWT_SECRET` on the production worker: `wrangler secret put JWT_SECRET --name gestionale-server`
 - [ ] If using `invite_only` mode, ensure admin users can issue org-creation invites (Settings → Org Management)
 - [ ] Test org creation (if applicable):
   - Visit the setup wizard (should pre-fill email if Google OAuth was used)

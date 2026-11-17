@@ -33,7 +33,7 @@ export const AssemblyTypeSection = ({
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-special-400">
         <FileText size={16} />
-        <h3 className="text-xs font-black uppercase tracking-widest">Informazioni Generali</h3>
+        <h3 className="text-xs font-black uppercase tracking-widest">{t('assemblies.creation.generalInfo')}</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -53,28 +53,28 @@ export const AssemblyTypeSection = ({
 
         {form.type === 'extraordinary' ? (
           <div className="space-y-1.5 text-sm animate-in fade-in slide-in-from-top-1">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Tipologia straordinaria</label>
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('assemblies.creation.extraordinaryType')}</label>
             <select
               value={form.subtype}
               onChange={(e) => setForm({ ...form, subtype: e.target.value })}
               className="w-full bg-neutral-950 border border-warning-900/40 rounded-lg px-3 py-2 text-neutral-200 focus:ring-2 focus:ring-warning-600 outline-none"
             >
-              <option value="generic">Generica</option>
-              <option value="statute_modification">Modifica Statuto</option>
-              <option value="dissolution">Scioglimento</option>
-              <option value="merger_split">Fusione / Scissione</option>
+              <option value="generic">{t('assemblies.creation.generic')}</option>
+              <option value="statute_modification">{t('assemblies.creation.statuteModification')}</option>
+              <option value="dissolution">{t('assemblies.creation.dissolution')}</option>
+              <option value="merger_split">{t('assemblies.creation.mergerSplit')}</option>
             </select>
           </div>
         ) : form.type === 'board_council' ? (
           <div className="space-y-1.5 text-sm animate-in fade-in slide-in-from-top-1">
-            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Tipologia riunione CD</label>
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('assemblies.creation.boardMeetingType')}</label>
             <select
               value={form.subtype}
               onChange={(e) => setForm({ ...form, subtype: e.target.value })}
               className="w-full bg-neutral-950 border border-accent-900/40 rounded-lg px-3 py-2 text-neutral-200 focus:ring-2 focus:ring-accent-600 outline-none"
             >
-              <option value="ordinary">Ordinaria</option>
-              <option value="extraordinary">Straordinaria (urgente)</option>
+              <option value="ordinary">{t('assemblies.creation.ordinary')}</option>
+              <option value="extraordinary">{t('assemblies.creation.extraordinaryUrgent')}</option>
             </select>
           </div>
         ) : null}
@@ -84,19 +84,19 @@ export const AssemblyTypeSection = ({
       {form.type === 'extraordinary' && form.subtype === 'statute_modification' && (
         <div className="flex items-start gap-2 bg-warning-900/10 border border-warning-800/30 rounded-lg p-3 text-xs text-warning-300 animate-in fade-in">
           <AlertCircle size={14} className="shrink-0 mt-0.5" />
-          <span>Le modifiche statutarie devono essere registrate presso l'Agenzia delle Entrate entro 30 giorni dalla delibera. Quorum spesso più elevato — verificare lo Statuto.</span>
+          <span>{t('assemblies.creation.statuteInfo')}</span>
         </div>
       )}
       {form.type === 'extraordinary' && form.subtype === 'dissolution' && (
         <div className="flex items-start gap-2 bg-danger-900/10 border border-danger-800/30 rounded-lg p-3 text-xs text-danger-300 animate-in fade-in">
           <AlertCircle size={14} className="shrink-0 mt-0.5" />
-          <span>La delibera di scioglimento va registrata presso RUNTS e Agenzia delle Entrate entro 30 giorni. Prevedere nomina del liquidatore e devoluzione del patrimonio residuo.</span>
+          <span>{t('assemblies.creation.dissolutionInfo')}</span>
         </div>
       )}
       {form.type === 'extraordinary' && form.subtype === 'merger_split' && (
         <div className="flex items-start gap-2 bg-warning-900/10 border border-warning-800/30 rounded-lg p-3 text-xs text-warning-300 animate-in fade-in">
           <AlertCircle size={14} className="shrink-0 mt-0.5" />
-          <span>La delibera di fusione/scissione deve essere comunicata al RUNTS entro 30 giorni. Verificare i requisiti di quorum rafforzato nello Statuto.</span>
+          <span>{t('assemblies.creation.mergerSplitInfo')}</span>
         </div>
       )}
 

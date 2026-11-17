@@ -10,7 +10,6 @@ import {
   Briefcase,
   PanelLeftClose,
   PanelLeftOpen,
-  Languages,
   FileText,
   Trash2,
 } from 'lucide-react';
@@ -25,14 +24,9 @@ const Sidebar = ({
   collapsed: boolean;
   onToggle: () => void;
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { logout, user, hasPermission } = useAuth();
   const { branding } = useBranding();
-
-  const toggleLanguage = () => {
-    const nextLang = i18n.language === 'it' ? 'en' : 'it';
-    i18n.changeLanguage(nextLang);
-  };
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: t('nav.dashboard'), permission: PERMISSIONS.dashboardView },
@@ -149,14 +143,6 @@ const Sidebar = ({
             {!collapsed && <span>{t('nav.settings')}</span>}
           </NavLink>
         )}
-        <button
-          onClick={toggleLanguage}
-          title={collapsed ? (i18n.language === 'it' ? 'English' : 'Italiano') : undefined}
-          className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-3'} text-neutral-400 hover:text-fg hover:bg-neutral-800 ${collapsed ? 'px-2' : 'px-4'} py-2 w-full transition-all rounded-lg`}
-        >
-          <Languages size={20} />
-          {!collapsed && <span>{i18n.language === 'it' ? 'English' : 'Italiano'}</span>}
-        </button>
         <button
           onClick={logout}
           title={collapsed ? t('auth.logout') : undefined}

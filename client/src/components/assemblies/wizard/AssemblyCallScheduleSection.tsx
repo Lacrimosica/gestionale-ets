@@ -39,7 +39,7 @@ export const AssemblyCallScheduleSection = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2 text-success-400">
             <CalendarIcon size={16} />
-            <h3 className="text-xs font-black uppercase tracking-widest">Data Assemblea Costituente</h3>
+            <h3 className="text-xs font-black uppercase tracking-widest">{t('assemblies.creation.constituentDate')}</h3>
           </div>
           <div className="bg-success-900/10 border border-success-800/20 rounded-xl p-4 space-y-3">
             <div className="grid grid-cols-5 gap-2">
@@ -67,7 +67,7 @@ export const AssemblyCallScheduleSection = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-special-400">
               <CalendarIcon size={16} />
-              <h3 className="text-xs font-black uppercase tracking-widest">Pianificazione Convocazioni</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest">{t('assemblies.creation.convocationPlanning')}</h3>
             </div>
             <label className="flex items-center gap-2 cursor-pointer bg-neutral-800/40 px-2 py-1 rounded-md hover:bg-neutral-800/60 transition-colors">
               <input
@@ -76,7 +76,7 @@ export const AssemblyCallScheduleSection = ({
                 onChange={(e) => setForm({ ...form, hasSecondCall: e.target.checked })}
                 className="accent-special-500"
               />
-              <span className="text-[10px] font-bold uppercase text-neutral-300 italic">Aggiungi 2ª conv.</span>
+              <span className="text-[10px] font-bold uppercase text-neutral-300 italic">{t('assemblies.creation.addSecondConvocation')}</span>
             </label>
           </div>
 
@@ -85,7 +85,7 @@ export const AssemblyCallScheduleSection = ({
             <div className="bg-special-900/10 border border-special-800/20 rounded-xl p-4 space-y-4">
               <div className="flex items-center gap-2 border-b border-special-800/20 pb-2">
                 <span className="text-[10px] font-black bg-special-500 text-white px-1.5 py-0.5 rounded italic">1ª</span>
-                <span className="text-xs font-bold text-neutral-300">Prima convocazione</span>
+                <span className="text-xs font-bold text-neutral-300">{t('assemblies.creation.firstConvocation')}</span>
               </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-5 gap-2">
@@ -110,7 +110,7 @@ export const AssemblyCallScheduleSection = ({
                   <div className="space-y-1">
                     <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.location')}</label>
                     <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
-                      <option value="">— seleziona sede —</option>
+                      <option value="">{t('assemblies.creation.selectHeadquarters')}</option>
                       {addresses.map((a) => (
                         <option key={a.id} value={a.address}>{a.address}</option>
                       ))}
@@ -119,7 +119,7 @@ export const AssemblyCallScheduleSection = ({
                 )}
                 {(form.mode === 'remote' || form.mode === 'hybrid') && (
                   <div className="space-y-1">
-                    <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.platformLink', { defaultValue: 'Piattaforma / Link' })}</label>
+                    <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.creation.platformLink')}</label>
                     <input
                       type="url"
                       value={form.meetLink || ''}
@@ -137,7 +137,7 @@ export const AssemblyCallScheduleSection = ({
               <div className="bg-success-900/10 border border-success-800/20 rounded-xl p-4 space-y-4 animate-in slide-in-from-right-4">
                 <div className="flex items-center gap-2 border-b border-success-800/20 pb-2">
                   <span className="text-[10px] font-black bg-success-500 text-white px-1.5 py-0.5 rounded italic">2ª</span>
-                  <span className="text-xs font-bold text-neutral-300">Seconda convocazione</span>
+                  <span className="text-xs font-bold text-neutral-300">{t('assemblies.creation.secondConvocation')}</span>
                 </div>
                 <div className="space-y-3">
                   <div className="grid grid-cols-5 gap-2">
@@ -162,7 +162,7 @@ export const AssemblyCallScheduleSection = ({
                     <div className="space-y-1">
                       <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.location')}</label>
                       <select value={form.secondCallLocation} onChange={e => setForm({ ...form, secondCallLocation: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
-                        <option value="">— seleziona sede —</option>
+                        <option value="">{t('assemblies.creation.selectHeadquarters')}</option>
                         {addresses.map((a) => (
                           <option key={a.id} value={a.address}>{a.address}</option>
                         ))}
@@ -171,7 +171,7 @@ export const AssemblyCallScheduleSection = ({
                   )}
                   {(form.secondCallMode === 'remote' || form.secondCallMode === 'hybrid') && (
                     <div className="space-y-1">
-                      <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.platformLink', { defaultValue: 'Piattaforma / Link' })}</label>
+                      <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.creation.platformLink')}</label>
                       <input
                         type="url"
                         value={form.meetLink || ''}
@@ -185,7 +185,7 @@ export const AssemblyCallScheduleSection = ({
               </div>
             ) : (
               <div className="border-2 border-dashed border-neutral-800 rounded-xl flex items-center justify-center p-4">
-                <p className="text-[10px] text-neutral-600 font-bold uppercase italic text-center">Nessuna seconda convocazione pianificata</p>
+                <p className="text-[10px] text-neutral-600 font-bold uppercase italic text-center">{t('assemblies.creation.noSecondConvocation')}</p>
               </div>
             )}
           </div>
@@ -198,7 +198,7 @@ export const AssemblyCallScheduleSection = ({
             const tooLate = daysBefore !== null && daysBefore < 15;
             return (
               <div className="space-y-1">
-                <label className="text-[10px] text-neutral-500 uppercase">Data invio convocazione</label>
+                <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.creation.convocationSendDate')}</label>
                 <input
                   type="date"
                   value={form.convocationDate}
@@ -207,7 +207,7 @@ export const AssemblyCallScheduleSection = ({
                 />
                 {tooLate && (
                   <p className="text-[10px] text-danger-400 flex items-center gap-1">
-                    <span>⚠</span> La convocazione deve essere inviata almeno 15 giorni prima ({daysBefore} gg).
+                    <span>⚠</span> {t('assemblies.creation.convocationTooLate', { days: daysBefore })}
                   </p>
                 )}
               </div>

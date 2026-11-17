@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { usePeople, type Person } from '../hooks/usePeople';
 import { ArrowLeft, Save, User, MapPin, Briefcase, AlertCircle, Check, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -12,6 +13,7 @@ import { API_BASE_URL } from '../config';
 import axios from 'axios';
 
 const PersonForm = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { hasPermission } = useAuth();
   const { addPerson } = usePeople();
@@ -94,7 +96,7 @@ const PersonForm = () => {
 
   const handleEmailBlur = async () => {
     if (formData.email && !validateEmail(formData.email)) {
-      setEmailError('Inserisci un indirizzo email valido');
+      setEmailError(t('people.form.invalidEmail'));
     } else {
       setEmailError(null);
     }
@@ -104,7 +106,7 @@ const PersonForm = () => {
         const { data: people } = await axios.get<Person[]>(`${API_BASE_URL}/people`);
         const duplicate = formData.email ? people.find(p => p.email?.toLowerCase() === formData.email!.toLowerCase()) : null;
         if (duplicate) {
-          setEmailWarning(`Email già utilizzata da ${duplicate.firstName} ${duplicate.lastName}`);
+          setEmailWarning(t('people.form.duplicateEmail', { name: `${duplicate.firstName} ${duplicate.lastName}` }));
         } else {
           setEmailWarning(null);
         }
@@ -116,7 +118,7 @@ const PersonForm = () => {
 
   const handleCFBlur = async () => {
     if (formData.taxId && !validateCF(formData.taxId)) {
-      setCfError('Formato non valido. Il Codice Fiscale deve avere 16 caratteri.');
+      setCfError(t('people.form.invalidTaxId'));
     } else {
       setCfError(null);
     }
@@ -126,7 +128,7 @@ const PersonForm = () => {
         const { data: people } = await axios.get<Person[]>(`${API_BASE_URL}/people`);
         const duplicate = formData.taxId ? people.find(p => p.taxId?.toUpperCase() === formData.taxId!.toUpperCase()) : null;
         if (duplicate) {
-          setCfWarning(`Codice Fiscale già utilizzato da ${duplicate.firstName} ${duplicate.lastName}`);
+          setCfWarning(t('people.form.duplicateTaxId', { name: `${duplicate.firstName} ${duplicate.lastName}` }));
         } else {
           setCfWarning(null);
         }
@@ -154,7 +156,7 @@ const PersonForm = () => {
       setSavedPerson(newPerson);
       setShowCreateUserModal(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('people.form.genericError'));
       setLoading(false);
     }
   };
@@ -173,8 +175,8 @@ const PersonForm = () => {
           <ArrowLeft size={24} />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-fg">Nuova Persona</h1>
-          <p className="text-neutral-400 mt-1">Inserisci i dati anagrafici di base.</p>
+          <h1 className="text-3xl font-bold text-fg">{t('people.form.title')}</h1>
+          <p className="text-neutral-400 mt-1">{t('people.form.description')}</p>
         </div>
       </div>
 
@@ -190,13 +192,13 @@ const PersonForm = () => {
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-6 shadow-xl">
           <div className="flex items-center space-x-2 text-info-400 pb-2 border-b border-neutral-800/50">
             <User size={18} />
-            <h2 className="font-semibold uppercase tracking-wider text-sm">Dati Personali</h2>
+            <h2 className="font-semibold uppercase tracking-wider text-sm">{t('people.personalDetails')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-sm font-medium text-neutral-400">
-                Nome <span className="text-danger-500">*</span>
+                {t('people.form.firstName')} <span className="text-danger-500">*</span>
               </label>
               <input
                 required
@@ -208,7 +210,7 @@ const PersonForm = () => {
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-neutral-400">
-                Cognome <span className="text-danger-500">*</span>
+                {t('people.form.lastName')} <span className="text-danger-500">*</span>
               </label>
               <input
                 required
@@ -219,7 +221,7 @@ const PersonForm = () => {
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-neutral-400">Codice Fiscale</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.taxId')}</label>
               <input
                 name="taxId"
                 className={`w-full bg-neutral-950 border rounded-lg p-2.5 text-neutral-200 font-mono uppercase focus:ring-2 focus:ring-info-600 outline-none ${cfError ? 'border-danger-700' : cfValidation.valid && formData.taxId && formData.taxId.length === 16 ? 'border-success-700' : 'border-neutral-800'}`}
@@ -241,63 +243,63 @@ const PersonForm = () => {
               )}
               {formData.taxId && formData.taxId.length === 16 && !cfError && (
                 <div className="mt-3 space-y-2 bg-neutral-950/50 border border-neutral-700 rounded p-3">
-                  <p className="text-xs font-semibold text-neutral-300 mb-2">Validazione componenti:</p>
+                  <p className="text-xs font-semibold text-neutral-300 mb-2">{t('people.form.taxIdValidationTitle')}</p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className={`flex items-center gap-2 ${cfValidation.details.lastName ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.lastName ? <Check size={12} /> : <X size={12} />}
-                      <span>Cognome</span>
+                      <span>{t('people.form.lastName')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${cfValidation.details.firstName ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.firstName ? <Check size={12} /> : <X size={12} />}
-                      <span>Nome</span>
+                      <span>{t('people.form.firstName')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${cfValidation.details.birthYear ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.birthYear ? <Check size={12} /> : <X size={12} />}
-                      <span>Anno nascita</span>
+                      <span>{t('people.form.birthYear')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${cfValidation.details.birthMonth ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.birthMonth ? <Check size={12} /> : <X size={12} />}
-                      <span>Mese nascita</span>
+                      <span>{t('people.form.birthMonth')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${cfValidation.details.birthDay ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.birthDay ? <Check size={12} /> : <X size={12} />}
-                      <span>Giorno/sesso</span>
+                      <span>{t('people.form.birthDayGender')}</span>
                     </div>
                     <div className={`flex items-center gap-2 ${cfValidation.details.birthPlace ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.birthPlace ? <Check size={12} /> : <X size={12} />}
-                      <span>Luogo nascita</span>
+                      <span>{t('people.form.birthPlace')}</span>
                     </div>
                     <div className={`flex items-center gap-2 col-span-2 ${cfValidation.details.control ? 'text-success-400' : 'text-danger-400'}`}>
                       {cfValidation.details.control ? <Check size={12} /> : <X size={12} />}
-                      <span>Carattere di controllo</span>
+                      <span>{t('people.form.checkCharacter')}</span>
                     </div>
                   </div>
                 </div>
               )}
               <details className="mt-2 cursor-pointer">
                 <summary className="text-xs text-neutral-400 hover:text-neutral-300 font-medium">
-                  ℹ️ Informazioni sul Codice Fiscale
+                  ℹ️ {t('people.form.taxIdInformation')}
                 </summary>
                 <div className="mt-2 text-xs text-neutral-300 bg-neutral-950/50 border border-neutral-700 rounded p-3 space-y-1">
-                  <p><strong>Formato:</strong> 16 caratteri (es. RSSMRA85D13F205F)</p>
-                  <p><strong>Per nati in Italia:</strong> Il codice fiscale usa il catastale del comune (es. F205 = Milano)</p>
-                  <p><strong>Per nati all'estero:</strong> Il codice fiscale usa il codice estero (inizia con Z + numero, es. Z336 = Iran)</p>
-                  <p className="text-neutral-400">Inserisci il comune o città nel campo "Luogo" e seleziona il paese nel campo "Paese".</p>
+                  <p><strong>{t('people.form.format')}:</strong> {t('people.form.taxIdFormat')}</p>
+                  <p><strong>{t('people.form.birthInItaly')}:</strong> {t('people.form.italianTaxIdInfo')}</p>
+                  <p><strong>{t('people.form.birthAbroad')}:</strong> {t('people.form.foreignTaxIdInfo')}</p>
+                  <p className="text-neutral-400">{t('people.form.taxIdLocationHint')}</p>
                 </div>
               </details>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Genere</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.gender')}</label>
               <select
                 name="gender"
                 className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-neutral-200 focus:ring-2 focus:ring-info-600 outline-none"
                 value={formData.gender}
                 onChange={handleChange}
               >
-                <option value="">Seleziona...</option>
-                <option value="M">Maschio</option>
-                <option value="F">Femmina</option>
-                <option value="Altro">Altro</option>
+                <option value="">{t('common.fields.select')}</option>
+                <option value="M">{t('people.form.genderOptions.male')}</option>
+                <option value="F">{t('people.form.genderOptions.female')}</option>
+                <option value="Altro">{t('people.form.genderOptions.other')}</option>
               </select>
             </div>
           </div>
@@ -307,12 +309,12 @@ const PersonForm = () => {
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-6 shadow-xl">
           <div className="flex items-center space-x-2 text-accent-400 pb-2 border-b border-neutral-800/50">
             <MapPin size={18} />
-            <h2 className="font-semibold uppercase tracking-wider text-sm">Luogo e Data di Nascita</h2>
+            <h2 className="font-semibold uppercase tracking-wider text-sm">{t('people.form.birthDetails')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Data di Nascita</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.form.birthDate')}</label>
               <input
                 type="date"
                 name="birthDate"
@@ -323,10 +325,10 @@ const PersonForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Luogo</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.form.birthPlace')}</label>
               <input
                 name="birthPlace"
-                placeholder="Comune o Città"
+                placeholder={t('people.form.cityPlaceholder')}
                 disabled={!!formData.birthCountry && formData.birthCountry !== 'Italia'}
                 className={`w-full rounded-lg p-2.5 focus:ring-2 focus:ring-info-600 outline-none ${
                   formData.birthCountry && formData.birthCountry !== 'Italia'
@@ -338,14 +340,14 @@ const PersonForm = () => {
               />
               {formData.birthCountry && formData.birthCountry !== 'Italia' && (
                 <p className="text-xs text-neutral-400">
-                  💡 Il luogo di nascita è impostato automaticamente al paese selezionato. Il codice catastale estero (Z...) sarà calcolato automaticamente.
+                  💡 {t('people.form.foreignBirthPlaceHint')}
                 </p>
               )}
             </div>
             <CountryCombobox
               value={formData.birthCountry || 'Italia'}
               onChange={handleCountryChange}
-              label="Paese"
+              label={t('people.form.country')}
             />
           </div>
         </div>
@@ -354,12 +356,12 @@ const PersonForm = () => {
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-6 shadow-xl">
           <div className="flex items-center space-x-2 text-special-400 pb-2 border-b border-neutral-800/50">
             <Briefcase size={18} />
-            <h2 className="font-semibold uppercase tracking-wider text-sm">Contatti e Lavoro</h2>
+            <h2 className="font-semibold uppercase tracking-wider text-sm">{t('people.form.contactAndWork')}</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Email</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.form.email')}</label>
               <input
                 type="email"
                 name="email"
@@ -382,7 +384,7 @@ const PersonForm = () => {
               )}
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Telefono</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.phone')}</label>
               <input
                 type="tel"
                 name="phone"
@@ -393,7 +395,7 @@ const PersonForm = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Professione</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.profession')}</label>
               <input
                 name="profession"
                 className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-neutral-200 focus:ring-2 focus:ring-info-600 outline-none"
@@ -402,7 +404,7 @@ const PersonForm = () => {
               />
             </div>
             <div className="space-y-3">
-              <span className="text-sm font-medium text-neutral-400">Stato occupazionale</span>
+              <span className="text-sm font-medium text-neutral-400">{t('people.occupationStatus')}</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className="flex items-center gap-2 rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 cursor-pointer">
                   <input
@@ -412,7 +414,7 @@ const PersonForm = () => {
                     onChange={handleChange}
                     className="h-4 w-4 text-info-500 rounded"
                   />
-                  <span>Studente</span>
+                  <span>{t('people.student')}</span>
                 </label>
                 <label className="flex items-center gap-2 rounded-xl border border-neutral-700 bg-neutral-950 px-4 py-3 cursor-pointer">
                   <input
@@ -422,15 +424,15 @@ const PersonForm = () => {
                     onChange={handleChange}
                     className="h-4 w-4 text-info-500 rounded"
                   />
-                  <span>Lavoratore</span>
+                  <span>{t('people.employee')}</span>
                 </label>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Matricola</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.matricola')}</label>
               <input
                 name="memberNumber"
-                placeholder="ID Interno"
+                placeholder={t('people.form.internalIdPlaceholder')}
                 className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-neutral-200 focus:ring-2 focus:ring-info-600 outline-none"
                 value={formData.memberNumber}
                 onChange={handleChange}
@@ -443,19 +445,19 @@ const PersonForm = () => {
         <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 space-y-6 shadow-xl">
           <div className="flex items-center space-x-2 text-neutral-400 pb-2 border-b border-neutral-800/50">
             <AlertCircle size={18} />
-            <h2 className="font-semibold uppercase tracking-wider text-sm">Note Interne</h2>
+            <h2 className="font-semibold uppercase tracking-wider text-sm">{t('people.form.internalNotes')}</h2>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium text-neutral-400">Note</label>
+            <label className="text-sm font-medium text-neutral-400">{t('common.fields.notes')}</label>
             <textarea
               name="notes"
-              placeholder="Aggiungi note o osservazioni interne su questa persona..."
+              placeholder={t('people.form.notesPlaceholder')}
               className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-neutral-200 focus:ring-2 focus:ring-info-600 outline-none resize-none h-24"
               value={formData.notes}
               onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
             />
-            <p className="text-xs text-neutral-500">💡 Le note sono visibili solo agli amministratori.</p>
+            <p className="text-xs text-neutral-500">💡 {t('people.form.notesHint')}</p>
           </div>
         </div>
 
@@ -463,8 +465,8 @@ const PersonForm = () => {
         <div className="bg-info-900/20 border border-info-800/50 rounded-xl p-4 flex items-start gap-3">
           <AlertCircle size={18} className="text-info-400 flex-shrink-0 mt-0.5" />
           <div className="text-sm text-info-300">
-            <p className="font-medium mb-1">Prossimo passo</p>
-            <p className="text-info-400/80">Dopo aver salvato la persona, avrai l'opzione di creare un account utente per permettergli di accedere al sistema.</p>
+            <p className="font-medium mb-1">{t('people.form.nextStep')}</p>
+            <p className="text-info-400/80">{t('people.form.nextStepDescription')}</p>
           </div>
         </div>
 
@@ -479,7 +481,7 @@ const PersonForm = () => {
             ) : (
               <Save size={20} />
             )}
-            <span>Salva Persona</span>
+            <span>{t('people.form.savePerson')}</span>
           </button>
         </div>
       </form>

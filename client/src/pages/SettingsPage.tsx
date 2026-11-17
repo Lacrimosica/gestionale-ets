@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings, ChevronDown, ShieldCheck, X, Sparkles, Palette } from 'lucide-react';
+import { Settings, ChevronDown, ShieldCheck, X, Sparkles, Palette, Languages } from 'lucide-react';
 import ComplianceRulesEditor from '../components/ComplianceRulesEditor';
 import DocumentSettingsSection from '../components/settings/DocumentSettingsSection';
 import { buildPreviewText } from '../components/settings/documentTemplates';
@@ -24,7 +24,7 @@ import { useAddressManagement } from '../hooks/useAddressManagement';
 
 const SettingsPage = () => {
   const { user, hasPermission, login, token } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { branding, updateBranding } = useBranding();
   const isCoreAdmin = user?.role === 'core_admin';
   const canManageUsers = hasPermission(PERMISSIONS.settingsUsersManage);
@@ -212,6 +212,36 @@ const SettingsPage = () => {
         </h1>
         <p className="text-neutral-400 mt-1">{t('settings.subtitle')}</p>
       </div>
+
+      <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl">
+        <div className="flex items-center gap-3">
+          <Languages className="text-info-400" size={20} />
+          <div>
+            <h2 className="text-lg font-semibold text-fg">{t('settings.language.title')}</h2>
+            <p className="text-sm text-neutral-500">{t('settings.language.description')}</p>
+          </div>
+        </div>
+        <div className="mt-4 flex gap-2" role="group" aria-label={t('settings.language.title')}>
+          {(['en', 'it'] as const).map((language) => {
+            const isSelected = i18n.resolvedLanguage === language;
+            return (
+              <button
+                key={language}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => void i18n.changeLanguage(language)}
+                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? 'border-info-500 bg-info-600/20 text-info-300'
+                    : 'border-neutral-700 text-neutral-300 hover:border-neutral-500 hover:text-fg'
+                }`}
+              >
+                {t(`settings.language.options.${language}`)}
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {canViewUsers && (
         <UsersManagementSection

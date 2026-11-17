@@ -188,7 +188,7 @@ export const CreateAssemblyWizard = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-fg">{t('assemblies.newAssembly')}</h2>
-              <p className="text-xs text-neutral-500">Configurazione guidata nuova assemblea</p>
+              <p className="text-xs text-neutral-500">{t('assemblies.creation.guidedSetup')}</p>
             </div>
           </div>
           <button
@@ -249,12 +249,12 @@ export const CreateAssemblyWizard = ({
           <div className="flex items-center gap-4 text-[10px] text-neutral-500">
             <div className="flex items-center gap-1.5 bg-neutral-950 px-2 py-1 rounded border border-neutral-800">
               <div className="w-1.5 h-1.5 rounded-full bg-special-500" />
-              1ª call: {form.firstCallDate ? formatDate(form.firstCallDate) : '??'}
+              {t('assemblies.creation.firstCall')}: {form.firstCallDate ? formatDate(form.firstCallDate) : '??'}
             </div>
             {form.hasSecondCall && (
               <div className="flex items-center gap-1.5 bg-neutral-950 px-2 py-1 rounded border border-neutral-800">
                 <div className="w-1.5 h-1.5 rounded-full bg-success-500" />
-                2ª call: {form.secondCallDate ? formatDate(form.secondCallDate) : '??'}
+                {t('assemblies.creation.secondCallShort')}: {form.secondCallDate ? formatDate(form.secondCallDate) : '??'}
               </div>
             )}
           </div>

@@ -47,7 +47,7 @@ const LoginPage = () => {
   const { login } = useAuth();
   const { branding } = useBranding();
   const { deploymentMode } = useSetupStatus();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -124,6 +124,14 @@ const LoginPage = () => {
           />
         ))}
       </div>
+      <button
+        type="button"
+        onClick={() => i18n.changeLanguage(i18n.language === 'it' ? 'en' : 'it')}
+        aria-label={i18n.language === 'it' ? 'Switch language to English' : 'Cambia lingua in italiano'}
+        className="absolute right-5 top-5 z-10 rounded-full border border-neutral-700 bg-neutral-950/80 px-4 py-2 text-xs font-semibold text-neutral-400 shadow-sm transition-colors hover:border-accent-500/50 hover:text-accent-500 sm:right-8 sm:top-7"
+      >
+        {i18n.language === 'it' ? 'EN' : 'IT'}
+      </button>
 
       <main className="relative z-10 grid min-h-screen lg:grid-cols-[1.05fr_0.95fr]">
         <section className="flex items-center px-6 pb-10 pt-20 sm:px-10 lg:px-14 lg:py-16 xl:px-24">

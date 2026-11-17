@@ -1,4 +1,5 @@
 import { Plus, ListOrdered } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { MemberCandidate } from '../../SingleMemberPicker';
 import { MemberPickerField } from '../../MemberPickerField';
 
@@ -9,6 +10,13 @@ interface AssemblyForm {
     workflowType: string;
   }>;
 }
+
+const workflowLabels: Record<string, string> = {
+  member_admission: 'assemblies.creation.memberAdmission',
+  member_resignation: 'assemblies.creation.memberResignation',
+  budget_approval: 'assemblies.creation.budgetApproval',
+  board_election: 'assemblies.creation.boardElection',
+};
 
 interface AgendaBuilderPanelProps {
   form: AssemblyForm;
@@ -39,19 +47,21 @@ export const AgendaBuilderPanel = ({
   memberCandidates,
   membersLoading,
 }: AgendaBuilderPanelProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="md:col-span-5 bg-neutral-950/30 rounded-2xl border border-neutral-800 p-6 flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-special-400">
           <ListOrdered size={16} />
-          <h3 className="text-xs font-black uppercase tracking-widest">Ordine del Giorno</h3>
+          <h3 className="text-xs font-black uppercase tracking-widest">{t('assemblies.agenda')}</h3>
         </div>
         <button
           type="button"
           onClick={applyCurrentTemplate}
           className="text-[9px] font-bold uppercase px-2 py-0.5 rounded bg-special-900/30 text-special-400 border border-special-800/40 hover:bg-special-900/50 transition-colors"
         >
-          Template
+          {t('assemblies.creation.template')}
         </button>
       </div>
 
@@ -59,7 +69,7 @@ export const AgendaBuilderPanel = ({
         {form.initialAgenda.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-neutral-500 space-y-2 opacity-50 italic">
             <ListOrdered size={24} />
-            <p className="text-xs">Nessun punto aggiunto</p>
+            <p className="text-xs">{t('assemblies.creation.agendaEmpty')}</p>
           </div>
         ) : (
           form.initialAgenda.map((item, idx) => (
@@ -68,12 +78,16 @@ export const AgendaBuilderPanel = ({
               <div className="flex-1 min-w-0">
                 <p className="text-xs text-neutral-300 font-medium truncate">{item.title}</p>
                 {item.workflowType && (
-                  <p className="text-[10px] text-special-400 font-mono leading-none mt-1">{item.workflowType}</p>
+                  <p className="text-[10px] text-special-400 font-mono leading-none mt-1">
+                    {workflowLabels[item.workflowType] ? t(workflowLabels[item.workflowType]) : item.workflowType}
+                  </p>
                 )}
               </div>
               <button
                 type="button"
                 onClick={() => removeAgendaItem(idx)}
+                aria-label={t('assemblies.creation.removeAgendaItem')}
+                title={t('assemblies.creation.removeAgendaItem')}
                 className="text-neutral-600 hover:text-danger-400 transition-colors"
               >
                 X
@@ -87,7 +101,7 @@ export const AgendaBuilderPanel = ({
         <div className="space-y-3">
           <input
             type="text"
-            placeholder="Titolo punto odg…"
+            placeholder={t('assemblies.creation.agendaTitlePlaceholder')}
             value={newAgendaTitle}
             onChange={(e) => setNewAgendaTitle(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && addAgendaItem(newAgendaTitle, newAgendaWorkflow)}
@@ -96,13 +110,13 @@ export const AgendaBuilderPanel = ({
 
           {(newAgendaWorkflow === 'member_admission' || newAgendaWorkflow === 'member_resignation') && (
             <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-              <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1.5 block">Seleziona Soci</label>
+              <label className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-1.5 block">{t('assemblies.creation.selectMembers')}</label>
               <MemberPickerField
                 candidates={memberCandidates}
                 selected={newAgendaMembers}
                 onChange={setNewAgendaMembers}
                 loading={membersLoading}
-                placeholder="Cerca soci..."
+                placeholder={t('assemblies.creation.findMembers')}
               />
             </div>
           )}
@@ -113,15 +127,17 @@ export const AgendaBuilderPanel = ({
               onChange={(e) => setNewAgendaWorkflow(e.target.value)}
               className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-2 py-1.5 text-[10px] text-neutral-400 outline-none focus:border-special-600"
             >
-              <option value="">— Punto generico —</option>
-              <option value="member_admission">Ammissione soci</option>
-              <option value="member_resignation">Presa d'atto dimissioni</option>
-              <option value="budget_approval">Bilancio</option>
-              <option value="board_election">Elezione direttivo</option>
+              <option value="">{t('assemblies.creation.genericAgendaItem')}</option>
+              <option value="member_admission">{t('assemblies.creation.memberAdmission')}</option>
+              <option value="member_resignation">{t('assemblies.creation.memberResignation')}</option>
+              <option value="budget_approval">{t('assemblies.creation.budgetApproval')}</option>
+              <option value="board_election">{t('assemblies.creation.boardElection')}</option>
             </select>
             <button
               type="button"
               onClick={() => addAgendaItem(newAgendaTitle, newAgendaWorkflow)}
+              aria-label={t('common.actions.add')}
+              title={t('common.actions.add')}
               className="px-3 bg-special-600 text-white rounded-lg hover:bg-special-500 transition-colors shadow-lg shadow-special-900/40"
             >
               <Plus size={14} />

@@ -190,8 +190,8 @@ const BoardGenerationsList = () => {
               className="w-1/4 bg-neutral-950 border border-neutral-700 rounded px-3 py-2 text-fg text-sm"
             />
             <div className="flex space-x-2 w-24 justify-end">
-              <button onClick={handleCreateGen} className="p-2 bg-accent-600 text-white hover:bg-accent-500 rounded-lg shadow"><Check size={18} /></button>
-              <button onClick={() => setIsCreatingGen(false)} className="p-2 bg-neutral-800 text-neutral-400 hover:bg-neutral-700 rounded-lg"><X size={18} /></button>
+              <button onClick={handleCreateGen} aria-label={t('board.actions.saveGeneration')} title={t('board.actions.saveGeneration')} className="p-2 bg-accent-600 text-white hover:bg-accent-500 rounded-lg shadow"><Check size={18} /></button>
+              <button onClick={() => setIsCreatingGen(false)} aria-label={t('board.actions.cancelGeneration')} title={t('board.actions.cancelGeneration')} className="p-2 bg-neutral-800 text-neutral-400 hover:bg-neutral-700 rounded-lg"><X size={18} /></button>
             </div>
           </div>
         )}
@@ -255,7 +255,7 @@ const BoardGenerationsList = () => {
                       </div>
                       <div className="w-1/4 text-neutral-400 text-sm">
                         {gen.endDate ? formatDate(gen.endDate) : (
-                          <span className="text-success-400 font-medium tracking-wide text-xs uppercase">{t('common.ongoing', { defaultValue: 'ONGOING' })}</span>
+                          <span className="text-success-400 font-medium tracking-wide text-xs uppercase">{t('common.status.ongoing')}</span>
                         )}
                       </div>
                       <div className="w-24 flex justify-end space-x-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}>
@@ -316,8 +316,8 @@ const BoardGenerationsList = () => {
                            className="w-48 bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-200"
                          />
                          <div className="flex space-x-2">
-                           <button onClick={() => handleAddMem(gen.id)} className="p-2 bg-accent-600 text-white rounded-lg hover:bg-accent-500"><Check size={18} /></button>
-                           <button onClick={() => setAddingMemTo(null)} className="p-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700"><X size={18} /></button>
+                           <button onClick={() => handleAddMem(gen.id)} aria-label={t('board.actions.saveMember')} title={t('board.actions.saveMember')} className="p-2 bg-accent-600 text-white rounded-lg hover:bg-accent-500"><Check size={18} /></button>
+                           <button onClick={() => setAddingMemTo(null)} aria-label={t('board.actions.cancelMember')} title={t('board.actions.cancelMember')} className="p-2 bg-neutral-800 text-neutral-400 rounded-lg hover:bg-neutral-700"><X size={18} /></button>
                          </div>
                        </div>
                     )}

@@ -27,7 +27,7 @@ export const AssemblyRolesSection = ({
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-special-400">
         <UsersIcon size={16} />
-        <h3 className="text-xs font-black uppercase tracking-widest">Figure Istituzionali</h3>
+        <h3 className="text-xs font-black uppercase tracking-widest">{t('assemblies.creation.institutionalRoles')}</h3>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
@@ -37,7 +37,7 @@ export const AssemblyRolesSection = ({
             value={form.presidentId}
             onChange={(v: string) => setForm({ ...form, presidentId: v })}
             loading={membersLoading}
-            placeholder="Cerca presidente…"
+            placeholder={t('assemblies.creation.findPresident')}
             openUpward
           />
         </div>
@@ -48,7 +48,7 @@ export const AssemblyRolesSection = ({
             value={form.secretaryId}
             onChange={(v: string) => setForm({ ...form, secretaryId: v })}
             loading={membersLoading}
-            placeholder="Cerca segretario…"
+            placeholder={t('assemblies.creation.findSecretary')}
             openUpward
           />
         </div>

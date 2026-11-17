@@ -1,5 +1,7 @@
 {
   "common": {
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
     "actions": {
       "save": "Save",
       "saveChanges": "Save changes",
@@ -92,6 +94,19 @@
     "addMember": "Add Member",
     "noGenerations": "No mandates registered.",
     "noMembers": "No members assigned to this mandate.",
+    "namePlaceholder": "e.g. 2026–2027 (8th)",
+    "generationName": "Mandate name",
+    "noLeadership": "No leadership assigned",
+    "errors": {
+      "missingFields": "Enter a mandate name and start date.",
+      "completeMember": "Select a person and role."
+    },
+    "actions": {
+      "saveGeneration": "Save mandate",
+      "cancelGeneration": "Cancel mandate",
+      "saveMember": "Save member",
+      "cancelMember": "Cancel adding member"
+    },
     "roles": {
       "president": "President",
       "vice_president": "Vice President",
@@ -172,7 +187,68 @@
   },
   "people": {
     "person": "Person",
+    "selectPerson": "Select Person...",
     "personalDetails": "Personal Details",
+    "form": {
+      "title": "Add a New Person",
+      "description": "Enter the person's basic details.",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "birthDetails": "Birth Details",
+      "birthDate": "Date of birth",
+      "birthPlace": "Place of birth",
+      "country": "Country",
+      "countryPlaceholder": "Select or type a country...",
+      "noCountriesFound": "No countries found",
+      "cityPlaceholder": "Town or city",
+      "foreignBirthPlaceHint": "The place of birth is set automatically to the selected country. The foreign cadastral code (Z...) will be calculated automatically.",
+      "contactAndWork": "Contact and Work",
+      "email": "Email",
+      "internalIdPlaceholder": "Internal ID",
+      "internalNotes": "Internal Notes",
+      "notesPlaceholder": "Add internal notes or observations about this person...",
+      "notesHint": "Notes are visible to administrators only.",
+      "nextStep": "Next step",
+      "nextStepDescription": "After saving this person, you can create a user account so they can access the system.",
+      "savePerson": "Save Person",
+      "invalidEmail": "Enter a valid email address.",
+      "duplicateEmail": "This email is already used by {{name}}.",
+      "invalidTaxId": "Invalid format. The tax ID must contain 16 characters.",
+      "duplicateTaxId": "This tax ID is already used by {{name}}.",
+      "taxIdValidationTitle": "Tax ID component validation:",
+      "birthYear": "Birth year",
+      "birthMonth": "Birth month",
+      "birthDayGender": "Day/gender",
+      "checkCharacter": "Check character",
+      "taxIdInformation": "Tax ID information",
+      "format": "Format",
+      "taxIdFormat": "16 characters (e.g. RSSMRA85D13F205F)",
+      "birthInItaly": "Born in Italy",
+      "italianTaxIdInfo": "The tax ID uses the municipality's cadastral code (e.g. F205 = Milan).",
+      "birthAbroad": "Born abroad",
+      "foreignTaxIdInfo": "The tax ID uses the foreign code (starts with Z followed by a number, e.g. Z336 = Iran).",
+      "taxIdLocationHint": "Enter the municipality or city in the Place field and select the country in the Country field.",
+      "genderOptions": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other"
+      },
+      "genericError": "An error occurred."
+    },
+    "createUser": {
+      "title": "Create User Account",
+      "password": "Password",
+      "role": "Role",
+      "suggestEmail": "Suggest: {{email}}",
+      "createAccount": "Create Account",
+      "success": "Account created successfully.",
+      "errors": {
+        "createFailed": "Error creating user account.",
+        "serverError": "Server error (HTTP {{status}}).",
+        "network": "Network error. Check your connection and try again.",
+        "generic": "An error occurred."
+      }
+    },
     "taxId": "Tax ID",
     "gender": "Gender",
     "profession": "Profession",
@@ -279,11 +355,52 @@
     "agenda": "Agenda",
     "subtitle": "Historical record of meetings and resolutions.",
     "newAssembly": "New Assembly",
+    "creation": {
+      "guidedSetup": "Guided setup for a new assembly",
+      "generalInfo": "General Information",
+      "extraordinaryType": "Extraordinary assembly type",
+      "generic": "General",
+      "statuteModification": "Statute amendment",
+      "dissolution": "Dissolution",
+      "mergerSplit": "Merger / split",
+      "boardMeetingType": "Board meeting type",
+      "ordinary": "Ordinary",
+      "extraordinaryUrgent": "Extraordinary (urgent)",
+      "statuteInfo": "Statute amendments must be registered with the Revenue Agency within 30 days of the resolution. A higher quorum may apply — check the bylaws.",
+      "dissolutionInfo": "A dissolution resolution must be registered with RUNTS and the Revenue Agency within 30 days. Plan for the appointment of a liquidator and distribution of remaining assets.",
+      "mergerSplitInfo": "A merger/split resolution must be reported to RUNTS within 30 days. Check the bylaws for enhanced quorum requirements.",
+      "constituentDate": "Founding Assembly Date",
+      "convocationPlanning": "Convocation Schedule",
+      "addSecondConvocation": "Add second convocation",
+      "firstConvocation": "First convocation",
+      "secondConvocation": "Second convocation",
+      "noSecondConvocation": "No second convocation scheduled",
+      "selectHeadquarters": "— select a headquarters —",
+      "platformLink": "Platform / Link",
+      "convocationSendDate": "Convocation send date",
+      "convocationTooLate": "The convocation must be sent at least 15 days in advance ({{days}} days).",
+      "agendaEmpty": "No agenda items added",
+      "template": "Template",
+      "agendaTitlePlaceholder": "Agenda item title...",
+      "selectMembers": "Select members",
+      "findMembers": "Search members...",
+      "genericAgendaItem": "— General item —",
+      "memberAdmission": "Member admission",
+      "memberResignation": "Acknowledgement of resignations",
+      "budgetApproval": "Budget",
+      "boardElection": "Board election",
+      "removeAgendaItem": "Remove agenda item",
+      "institutionalRoles": "Institutional Roles",
+      "findPresident": "Search for president...",
+      "findSecretary": "Search for secretary...",
+      "firstCall": "1st call",
+      "secondCallShort": "2nd call"
+    },
     "types": {
       "ordinary": "Ordinary Assembly",
       "extraordinary": "Extraordinary Assembly",
       "board_council": "Board Council",
-      "constitution": "Assemblea Costitutiva"
+      "constitution": "Founding Assembly"
     },
     "modes": {
       "in_person": "In Person",
@@ -469,6 +586,14 @@
       "title": "Customization",
       "description": "Personalize your workspace with themes and organization branding."
     },
+    "language": {
+      "title": "Language",
+      "description": "Choose the language used in the application.",
+      "options": {
+        "en": "English",
+        "it": "Italiano"
+      }
+    },
     "theme": {
       "title": "Theme",
       "description": "Choose a preset theme or create a custom color scheme.",
@@ -571,17 +696,6 @@
     "password": "Password",
     "invalidCredentials": "Invalid email or password.",
     "loginPage": {
-      "signInWithGoogle": "Sign in with Google",
-      "or": "or",
-      "emailPlaceholder": "email@domain",
-      "passwordPlaceholder": "password",
-      "continue": "Continue",
-      "signIn": "Sign in",
-      "sessionExpired": "Your session has expired. Sign in again to continue.",
-      "noAccount": "Don't have an account?",
-      "createOrganization": "Create an organization",
-      "emailInvalid": "Please enter a valid email address.",
-      "authError": "Authentication error",
       "brandTagline": "Nonprofit Intelligence, Kindly Implemented",
       "brandHeadline": "Good governance starts with looking after people.",
       "brandDescription": "Bring your members, meetings and important records together in one clear, calm workspace.",
@@ -593,7 +707,18 @@
       "welcomeDescription": "Sign in to continue to your organization.",
       "backToEmail": "Back to email",
       "showPassword": "Show password",
-      "hidePassword": "Hide password"
+      "hidePassword": "Hide password",
+      "signInWithGoogle": "Sign in with Google",
+      "or": "or",
+      "emailPlaceholder": "email@domain",
+      "passwordPlaceholder": "password",
+      "continue": "Continue",
+      "signIn": "Sign in",
+      "sessionExpired": "Your session has expired. Sign in again to continue.",
+      "noAccount": "Don't have an account?",
+      "createOrganization": "Create an organization",
+      "emailInvalid": "Please enter a valid email address.",
+      "authError": "Authentication error"
     }
   },
   "setup": {

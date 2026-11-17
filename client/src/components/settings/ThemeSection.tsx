@@ -46,7 +46,8 @@ export const ThemeSection = () => {
           >
             <span
               className="inline-block h-4 w-4 rounded-full border border-neutral-500/40"
-              style={{ backgroundColor: theme.vars['--theme-bg-primary'] }}
+              style={{ backgroundColor: theme.vars['--theme-accent-primary'] }}
+              aria-hidden="true"
             />
             {theme.label}
           </button>

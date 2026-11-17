@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserPlus, Save, Zap } from 'lucide-react';
 import { type Permission } from '../../lib/permissions';
 import PermissionChecklist from '../settings/PermissionChecklist';
@@ -31,6 +32,7 @@ const CreateUserForPersonModal = ({
   onSuccess,
   onClose,
 }: CreateUserForPersonModalProps) => {
+  const { t } = useTranslation();
   const errorRef = useRef<HTMLParagraphElement>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -84,28 +86,28 @@ const CreateUserForPersonModal = ({
       });
 
       if (!response.ok) {
-        let errorMessage = 'Error creating user account';
+        let errorMessage = t('people.createUser.errors.createFailed');
         try {
           const data = await response.json() as { error?: string };
           errorMessage = data.error || errorMessage;
         } catch {
-          errorMessage = `Server error (HTTP ${response.status})`;
+          errorMessage = t('people.createUser.errors.serverError', { status: response.status });
         }
         setError(errorMessage);
         setSaving(false);
         return;
       }
 
-      setMessage('Account created successfully');
+      setMessage(t('people.createUser.success'));
       setTimeout(() => {
         onSuccess();
         onClose();
       }, 1000);
     } catch (err) {
       if (err instanceof TypeError) {
-        setError('Network error. Please check your connection and try again.');
+        setError(t('people.createUser.errors.network'));
       } else {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : t('people.createUser.errors.generic'));
       }
       setSaving(false);
     }
@@ -117,7 +119,7 @@ const CreateUserForPersonModal = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-neutral-200 font-semibold">
             <UserPlus size={18} className="text-info-400" />
-            Crea Account Utente
+            {t('people.createUser.title')}
           </div>
           <button onClick={onClose} className="text-neutral-500 hover:text-fg text-lg leading-none">
             ✕
@@ -127,12 +129,12 @@ const CreateUserForPersonModal = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-neutral-400">
-              Email <span className="text-danger-500">*</span>
+              {t('people.form.email')} <span className="text-danger-500">*</span>
             </label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="utente@example.org"
+              placeholder="user@example.org"
               className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
               required
             />
@@ -143,7 +145,7 @@ const CreateUserForPersonModal = ({
                 className="inline-flex items-center gap-2 px-2 py-1 bg-warning-900/40 border border-warning-700 rounded text-xs text-warning-200 hover:bg-warning-900/60 transition-colors"
               >
                 <Zap size={12} />
-                Suggerisci: {suggestion}
+                {t('people.createUser.suggestEmail', { email: suggestion })}
               </button>
             )}
           </div>
@@ -151,7 +153,7 @@ const CreateUserForPersonModal = ({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-neutral-400">
-                Password <span className="text-danger-500">*</span>
+                {t('people.createUser.password')} <span className="text-danger-500">*</span>
               </label>
               <input
                 type="password"
@@ -163,15 +165,15 @@ const CreateUserForPersonModal = ({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-neutral-400">Ruolo</label>
+              <label className="text-sm font-medium text-neutral-400">{t('people.createUser.role')}</label>
               <select
                 value={role}
                 onChange={(e) => handleRoleChange(e.target.value)}
                 className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
               >
-                <option value="admin">Admin</option>
-                <option value="manager">Manager</option>
-                <option value="viewer">Viewer</option>
+                <option value="admin">{t('settings.roles.admin')}</option>
+                <option value="manager">{t('settings.roles.manager')}</option>
+                <option value="viewer">{t('settings.roles.viewer')}</option>
               </select>
             </div>
           </div>
@@ -188,10 +190,10 @@ const CreateUserForPersonModal = ({
               className="inline-flex items-center gap-2 bg-info-600 hover:bg-info-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
             >
               <Save size={16} />
-              Crea Account
+              {t('people.createUser.createAccount')}
             </button>
             <button type="button" onClick={onClose} className="text-sm text-neutral-400 hover:text-fg">
-              Annulla
+              {t('common.actions.cancel')}
             </button>
           </div>
         </form>

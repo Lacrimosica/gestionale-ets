@@ -685,5 +685,10 @@
     "inLibroNo": "Non presente nel libro volontari cartaceo",
     "libroStartDate": "Data di iscrizione (inizio)",
     "libroEndDate": "Data di uscita (lascia vuoto se ancora attivo)"
+  },
+  "demo": {
+    "label": "Demo",
+    "message": "Questa è una demo pubblica con dati di fantasia, cancellati e ricreati ogni notte. Non inserire dati personali reali.",
+    "credentials": "Accedi con {{email}} / {{password}}"
   }
 }

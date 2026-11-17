@@ -4,7 +4,7 @@
 
 A full-stack web application for managing volunteer-based organizations and non-profits, designed to track member/volunteer tenure, board governance, assemblies, and compliance documentation in alignment with Italian law (Codice del Terzo Settore, D.Lgs. 117/2017).
 
-**Live Demo:** [staging.gestionale-ets.pages.dev](https://staging.gestionale-ets.pages.dev)
+**Live Demo:** [demo.gestionale-ets.pages.dev](https://demo.gestionale-ets.pages.dev) — sign in with `demo@example.org` / `demo-gestionale`, or create your own organization. All data is fictional and is wiped and recreated every night at 03:00 UTC; please don't enter real personal data.
 
 ---
 
@@ -345,6 +345,19 @@ Project currently focuses on integration tests. Unit tests are welcome via PR.
 ---
 
 ## Deployment
+
+### Demo Environment
+
+The public demo runs separately from staging, with its own worker, database and nightly reset:
+
+```bash
+cd server
+npm run deploy:demo          # API worker (gestionale-server-demo, [env.demo])
+npm run deploy:demo-reset    # nightly reset worker (wrangler.demo-reset.toml)
+npm run demo:seed:generate   # regenerate drizzle/seeds/demo/01_demo_data.sql
+cd ../client
+npm run deploy:demo          # frontend on demo.gestionale-ets.pages.dev
+```
 
 ### Staging Environment
 

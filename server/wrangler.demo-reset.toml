@@ -1,0 +1,20 @@
+# Nightly reset worker for the public demo.
+# Its ONLY database binding is the demo database: never point this at staging or
+# production. Deploy with: npm run deploy:demo-reset
+name = "gestionale-demo-reset"
+main = "src/demo-reset.ts"
+account_id = "dd5f7a5f9a0457863a93fc5cc9bc1cd2"
+compatibility_date = "2024-03-01"
+
+[triggers]
+crons = ["0 3 * * *"] # 03:00 UTC daily
+
+[[rules]]
+type = "Text"
+globs = ["**/*.sql"]
+fallthrough = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db-demo"
+database_id = "c9a6ad93-3f55-473e-a6c7-362f77879d4f"

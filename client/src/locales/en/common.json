@@ -703,5 +703,10 @@
     "inLibroNo": "Not in the physical volunteer register",
     "libroStartDate": "Entry date (start)",
     "libroEndDate": "Exit date (leave blank if still active)"
+  },
+  "demo": {
+    "label": "Demo",
+    "message": "This is a public demo with fictional data, wiped and recreated every night. Do not enter real personal data.",
+    "credentials": "Sign in with {{email}} / {{password}}"
   }
 }

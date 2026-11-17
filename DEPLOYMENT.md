@@ -271,6 +271,25 @@ These must be applied before using the new deployment modes:
 npm run db:migrate:production
 ```
 
+### One-off: link legacy agenda member names
+
+Older agenda items stored members as plain names in `agenda_item.workflow_data.members`; the app now links people in `agenda_item_person` and shows legacy names read-only. `server/scripts/link-legacy-agenda-members.mjs` links names that match exactly one person in the same org (case/whitespace-insensitive "First Last") and leaves the rest as text.
+
+The script only reads the database. It never writes to it: `--apply` writes a SQL file that you review and run yourself. Run it from `server/`, against staging first:
+
+```bash
+# 1. Dry run: prints what would be linked and which names stay as text
+node scripts/link-legacy-agenda-members.mjs -- gestionale-ets-db-staging --remote --env staging
+
+# 2. Write the SQL file (still no database changes)
+node scripts/link-legacy-agenda-members.mjs --apply --out legacy-links-staging.sql -- gestionale-ets-db-staging --remote --env staging
+
+# 3. Review the file, then run it
+npx wrangler d1 execute gestionale-ets-db-staging --remote --env staging --file legacy-links-staging.sql
+```
+
+For production use `-- gestionale-ets-db --remote --env production`. Every statement is guarded on the item's current `workflow_data`, so re-running the file, or running it after someone edited an item, won't overwrite newer data. Names reported as `ambiguous` or `no_match` can be fixed by picking the people on the assembly page.
+
 ---
 
 ## Future Enhancements

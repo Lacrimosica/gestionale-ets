@@ -68,7 +68,7 @@ Managing volunteers, membership, board elections, assemblies, and statutory comp
 - **Compliance Documents** — Manage signed documents (privacy policies, waivers, agreements) with version control
 - **Document Flags** — Auto-identify missing signatures, expired agreements, incomplete documentation
 - **Audit Logging** — Immutable event log of who did what, when, and from which IP
-- **Role-Based Access** — Fine-grained permissions (admin, editor, viewer) per user/org
+- **Role-Based Access** — Roles (`core_admin`, `admin`, `manager`, `viewer`) plus per-user permissions; nobody can grant a role or permission above their own
 
 ### 🌐 Multi-Tenant & Deployment
 
@@ -86,8 +86,7 @@ Managing volunteers, membership, board elections, assemblies, and statutory comp
 
 - **Dashboard** — Quick stats (active volunteers, members, upcoming assemblies), deadline alerts
 - **Historical Snapshots** — View membership/volunteers as of any date for quorum verification
-- **Data Export** — Download volunteer list, member book, assembly records as CSV/JSON
-- **Rate Limiting** — Protect setup endpoint from brute force
+- **Backup & Restore** — Export an organization's data as a ZIP of TSV files and import it back
 
 ---
 
@@ -129,25 +128,23 @@ gestionale-ets/
 │
 ├── server/                       # Cloudflare Workers backend
 │   ├── src/
-│   │   ├── db/
-│   │   │   ├── schema.ts         # Drizzle table definitions
-│   │   │   └── index.ts          # DB connection utilities
-│   │   ├── routes/               # Hono route handlers
-│   │   │   ├── auth.ts
-│   │   │   ├── people.ts
-│   │   │   ├── assemblies.ts
-│   │   │   └── ... (other routes)
-│   │   ├── middleware/           # Auth, error handling, CORS
-│   │   ├── lib/                  # Business logic helpers
-│   │   └── index.ts              # Hono app setup
+│   │   ├── db/schema.ts          # Drizzle table definitions
+│   │   ├── routes/               # Hono route handlers (people, assemblies, auth, ...)
+│   │   ├── lib/                  # Business logic (org-context, roles, retention, ...)
+│   │   ├── services/             # Google Drive / Docs clients
+│   │   ├── workflows/            # Document generation workflows
+│   │   ├── demo-reset.ts         # Nightly reset worker for the public demo
+│   │   └── index.ts              # Hono app, auth and session middleware
 │   ├── drizzle/
-│   │   ├── migrations/           # SQL migration files (versioned)
-│   │   │   ├── dev/              # Local development
-│   │   │   ├── staging/          # Staging environment
-│   │   │   └── production/       # Production environment
-│   │   ├── seeds/                # Seed data (enum lookups, test data)
+│   │   ├── migrations/           # SQL migrations: dev/, staging/, prod/
+│   │   ├── seeds/
+│   │   │   ├── common/           # Lookup tables (all environments)
+│   │   │   └── demo/             # Fictional demo data (generated)
 │   │   └── snapshot/             # Canonical schema state
-│   ├── wrangler.toml             # Cloudflare Workers config
+│   ├── scripts/                  # generate-demo-seed.mjs
+│   ├── tests/                    # unit/ and integration/ (Vitest + Miniflare)
+│   ├── wrangler.toml             # Workers config (top level = production)
+│   ├── wrangler.demo-reset.toml  # Demo reset worker config
 │   └── package.json
 │
 ├── DATABASE.md                   # Complete schema documentation
@@ -173,18 +170,17 @@ gestionale-ets/
 
 1. **Clone and install:**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/Lacrimosica/gestionale-ets.git
    cd gestionale-ets
-   npm install
-   cd client && npm install
-   cd ../server && npm install
+   npm install                # npm workspaces: installs client and server
    ```
 
 2. **Create environment file:**
    ```bash
    cd server
    cp .dev.vars.example .dev.vars
-   # Edit .dev.vars with your JWT_SECRET and CORS_ORIGIN
+   # Edit .dev.vars with your JWT_SECRET and CORS_ORIGIN.
+   # DEPLOYMENT_MODE=open here lets the local setup wizard create orgs freely.
    ```
 
 3. **Start development servers:**
@@ -224,14 +220,20 @@ All configuration is managed via environment variables and the database. See `.d
 ```env
 JWT_SECRET=your-local-secret-key-change-in-production
 CORS_ORIGIN=http://localhost:5173
+DEPLOYMENT_MODE=open
 ```
 
-#### `wrangler.toml` (Build Configuration)
+#### `wrangler.toml` (Deployed Environments)
+
+The **top-level** config is what production deploys, so keep it on the production mode.
+Local-only overrides belong in `.dev.vars`, which `wrangler dev` reads on top of it.
 
 ```toml
 [vars]
-DEPLOYMENT_MODE = "open"  # single_org, open, invite_only, or closed
+DEPLOYMENT_MODE = "single_org"  # single_org, open, invite_only, or closed
 ```
+
+Staging and demo use `[env.staging]` and `[env.demo]` sections.
 
 ### Deployment Modes
 
@@ -248,47 +250,26 @@ For production setup, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ## API Routes
 
-The backend provides RESTful JSON APIs under `/api/v1/`:
+All routes live under `/api`. The organization always comes from the signed-in
+session, never from the URL or request body, and every query is scoped to it.
 
-### Authentication
-- `POST /api/auth/google` — Google OAuth callback
-- `POST /api/auth/login` — Email/password login
-- `POST /api/auth/logout` — Invalidate session
-- `GET /api/auth/me` — Current user info
+| Prefix | Purpose |
+|---|---|
+| `/api/auth` | Password and Google login, invites, Drive authorization |
+| `/api/setup` | First-run setup wizard (`GET /status`, `GET /token`, `POST /`) |
+| `/api/people` | People directory, tax-code checks, linked user accounts |
+| `/api/periods` | Volunteer and member periods |
+| `/api/generations` | Board terms and board members |
+| `/api/assemblies` | Assemblies, attendance, eligible members |
+| `/api/convocations` | Convocations and agenda items |
+| `/api/documents` | Document generation and generation history |
+| `/api/compliance` | Compliance roles, documents, consents, rules, retention |
+| `/api/timeline` | Membership timeline |
+| `/api/settings` | Users, branding, addresses, document templates |
+| `/api/export`, `/api/import` | Organization backup (ZIP of TSV files) and restore |
 
-### Organizations
-- `GET /api/orgs` — List user's organizations
-- `POST /api/orgs` — Create organization (if signup enabled)
-- `GET /api/orgs/{orgId}` — Org details
-- `PATCH /api/orgs/{orgId}/settings` — Update settings
-
-### People
-- `GET /api/orgs/{orgId}/people` — List people
-- `POST /api/orgs/{orgId}/people` — Create person
-- `GET /api/orgs/{orgId}/people/{personId}` — Person details
-- `PATCH /api/orgs/{orgId}/people/{personId}` — Update person
-- `DELETE /api/orgs/{orgId}/people/{personId}` — Archive person
-
-### Assemblies
-- `GET /api/orgs/{orgId}/assemblies` — List assemblies
-- `POST /api/orgs/{orgId}/assemblies` — Create assembly
-- `PATCH /api/orgs/{orgId}/assemblies/{assemblyId}` — Update assembly
-- `POST /api/orgs/{orgId}/assemblies/{assemblyId}/generate-documents` — Generate convocation/minutes
-
-### Volunteers & Members
-- `GET /api/orgs/{orgId}/people/{personId}/volunteer-periods` — Volunteer history
-- `POST /api/orgs/{orgId}/people/{personId}/volunteer-periods` — Enroll volunteer
-- `GET /api/orgs/{orgId}/people/{personId}/member-periods` — Member history
-- `POST /api/orgs/{orgId}/people/{personId}/member-periods` — Admit as member
-
-### Compliance
-- `GET /api/orgs/{orgId}/compliance/documents` — List documents
-- `POST /api/orgs/{orgId}/compliance/documents` — Create document record
-- `PATCH /api/orgs/{orgId}/compliance/documents/{docId}` — Update document
-
-All routes require authentication. Organization access is scope-checked (org_id isolation).
-
-For full API specification, see route handlers in `server/src/routes/`.
+Everything except `/api/auth`, `/api/setup` and `/health` requires a session token.
+For details, see the route handlers in `server/src/routes/`.
 
 ---
 
@@ -337,10 +318,17 @@ See [server/drizzle/CLAUDE.md](server/drizzle/CLAUDE.md) for detailed migration 
 ### Testing
 
 ```bash
-npm test
+cd server
+npx vitest run tests/unit        # pure logic: roles, retention, Google identity, ...
+npm run test:integration         # real routes against a local D1 (Miniflare)
 ```
 
-Project currently focuses on integration tests. Unit tests are welcome via PR.
+`tests/integration/tenant-isolation-http.test.ts` sends real requests with one
+organization's session against another organization's data; every route that
+reads or writes org data should have a case there.
+
+A few older integration suites (rate limiting, invite races, some migration checks)
+currently fail and are pending a fix.
 
 ---
 
@@ -361,30 +349,27 @@ npm run deploy:demo          # frontend on demo.gestionale-ets.pages.dev
 
 ### Staging Environment
 
-Test schema changes and features on staging before production:
+Staging is for pre-production testing and is `closed` (no public signups):
 
 ```bash
-# Deploy backend & frontend to staging
-npm run deploy:staging
-
-# Run migrations on staging DB
-npm run db:migrate:staging
+npm run deploy:staging           # backend + frontend
+npm run db:migrate:staging       # staging migrations
 ```
 
 ### Production Deployment
 
-**⚠️ Production requires careful coordination:**
+The production worker (`gestionale-server`) **deploys automatically on every push to
+`main`** (Cloudflare Workers Builds). To deploy by hand, or after migrations:
 
-1. **Test on staging first** — Always validate on staging
-2. **Run migrations** — Never auto-migrate production
-3. **Deploy services:**
-   ```bash
-   npm run db:migrate:production
-   npm run deploy:production
-   ```
-4. **Verify** — Check live app, monitor logs
+```bash
+npm run db:migrate:production    # run migrations first; never auto-migrated
+npm run deploy:production        # backend (gestionale-server) + frontend
+```
 
-For detailed pre-flight checklist and rollback procedures, see [DEPLOYMENT.md](./DEPLOYMENT.md).
+Don't run `wrangler deploy --env production`: it creates a separate
+`gestionale-server-production` worker instead of updating production.
+
+For the pre-flight checklist and rollback procedures, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 ---
 
@@ -393,8 +378,9 @@ For detailed pre-flight checklist and rollback procedures, see [DEPLOYMENT.md](.
 ### Multi-Tenancy
 
 Every table has an `org_id` column (indexed) for organization isolation:
-- Queries always filter by `org_id`
-- Users can only access data within their assigned organizations
+- The org id comes from the verified session; handlers use `orgContext()` (`server/src/lib/org-context.ts`) to scope queries
+- Ids taken from a request body are checked with `ownedByOrg()` before they are stored or linked
+- Update bodies cannot set server-owned fields (`id`, `orgId`, `createdAt`)
 - Row-level security is enforced at the application layer (D1 lacks native RLS)
 
 ### Schema Normalization (Phase 1-5)
@@ -411,9 +397,9 @@ The database went through a systematic enum-to-lookup refactor:
 ### JWT & Session Management
 
 - **Token:** HS256 JWT signed with `JWT_SECRET`
-- **Payload:** `{ userId, orgId, iat, exp }`
-- **Expiry:** 7 days (configurable)
-- **Validation:** Middleware validates token on every protected route + checks user still exists in DB (prevents stale sessions after user deletion)
+- **Payload:** `{ sub, email, orgId, role, permissions, exp }`
+- **Expiry:** 24 hours
+- **Validation:** On every protected request the middleware checks the membership still exists and reloads role and permissions from the database, so demotions and removals apply immediately
 
 ### Document Generation
 
@@ -438,23 +424,28 @@ The database went through a systematic enum-to-lookup refactor:
 ## Security Considerations
 
 ### Authentication
-- ✅ Google OAuth 2.0 (delegated to Google's infrastructure)
-- ✅ Rate-limited setup endpoint (max 5 attempts/IP/hour)
-- ✅ CSRF tokens for state-changing operations
-- ✅ Password hashing (bcrypt, 12 rounds)
-- ✅ Session validation on every request
+- ✅ Google OAuth 2.0; sign-in requires a verified Google email matching the linked account
+- ✅ Password hashing with PBKDF2-SHA256 (100,000 iterations), constant-time comparison
+- ✅ Session, membership, role and permissions validated on every request
+- ✅ Setup requires a short-lived setup token and writes the new organization atomically
+- ⚠️ No rate limiting on login or setup yet
 
 ### Data Protection
 - ✅ HTTPS only (Cloudflare enforces)
-- ✅ CORS headers (restricted to configured origin)
-- ✅ SQL injection prevention (Drizzle ORM parameterized queries)
+- ✅ CORS restricted to the configured origin
+- ✅ SQL injection prevention (Drizzle ORM / parameterized queries)
 - ✅ XSS protection (React auto-escapes content)
-- ✅ Audit logging (all state changes recorded)
+- ✅ Exports neutralise spreadsheet formulas (CSV/TSV injection)
 
 ### Compliance
-- ✅ GDPR: Consent tracking, right to deletion (via soft-delete), audit log
-- ✅ Italian Law: Volunteer registry, member book, assembly tracking per D.Lgs. 117/2017
-- ✅ Data isolation: Complete multi-tenant separation
+- ✅ GDPR: consent tracking, retention flags, audit log
+- ✅ Italian law: volunteer registry, member book, assembly tracking per D.Lgs. 117/2017
+- ✅ Multi-tenant isolation enforced in every route, with HTTP-level isolation tests
+
+### Reporting a Vulnerability
+
+Please report security issues privately by email (see [Support & Contact](#support--contact))
+rather than in a public issue.
 
 ---
 
@@ -462,7 +453,7 @@ The database went through a systematic enum-to-lookup refactor:
 
 - [ ] Real-time collaboration on assemblies (WebSockets)
 - [ ] Email notifications for pending documents
-- [ ] Bulk import from CSV
+- [ ] Rate limiting on login and setup
 - [ ] Advanced reporting & analytics
 - [ ] Mobile app (React Native)
 - [ ] SAML/LDAP SSO for enterprise deployments
@@ -491,7 +482,7 @@ This project is licensed under the MIT License. See [LICENSE](./LICENSE) for det
 
 ## Support & Contact
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/gestionale-ets/issues)
+- **Issues:** [GitHub Issues](https://github.com/Lacrimosica/gestionale-ets/issues)
 - **Email:** m.gdrzi77@gmail.com
 - **Docs:** See [DEPLOYMENT.md](./DEPLOYMENT.md), [DATABASE.md](./DATABASE.md), [CLAUDE.md](./CLAUDE.md)
 
@@ -503,6 +494,6 @@ Built with ❤️ for the Italian non-profit sector. Inspired by the complex gov
 
 ---
 
-**Last Updated:** May 2026  
+**Last Updated:** November 2026  
 **Version:** 0.1.0  
 **Status:** Active Development (Production Ready)

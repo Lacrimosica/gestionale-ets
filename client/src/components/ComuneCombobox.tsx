@@ -28,15 +28,19 @@ export default function ComuneCombobox({ value, onChange, label }: Props) {
     setOpenUpward(spaceBelow < 260);
   }, []);
 
-  useEffect(() => {
+  // Re-sync the input when the parent changes the value (adjusting state during render
+  // instead of in an effect avoids an extra render pass).
+  const [syncedValue, setSyncedValue] = useState(value);
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     setQuery(value ?? '');
-  }, [value]);
+  }
+
+  // Queries shorter than 2 characters never show results, even stale ones.
+  const visibleResults = query.length < 2 ? [] : results;
 
   useEffect(() => {
-    if (query.length < 2) {
-      setResults([]);
-      return;
-    }
+    if (query.length < 2) return;
     const timer = setTimeout(async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/people/comuni`, { params: { q: query } });
@@ -48,7 +52,7 @@ export default function ComuneCombobox({ value, onChange, label }: Props) {
       }
     }, 200);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, checkPosition]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -68,7 +72,7 @@ export default function ComuneCombobox({ value, onChange, label }: Props) {
 
   return (
     <div className="space-y-1" ref={containerRef}>
-      <label className="text-xs text-slate-500 font-bold uppercase tracking-tighter">{label}</label>
+      <label className="text-xs text-neutral-500 font-bold uppercase tracking-tighter">{label}</label>
       <div className="relative">
         <input
           ref={inputRef}
@@ -78,19 +82,19 @@ export default function ComuneCombobox({ value, onChange, label }: Props) {
             setQuery(e.target.value);
             onChange(e.target.value);
           }}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-slate-500"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:border-neutral-500"
           autoComplete="off"
         />
-        {open && results.length > 0 && (
-          <ul className={`absolute z-50 w-full bg-slate-900 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto ${openUpward ? 'bottom-full mb-1' : 'mt-1'}`}>
-            {results.map(c => (
+        {open && visibleResults.length > 0 && (
+          <ul className={`absolute z-50 w-full bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg max-h-60 overflow-auto ${openUpward ? 'bottom-full mb-1' : 'mt-1'}`}>
+            {visibleResults.map(c => (
               <li
                 key={c.code}
                 onMouseDown={() => select(c)}
-                className="px-3 py-2 text-sm text-white hover:bg-slate-700 cursor-pointer flex justify-between"
+                className="px-3 py-2 text-sm text-fg hover:bg-neutral-700 cursor-pointer flex justify-between"
               >
                 <span>{c.name}</span>
-                <span className="text-slate-400 text-xs font-mono">{c.code}</span>
+                <span className="text-neutral-400 text-xs font-mono">{c.code}</span>
               </li>
             ))}
           </ul>

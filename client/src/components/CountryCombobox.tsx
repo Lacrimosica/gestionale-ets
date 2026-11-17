@@ -286,7 +286,7 @@ const CountryCombobox = ({ value, onChange, label = 'Paese' }: CountryComboboxPr
 
   return (
     <div className="space-y-2" ref={containerRef}>
-      {label && <label className="text-sm font-medium text-slate-400">{label}</label>}
+      {label && <label className="text-sm font-medium text-neutral-400">{label}</label>}
       <div className="relative">
         <input
           ref={inputRef}
@@ -295,27 +295,27 @@ const CountryCombobox = ({ value, onChange, label = 'Paese' }: CountryComboboxPr
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-600 outline-none pr-10"
+          className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-neutral-200 focus:ring-2 focus:ring-accent-600 outline-none pr-10"
           placeholder="Seleziona o digita..."
         />
         <ChevronDown
           size={16}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none"
         />
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg max-h-60 overflow-auto">
             {filtered.length > 0 ? (
               filtered.map((country) => (
                 <button
                   key={country.code}
                   onClick={() => handleSelect(country.name)}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-800 text-slate-200 text-sm"
+                  className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-neutral-200 text-sm"
                 >
                   {country.name}
                 </button>
               ))
             ) : (
-              <div className="px-3 py-2 text-slate-500 text-sm">Nessun paese trovato</div>
+              <div className="px-3 py-2 text-neutral-500 text-sm">Nessun paese trovato</div>
             )}
           </div>
         )}

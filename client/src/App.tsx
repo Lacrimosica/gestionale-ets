@@ -37,17 +37,17 @@ function App() {
   // Global server health check — block all routes if server is unreachable
   if (setupError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-neutral-800 rounded-lg shadow-2xl p-8 border border-neutral-700">
           <div className="text-center space-y-4">
             <div className="text-4xl">⚠️</div>
-            <h1 className="text-2xl font-bold text-white">Server Unreachable</h1>
-            <p className="text-slate-300">
+            <h1 className="text-2xl font-bold text-fg">Server Unreachable</h1>
+            <p className="text-neutral-300">
               Unable to connect to the server. Please check your connection and try again.
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="mt-6 px-6 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-colors"
             >
               Retry
             </button>
@@ -59,10 +59,10 @@ function App() {
 
   if (setupLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-slate-600 border-t-blue-500 rounded-full mx-auto mb-4"></div>
-          <p className="text-slate-400">Caricamento in corso...</p>
+          <div className="animate-spin w-12 h-12 border-4 border-neutral-600 border-t-accent-500 rounded-full mx-auto mb-4"></div>
+          <p className="text-neutral-400">Caricamento in corso...</p>
         </div>
       </div>
     );

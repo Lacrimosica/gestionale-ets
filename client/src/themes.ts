@@ -119,6 +119,40 @@ export const resolveTheme = (stored: string): ThemeVars | null => {
   return null;
 };
 
+// Custom themes only carry the legacy --theme-* variables. They borrow the token
+// scales (index.css) of a preset with the same light/dark polarity, and their accent
+// colours override the accent scale steps components actually use.
+const CUSTOM_ACCENT_STEPS: Record<string, keyof ThemeVars> = {
+  '--accent-300': '--theme-accent-secondary',
+  '--accent-400': '--theme-accent-secondary',
+  '--accent-500': '--theme-accent-primary-hover',
+  '--accent-600': '--theme-accent-primary',
+  '--accent-700': '--theme-accent-primary-hover',
+};
+
+const isLightColor = (hex: string): boolean => {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return false;
+  const n = parseInt(match[1], 16);
+  const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 140;
+};
+
+/** Apply a resolved theme: select its token palette and set the legacy variables. */
+export const applyTheme = (themeKey: string, vars: ThemeVars): void => {
+  const root = document.documentElement;
+  const isPreset = PREDEFINED_THEME_KEYS.includes(themeKey);
+  root.dataset.theme = isPreset
+    ? themeKey
+    : isLightColor(vars['--theme-bg-primary']) ? 'beige-blue-light' : 'dark-slate';
+
+  applyThemeVars(vars);
+  for (const [token, source] of Object.entries(CUSTOM_ACCENT_STEPS)) {
+    if (!isPreset && vars[source]) root.style.setProperty(token, vars[source]);
+    else root.style.removeProperty(token);
+  }
+};
+
 export const applyThemeVars = (vars: ThemeVars): void => {
   const root = document.documentElement;
   for (const [prop, value] of Object.entries(vars)) {
@@ -128,6 +162,8 @@ export const applyThemeVars = (vars: ThemeVars): void => {
 
 export const clearThemeVars = (): void => {
   const root = document.documentElement;
+  delete root.dataset.theme;
+  Object.keys(CUSTOM_ACCENT_STEPS).forEach((k) => root.style.removeProperty(k));
   const keys: (keyof ThemeVars)[] = [
     '--theme-bg-primary',
     '--theme-bg-secondary',

@@ -132,6 +132,50 @@ darker than the logo reds so that white button text meets WCAG AA.
 | White on `#CF3F3F` (dark theme buttons) | 4.7 : 1 |
 | Muted text `#8A8490` on cream | 3.3 : 1 — large/secondary text only |
 
+### Theme tokens
+
+Components never use raw Tailwind palettes (`bg-slate-900`, `text-blue-400`). They use
+**theme-aware scales** defined in [`client/src/index.css`](../../client/src/index.css), which
+work like normal Tailwind colours (`bg-neutral-900`, `text-accent-400`, `border-danger-800/50`,
+opacity modifiers included):
+
+| Token scale | Replaces | Use for |
+|---|---|---|
+| `neutral-50…950` | slate, gray, zinc, stone | Backgrounds, borders, body and muted text |
+| `accent-50…950` | blue, indigo | Primary actions, links, active/selected states, focus |
+| `danger-…` | red, rose | Errors, destructive actions |
+| `warning-…` | amber, yellow, orange | Warnings, expiring items |
+| `success-…` | emerald, green, teal | Success, active/valid states |
+| `info-…` | cyan, sky | Informational highlights |
+| `special-…` | purple, violet, fuchsia | Categorical highlights (e.g. assemblies, sessions) |
+| `fg` | `text-white` used as text | Strongest foreground text (`text-fg`) |
+
+How it works:
+
+- The active theme is a `data-theme` attribute on `<html>` set by `useTheme`
+  (`applyTheme` in `client/src/themes.ts`). Each theme defines every step of every scale.
+- **Dark themes** keep the meaning of the steps: `neutral-950` is the deepest background,
+  `neutral-200` strong text. `dark-slate` uses Tailwind's exact values, so it looks
+  identical to the pre-token UI.
+- **Light themes** invert the scales, so the same class reads correctly on a light
+  background: `neutral-950` becomes the lightest surface, `neutral-200` dark text, text
+  steps (300/400) deepen, tint steps (800–950) become pale. Solid steps 500–700 stay
+  saturated so **white text on `bg-accent-600` / `bg-danger-600` buttons works in every
+  theme** — keep `text-white` there.
+- **Custom themes** (Settings → Theme → custom colours) borrow a dark or light preset's
+  scales by background brightness; their accent colours override the accent steps.
+
+Tools (in `client/`):
+
+- `npm run lint:colors` — fails on raw palette classes outside
+  `scripts/theme-colors-allowlist.json` (paths not yet migrated; the goal is an empty list).
+- `node scripts/theme-codemod.mjs <path>` — rewrites raw palette classes to tokens and
+  `text-white` to `text-fg`, keeping white text on solid coloured backgrounds (it lists
+  those so you can double-check them).
+
+To add a step or scale, add the variable to **every** theme block in `index.css` and map
+it in the `@theme inline` block.
+
 ### Red in the interface
 
 Red is the brand colour, and users (especially older ones) also read red as
@@ -169,7 +213,8 @@ buttons labelled with words (not icon-only).
 The product is being renamed incrementally. Done so far:
 
 - Logo, mark and favicon; browser tab title (`client/index.html`)
-- `niki-light` / `niki-dark` theme presets
+- `niki-light` / `niki-dark` theme presets, backed by theme token scales; app shell and
+  shared components migrated (remaining areas tracked in issues #18–#21)
 - Docs: this guide, README, CLAUDE.md, DATABASE.md, DEPLOYMENT.md headers
 
 Still named *Gestionale* / *gestionale-ets* (to change in later passes):

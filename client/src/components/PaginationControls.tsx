@@ -18,23 +18,23 @@ const PaginationControls = ({
   totalPages,
   pageSize,
   totalItems,
-  accentClassName = 'text-blue-400',
+  accentClassName = 'text-accent-400',
   pageSizeOptions = defaultOptions,
   onPageChange,
   onPageSizeChange,
 }: PaginationControlsProps) => {
   return (
-    <div className="p-4 border-t border-slate-800 bg-slate-900/50 flex flex-col gap-3 px-6 md:flex-row md:items-center md:justify-between">
-      <div className="flex flex-col gap-2 text-sm text-slate-500 md:flex-row md:items-center md:gap-4">
+    <div className="p-4 border-t border-neutral-800 bg-neutral-900/50 flex flex-col gap-3 px-6 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-2 text-sm text-neutral-500 md:flex-row md:items-center md:gap-4">
         <div>
-          Pagina <span className="text-slate-200 font-bold">{currentPage}</span> di <span className="text-slate-200 font-bold">{Math.max(totalPages, 1)}</span>
+          Pagina <span className="text-neutral-200 font-bold">{currentPage}</span> di <span className="text-neutral-200 font-bold">{Math.max(totalPages, 1)}</span>
         </div>
         <label className="flex items-center gap-2">
           <span>Elementi per pagina</span>
           <select
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-slate-200"
+            className="bg-neutral-950 border border-neutral-700 rounded-lg px-2 py-1 text-neutral-200"
           >
             {pageSizeOptions.map((option) => (
               <option key={option} value={option}>
@@ -52,14 +52,14 @@ const PaginationControls = ({
         <button
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
-          className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-30 disabled:hover:bg-slate-800 transition-all"
+          className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-fg disabled:opacity-30 disabled:hover:bg-neutral-800 transition-all"
         >
           <ChevronLeft size={18} />
         </button>
         <button
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages || totalPages === 0}
-          className="p-2 rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white disabled:opacity-30 disabled:hover:bg-slate-800 transition-all"
+          className="p-2 rounded-lg bg-neutral-800 text-neutral-400 hover:bg-neutral-700 hover:text-fg disabled:opacity-30 disabled:hover:bg-neutral-800 transition-all"
         >
           <ChevronRight size={18} />
         </button>

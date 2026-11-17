@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name=gestionale-ets",
     "deploy:staging": "npm run build:staging && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=staging",
-    "deploy:demo": "npm run build:demo && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=demo"
+    "deploy:demo": "npm run build:demo && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=demo",
+    "lint:colors": "node scripts/check-theme-colors.mjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.1",

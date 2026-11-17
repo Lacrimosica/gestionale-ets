@@ -1,6 +1,14 @@
-# Gestionale ETS — Volunteer & Member Management Platform
+<p align="center">
+  <img src="client/public/brand/niki-logo.svg" alt="Niki — Nonprofit Intelligence, Kindly Implemented" width="220">
+</p>
+
+# Niki — Nonprofit Intelligence, Kindly Implemented
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+> **Niki** is the new name of the project formerly called *Gestionale ETS*. The rename
+> is in progress: repository, package and deployment names still use `gestionale-ets`.
+> See the [brand guide](docs/brand/README.md) for the name, logo and palette.
 
 A full-stack web application for managing volunteer-based organizations and non-profits, designed to track member/volunteer tenure, board governance, assemblies, and compliance documentation in alignment with Italian law (Codice del Terzo Settore, D.Lgs. 117/2017).
 
@@ -26,7 +34,7 @@ A full-stack web application for managing volunteer-based organizations and non-
 
 ## Overview
 
-**Gestionale ETS** (ETS = Ente del Terzo Settore, Italian non-profit legal classification) is a production-grade platform for managing the administrative and governance backbone of voluntary organizations:
+**Niki** (formerly *Gestionale ETS*; ETS = Ente del Terzo Settore, Italian non-profit legal classification) is a production-grade platform for managing the administrative and governance backbone of voluntary organizations:
 
 - **Multi-tenant SaaS:** Support for unlimited organizations with complete data isolation
 - **Compliance-first:** Built to satisfy Italian nonprofit governance law and GDPR requirements
@@ -36,7 +44,7 @@ A full-stack web application for managing volunteer-based organizations and non-
 
 ### Problem Solved
 
-Managing volunteers, membership, board elections, assemblies, and statutory compliance is complex. Spreadsheets don't scale; existing solutions are expensive or non-compliant with Italian law. Gestionale ETS consolidates:
+Managing volunteers, membership, board elections, assemblies, and statutory compliance is complex. Spreadsheets don't scale; existing solutions are expensive or non-compliant with Italian law. Niki consolidates:
 - Volunteer registry & timesheet tracking
 - Member admission/resignation workflows
 - Board generation & elections

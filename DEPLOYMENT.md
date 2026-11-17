@@ -13,7 +13,7 @@
 Local `wrangler dev` reads the top-level config too, so local-only overrides (such as
 `DEPLOYMENT_MODE=open`) belong in `.dev.vars`, never in the top-level `[vars]`.
 
-Gestionale-ETS supports four deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable. This replaces the older boolean `ALLOW_ORG_CREATION` flag with a more flexible enum-based approach.
+Niki (formerly Gestionale-ETS) supports four deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable. This replaces the older boolean `ALLOW_ORG_CREATION` flag with a more flexible enum-based approach.
 
 ---
 

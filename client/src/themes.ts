@@ -59,6 +59,46 @@ export const PREDEFINED_THEMES: ThemeDefinition[] = [
       '--theme-sidebar-accent': '#3b82f6',
     },
   },
+  // Niki brand palettes — see docs/brand/README.md. The interactive accents are darker
+  // than the logo's vermilion/coral so white button text keeps ≥4.5:1 contrast.
+  {
+    key: 'niki-light',
+    label: 'Niki (Light)',
+    vars: {
+      '--theme-bg-primary': '#F8F5F0',
+      '--theme-bg-secondary': '#EFE9E2',
+      '--theme-bg-surface': '#FCFAF7',
+      '--theme-text-primary': '#1F1D24',
+      '--theme-text-secondary': '#4A4650',
+      '--theme-text-muted': '#8A8490',
+      '--theme-accent-primary': '#C0303D',
+      '--theme-accent-primary-hover': '#8E1B2C',
+      '--theme-accent-secondary': '#E4572E',
+      '--theme-border': '#E3DAD0',
+      '--theme-sidebar-bg': '#1F1D24',
+      '--theme-sidebar-text': '#F8F5F0',
+      '--theme-sidebar-accent': '#EE7B67',
+    },
+  },
+  {
+    key: 'niki-dark',
+    label: 'Niki (Dark)',
+    vars: {
+      '--theme-bg-primary': '#17151B',
+      '--theme-bg-secondary': '#211E26',
+      '--theme-bg-surface': '#26222C',
+      '--theme-text-primary': '#F3EEE8',
+      '--theme-text-secondary': '#B9B1AA',
+      '--theme-text-muted': '#7D7680',
+      '--theme-accent-primary': '#CF3F3F',
+      '--theme-accent-primary-hover': '#B32F37',
+      '--theme-accent-secondary': '#EE7B67',
+      '--theme-border': '#3A3440',
+      '--theme-sidebar-bg': '#121015',
+      '--theme-sidebar-text': '#F3EEE8',
+      '--theme-sidebar-accent': '#EE7B67',
+    },
+  },
 ];
 
 export const PREDEFINED_THEME_KEYS = PREDEFINED_THEMES.map((t) => t.key);

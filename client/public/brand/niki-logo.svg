@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 572" role="img" aria-labelledby="niki-title">
+  <title id="niki-title">Niki — Nonprofit Intelligence, Kindly Implemented</title>
+  <defs>
+    <!-- One person = one petal: narrow at the base, arms sweeping up into leaf tips.
+         Base at (0,0), pointing up; every figure is this shape rotated/scaled. -->
+    <path id="body" d="M0 0 C-10 -60 -70 -80 -86 -150 C-50 -138 -15 -125 0 -94 C15 -125 50 -138 86 -150 C70 -80 10 -60 0 0 Z"/>
+    <circle id="head" cx="0" cy="-151" r="26"/>
+  </defs>
+
+  <rect width="400" height="572" fill="#F8F5F0"/>
+
+  <!-- Network roots: drawn first, behind the petals; they stay inside the gap between the lower petals and only fan out below their tips -->
+  <g fill="none" stroke="#D64541" stroke-width="2.6" stroke-linecap="round">
+    <path d="M200 188 L200 410"/>
+    <path d="M200 188 C199 260 190 300 184 334 C179 361 120 372 75 391"/>
+    <path d="M200 188 C200 270 196 310 193 334 C190 358 160 374 142 384"/>
+    <path d="M200 188 C200 270 204 310 207 334 C210 358 240 374 258 384"/>
+    <path d="M200 188 C201 260 210 300 216 334 C221 361 280 372 325 391"/>
+  </g>
+  <g fill="#D64541">
+    <circle cx="75" cy="397.5" r="8"/>
+    <circle cx="142" cy="390.5" r="8"/>
+    <circle cx="200" cy="416.5" r="8"/>
+    <circle cx="258" cy="390.5" r="8"/>
+    <circle cx="325" cy="397.5" r="8"/>
+  </g>
+  <g fill="#F8F5F0">
+    <circle cx="75" cy="397.5" r="2.8"/>
+    <circle cx="142" cy="390.5" r="2.8"/>
+    <circle cx="200" cy="416.5" r="2.8"/>
+    <circle cx="258" cy="390.5" r="2.8"/>
+    <circle cx="325" cy="397.5" r="2.8"/>
+  </g>
+
+  <!-- Lower figures -->
+  <g transform="translate(200 188) rotate(-138) scale(0.86)" fill="#EE7B67">
+    <use href="#body"/><use href="#head"/>
+  </g>
+  <g transform="translate(200 188) rotate(138) scale(0.86)" fill="#EE7B67">
+    <use href="#body"/><use href="#head"/>
+  </g>
+
+  <!-- Side figures -->
+  <g transform="translate(200 188) rotate(-68) scale(0.95)" fill="#C0303D">
+    <use href="#body"/><use href="#head"/>
+  </g>
+  <g transform="translate(200 188) rotate(68) scale(0.95)" fill="#C0303D">
+    <use href="#body"/><use href="#head"/>
+  </g>
+
+  <!-- Top figure -->
+  <g transform="translate(200 188)" fill="#E4572E">
+    <use href="#body"/><use href="#head"/>
+  </g>
+
+  <!-- Faces: a solid crescent smile cut from the inner edge of each head, centered on the
+       figure's radial axis (facing the flower's heart) -->
+  <g fill="#1F1D24">
+    <path d="M222.96 49.21 A26.00 26.00 0 0 1 177.04 49.21 A79.34 79.34 0 0 0 222.96 49.21 Z"/>
+    <path d="M85.92 118.39 A24.70 24.70 0 0 1 69.58 158.83 A75.37 75.37 0 0 0 85.92 118.39 Z"/>
+    <path d="M330.42 158.83 A24.70 24.70 0 0 1 314.08 118.39 A75.37 75.37 0 0 0 330.42 158.83 Z"/>
+    <path d="M105.46 263.49 A22.36 22.36 0 0 1 134.80 289.91 A68.23 68.23 0 0 0 105.46 263.49 Z"/>
+    <path d="M265.20 289.91 A22.36 22.36 0 0 1 294.54 263.49 A68.23 68.23 0 0 0 265.20 289.91 Z"/>
+  </g>
+
+  <!-- Wordmark drawn as monoline strokes with round caps (no font dependency) -->
+  <g fill="none" stroke="#3A3A3C" stroke-width="11.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M99 502 L99 444 L143 502 L143 444"/>
+    <path d="M183 444 L183 502"/>
+    <path d="M223 444 L223 502 M261 444 L226 474 M240 463 L263 502"/>
+    <path d="M301 444 L301 502"/>
+  </g>
+  <g fill="#2A2A2C" font-family="Lexend, Outfit, 'Avenir Next', 'Helvetica Neue', sans-serif"
+     font-weight="400" font-size="15.5" text-anchor="middle">
+    <text x="200" y="534">Nonprofit Intelligence,</text>
+    <text x="200" y="554">Kindly Implemented</text>
+  </g>
+</svg>

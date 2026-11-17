@@ -739,7 +739,7 @@ settingsRouter.delete('/modality-options/:id', async (c) => {
 });
 
 // User preferences (theme)
-const KNOWN_THEMES = ['dark-slate', 'beige-blue-light'];
+const KNOWN_THEMES = ['dark-slate', 'beige-blue-light', 'niki-light', 'niki-dark'];
 
 settingsRouter.get('/user-preferences', async (c) => {
   const payload = c.get('jwtPayload');

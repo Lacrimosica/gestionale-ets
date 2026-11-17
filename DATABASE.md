@@ -1,6 +1,6 @@
 # Database Schema
 
-Gestionale ETS uses **SQLite** via Cloudflare D1 as its database layer, with **Drizzle ORM** handling migrations and type safety.
+Niki (formerly Gestionale ETS) uses **SQLite** via Cloudflare D1 as its database layer, with **Drizzle ORM** handling migrations and type safety.
 
 ## Quick Links
 

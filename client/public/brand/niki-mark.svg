@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 -8 368 368" role="img" aria-labelledby="niki-title">
+  <title id="niki-title">Niki</title>
+  <defs>
+    <!-- One person = one petal: narrow at the base, arms sweeping up into leaf tips.
+         Base at (0,0), pointing up; every figure is this shape rotated/scaled. -->
+    <path id="body" d="M0 0 C-10 -60 -70 -80 -86 -150 C-50 -138 -15 -125 0 -94 C15 -125 50 -138 86 -150 C70 -80 10 -60 0 0 Z"/>
+    <circle id="head" cx="0" cy="-151" r="26"/>
+  </defs>
+
+
+  <!-- Lower figures -->
+  <g transform="translate(200 188) rotate(-138) scale(0.86)" fill="#EE7B67">
+    <use href="#body"/><use href="#head"/>
+  </g>
+  <g transform="translate(200 188) rotate(138) scale(0.86)" fill="#EE7B67">
+    <use href="#body"/><use href="#head"/>
+  </g>
+
+  <!-- Side figures -->
+  <g transform="translate(200 188) rotate(-68) scale(0.95)" fill="#C0303D">
+    <use href="#body"/><use href="#head"/>
+  </g>
+  <g transform="translate(200 188) rotate(68) scale(0.95)" fill="#C0303D">
+    <use href="#body"/><use href="#head"/>
+  </g>
+
+  <!-- Top figure -->
+  <g transform="translate(200 188)" fill="#E4572E">
+    <use href="#body"/><use href="#head"/>
+  </g>
+
+  <!-- Faces: a solid crescent smile cut from the inner edge of each head, centered on the
+       figure's radial axis (facing the flower's heart) -->
+  <g fill="#1F1D24">
+    <path d="M222.96 49.21 A26.00 26.00 0 0 1 177.04 49.21 A79.34 79.34 0 0 0 222.96 49.21 Z"/>
+    <path d="M85.92 118.39 A24.70 24.70 0 0 1 69.58 158.83 A75.37 75.37 0 0 0 85.92 118.39 Z"/>
+    <path d="M330.42 158.83 A24.70 24.70 0 0 1 314.08 118.39 A75.37 75.37 0 0 0 330.42 158.83 Z"/>
+    <path d="M105.46 263.49 A22.36 22.36 0 0 1 134.80 289.91 A68.23 68.23 0 0 0 105.46 263.49 Z"/>
+    <path d="M265.20 289.91 A22.36 22.36 0 0 1 294.54 263.49 A68.23 68.23 0 0 0 265.20 289.91 Z"/>
+  </g>
+
+</svg>

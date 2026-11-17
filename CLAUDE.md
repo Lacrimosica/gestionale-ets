@@ -1,10 +1,16 @@
-# Gestionale ETS — Project Context for Claude Agents
+# Niki (formerly Gestionale ETS) — Project Context for Claude Agents
 
 This document provides essential context for Claude and other agents working on this project. It complements language model training and helps maintain consistency across sessions.
 
 ## What Is This Project?
 
-**Gestionale ETS** is a full-stack web application for managing volunteer-based organizations (ETS = Ente del Terzo Settore, Italian non-profit legal classification).
+**Niki** (formerly *Gestionale ETS*) is a full-stack web application for managing volunteer-based organizations (ETS = Ente del Terzo Settore, Italian non-profit legal classification).
+
+**Brand:** product name **Niki**, tagline *Nonprofit Intelligence, Kindly Implemented*.
+Name, logo, palette and voice live in [docs/brand/README.md](docs/brand/README.md) — read it
+before touching user-facing branding. The rename is incremental: code identifiers, package
+names, Cloudflare resources and URLs still say `gestionale` / `gestionale-ets` until migrated.
+An organization's own branding (Settings → Branding) is separate from the Niki product brand.
 
 Key features:
 - Member and volunteer management (onboarding, roles, periods)

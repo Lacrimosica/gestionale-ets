@@ -563,7 +563,19 @@
       "noAccount": "Non hai un account?",
       "createOrganization": "Crea un'organizzazione",
       "emailInvalid": "Inserisci un indirizzo email valido.",
-      "authError": "Errore durante l'autenticazione"
+      "authError": "Errore durante l'autenticazione",
+      "brandTagline": "Nonprofit Intelligence, Kindly Implemented",
+      "brandHeadline": "Una buona governance comincia dalle persone.",
+      "brandDescription": "Persone, assemblee e documenti importanti: tutto in uno spazio di lavoro chiaro e sereno.",
+      "featurePeople": "Persone e soci",
+      "featureGovernance": "Assemblee e governance",
+      "featureCompliance": "Conformità senza complicazioni",
+      "welcomeEyebrow": "Il tuo spazio di lavoro Niki",
+      "welcomeTitle": "Bentornato",
+      "welcomeDescription": "Accedi per continuare con la tua organizzazione.",
+      "backToEmail": "Torna all'email",
+      "showPassword": "Mostra password",
+      "hidePassword": "Nascondi password"
     }
   },
   "setup": {

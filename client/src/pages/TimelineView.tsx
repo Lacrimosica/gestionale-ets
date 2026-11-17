@@ -74,8 +74,8 @@ const TimelineView = () => {
   const selectedEntry = selectedId ? timelineEvents.find((e: TimelineEntry) => e.id === selectedId) : null;
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center h-96 text-slate-500">
-      <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <div className="flex flex-col items-center justify-center h-96 text-neutral-500">
+      <div className="w-12 h-12 border-4 border-accent-600 border-t-transparent rounded-full animate-spin mb-4"></div>
       <p className="font-medium text-sm">{t('common.status.loading')}</p>
     </div>
   );
@@ -84,92 +84,92 @@ const TimelineView = () => {
     <div className="space-y-6 animate-in fade-in duration-700 w-full max-w-[1600px] mx-auto pb-10">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center space-x-3">
-            <Calendar className="text-blue-400" size={24} />
+          <h1 className="text-2xl font-bold text-fg flex items-center space-x-3">
+            <Calendar className="text-accent-400" size={24} />
             <span>{t('timeline.title')}</span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">{t('timeline.subtitle')}</p>
+          <p className="text-neutral-400 text-sm mt-1">{t('timeline.subtitle')}</p>
         </div>
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl relative overflow-hidden h-[calc(100vh-220px)] flex flex-col">
-        <aside className="border-b border-slate-800 bg-slate-950/80 shrink-0 max-h-[45%] flex flex-col overflow-hidden">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl relative overflow-hidden h-[calc(100vh-220px)] flex flex-col">
+        <aside className="border-b border-neutral-800 bg-neutral-950/80 shrink-0 max-h-[45%] flex flex-col overflow-hidden">
           {selectedEntry ? (
             <div className="p-4 overflow-y-auto flex-1 custom-scrollbar space-y-4">
               <div className="flex items-center justify-between gap-2">
-                <h3 className="text-sm font-black text-slate-300 uppercase tracking-wider">{t('timeline.eventDetail')}</h3>
-                <button type="button" onClick={() => setSelectedId(null)} className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors" title={t('common.actions.close', { defaultValue: 'Close' })}>
+                <h3 className="text-sm font-black text-neutral-300 uppercase tracking-wider">{t('timeline.eventDetail')}</h3>
+                <button type="button" onClick={() => setSelectedId(null)} className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-fg transition-colors" title={t('common.actions.close', { defaultValue: 'Close' })}>
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="text-white font-semibold leading-tight">
+              <div className="text-fg font-semibold leading-tight">
                 {selectedEntry.type === 'assembly' ? (
                   <>
                     <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-purple-400 text-xs font-black uppercase tracking-widest">{t('timeline.session')}</span>
+                        <span className="text-special-400 text-xs font-black uppercase tracking-widest">{t('timeline.session')}</span>
                         {selectedEntry.complianceStatus === 'warning' && (
-                          <span className="bg-yellow-500/10 text-yellow-500 text-[10px] px-1.5 py-0.5 rounded border border-yellow-500/20 font-black animate-pulse">
+                          <span className="bg-warning-500/10 text-warning-500 text-[10px] px-1.5 py-0.5 rounded border border-warning-500/20 font-black animate-pulse">
                             {t('timeline.pending').toUpperCase()}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
                         {getMembersAtDate(selectedEntry.start).length > 0 && (
-                          <button type="button" onClick={() => copyToClipboard(getMembersAtDate(selectedEntry.start), selectedEntry.id)} className="p-1.5 hover:bg-slate-800 rounded transition-colors text-slate-500 hover:text-white" title={t('timeline.copyMembers')}>
-                            {copiedId === selectedEntry.id ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                          <button type="button" onClick={() => copyToClipboard(getMembersAtDate(selectedEntry.start), selectedEntry.id)} className="p-1.5 hover:bg-neutral-800 rounded transition-colors text-neutral-500 hover:text-fg" title={t('timeline.copyMembers')}>
+                            {copiedId === selectedEntry.id ? <Check size={14} className="text-success-400" /> : <Copy size={14} />}
                           </button>
                         )}
-                        <Link to={`/assemblies/${selectedEntry.id}`} className="p-1.5 hover:bg-slate-800 rounded transition-colors text-slate-500 hover:text-purple-400" title={t('timeline.editAssembly')}> <Edit3 size={14} /> </Link>
+                        <Link to={`/assemblies/${selectedEntry.id}`} className="p-1.5 hover:bg-neutral-800 rounded transition-colors text-neutral-500 hover:text-special-400" title={t('timeline.editAssembly')}> <Edit3 size={14} /> </Link>
                       </div>
                     </div>
-                    <p className="text-slate-100">{getEventLabel(selectedEntry)}</p>
+                    <p className="text-neutral-100">{getEventLabel(selectedEntry)}</p>
                     {selectedEntry.errorDetails && (
-                      <div className="mt-2 text-xs text-yellow-500 font-medium bg-yellow-500/5 p-2 rounded border border-yellow-500/10 flex items-start gap-2">
+                      <div className="mt-2 text-xs text-warning-500 font-medium bg-warning-500/5 p-2 rounded border border-warning-500/10 flex items-start gap-2">
                         <Info size={14} className="shrink-0 mt-0.5" />
                         <span>{getEventErrorDetails(selectedEntry)}</span>
                       </div>
                     )}
                     <div className="flex items-baseline flex-wrap gap-2 mt-2">
-                      <span className="text-xs text-slate-400 bg-slate-900 px-2 py-0.5 rounded font-bold uppercase border border-slate-800">{selectedEntry.subType}</span>
-                      {selectedEntry.totalNumber != null && <span className="text-xs text-purple-500/90 font-bold italic">#{selectedEntry.totalNumber}</span>}
-                      {selectedEntry.location && <span className="text-xs text-slate-500 truncate max-w-[220px]" title={selectedEntry.location}>{selectedEntry.location}</span>}
+                      <span className="text-xs text-neutral-400 bg-neutral-900 px-2 py-0.5 rounded font-bold uppercase border border-neutral-800">{selectedEntry.subType}</span>
+                      {selectedEntry.totalNumber != null && <span className="text-xs text-special-500/90 font-bold italic">#{selectedEntry.totalNumber}</span>}
+                      {selectedEntry.location && <span className="text-xs text-neutral-500 truncate max-w-[220px]" title={selectedEntry.location}>{selectedEntry.location}</span>}
                     </div>
                   </>
                 ) : selectedEntry.type === 'pending_verbal' ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-yellow-500 text-xs font-black uppercase tracking-widest">{t('timeline.pendingVerbal')}</span>
+                      <span className="text-warning-500 text-xs font-black uppercase tracking-widest">{t('timeline.pendingVerbal')}</span>
                     </div>
-                    <p className="text-slate-100 font-bold text-base">{getEventLabel(selectedEntry)}</p>
-                    <div className="text-sm text-yellow-500/80 bg-yellow-500/5 p-3 rounded-lg border border-yellow-500/20 italic leading-relaxed">
+                    <p className="text-neutral-100 font-bold text-base">{getEventLabel(selectedEntry)}</p>
+                    <div className="text-sm text-warning-500/80 bg-warning-500/5 p-3 rounded-lg border border-warning-500/20 italic leading-relaxed">
                       {getEventDescription(selectedEntry)}
                     </div>
                     {selectedEntry.anchoredMembers && selectedEntry.anchoredMembers.length > 0 && (
-                      <div className="mt-4 border border-red-500/30 rounded-lg bg-red-500/10 overflow-hidden shadow-sm">
-                        <div className="bg-red-500/10 px-3 py-2 border-b border-red-500/20 flex flex-col gap-1">
-                          <p className="text-[11px] font-black text-red-400 flex items-center gap-1.5 uppercase tracking-widest">
+                      <div className="mt-4 border border-danger-500/30 rounded-lg bg-danger-500/10 overflow-hidden shadow-sm">
+                        <div className="bg-danger-500/10 px-3 py-2 border-b border-danger-500/20 flex flex-col gap-1">
+                          <p className="text-[11px] font-black text-danger-400 flex items-center gap-1.5 uppercase tracking-widest">
                             🔒 {t('timeline.anchored', { defaultValue: 'ANCHORED — minutes are essential' })}
                           </p>
-                          <p className="text-[10px] text-red-300/80 leading-snug italic">
+                          <p className="text-[10px] text-danger-300/80 leading-snug italic">
                              {t('timeline.anchoredDescription', { defaultValue: 'These members have active retention obligations. Without linked meeting minutes, their admission cannot be properly documented.' })}
                           </p>
                         </div>
                         <div className="p-3 space-y-3">
                           {selectedEntry.anchoredMembers.map((member, i) => (
-                            <div key={i} className="flex flex-col gap-1 border-b border-red-900/20 last:border-0 pb-2 last:pb-0">
-                              <span className="text-[11px] font-bold text-slate-200">{member.name}</span>
+                            <div key={i} className="flex flex-col gap-1 border-b border-danger-900/20 last:border-0 pb-2 last:pb-0">
+                              <span className="text-[11px] font-bold text-neutral-200">{member.name}</span>
                               {member.reasons.length > 0 ? (
                                 <div className="flex flex-wrap gap-1.5">
                                   {member.reasons.map((r, j) => (
-                                    <span key={j} className="text-[9px] text-red-300 bg-red-900/20 px-1.5 py-0.5 rounded border border-red-900/40 font-medium">
+                                    <span key={j} className="text-[9px] text-danger-300 bg-danger-900/20 px-1.5 py-0.5 rounded border border-danger-900/40 font-medium">
                                       {t(r, { defaultValue: REASON_FALLBACKS[r] || r.split('.').pop() })}
                                     </span>
                                   ))}
                                 </div>
                               ) : (
-                                <span className="text-[9px] text-red-400/60 italic block">
+                                <span className="text-[9px] text-danger-400/60 italic block">
                                   {t('timeline.anchoredDefault', { defaultValue: 'Required retention' })}
                                 </span>
                               )}
@@ -179,16 +179,16 @@ const TimelineView = () => {
                       </div>
                     )}
                     {selectedEntry.removableNames && selectedEntry.removableNames.length > 0 && (
-                      <div className="mt-4 border border-slate-700/30 rounded-lg p-3 bg-slate-800/30">
-                        <p className="text-[11px] font-black text-slate-400 mb-1 flex items-center gap-1.5 uppercase tracking-widest">
+                      <div className="mt-4 border border-neutral-700/30 rounded-lg p-3 bg-neutral-800/30">
+                        <p className="text-[11px] font-black text-neutral-400 mb-1 flex items-center gap-1.5 uppercase tracking-widest">
                           🗑 {t('timeline.deletable', { defaultValue: 'DELETABLE — no retention obligation' })}
                         </p>
                         <div className="flex flex-wrap gap-1.5 mb-2 mt-2">
                           {selectedEntry.removableNames.map((name, i) => (
-                            <span key={i} className="text-[10px] bg-slate-900 text-slate-400 px-2 py-1 rounded font-medium border border-slate-700/80">{name}</span>
+                            <span key={i} className="text-[10px] bg-neutral-900 text-neutral-400 px-2 py-1 rounded font-medium border border-neutral-700/80">{name}</span>
                           ))}
                         </div>
-                        <p className="text-[10px] text-slate-500 leading-relaxed italic pr-2">
+                        <p className="text-[10px] text-neutral-500 leading-relaxed italic pr-2">
                            {t('timeline.removableDescription', { defaultValue: 'These members have no active retention obligation. Consider removing them from the registry instead of creating meeting minutes.' })}
                         </p>
                       </div>
@@ -197,34 +197,34 @@ const TimelineView = () => {
                     {!selectedEntry.anchoredMembers?.length && !selectedEntry.removableNames?.length && selectedEntry.affectedNames && (
                       <div className="flex flex-wrap gap-1.5 mt-2">
                         {selectedEntry.affectedNames.map((name, i) => (
-                          <span key={i} className="text-[10px] bg-slate-800 text-slate-300 px-2 py-1 rounded font-medium border border-slate-700/50">{name}</span>
+                          <span key={i} className="text-[10px] bg-neutral-800 text-neutral-300 px-2 py-1 rounded font-medium border border-neutral-700/50">{name}</span>
                         ))}
                       </div>
                     )}
-                    <Link to="/assemblies" className="inline-flex items-center gap-2 text-xs text-yellow-500 font-black hover:underline mt-2">
+                    <Link to="/assemblies" className="inline-flex items-center gap-2 text-xs text-warning-500 font-black hover:underline mt-2">
                       {t('common.actions.add')} {t('nav.assemblies').toUpperCase()}
                     </Link>
                   </div>
                 ) : selectedEntry.type === 'compliance_error' ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-red-500 text-xs font-black uppercase tracking-widest animate-pulse">{t('timeline.complianceError')}</span>
+                      <span className="text-danger-500 text-xs font-black uppercase tracking-widest animate-pulse">{t('timeline.complianceError')}</span>
                     </div>
-                    <p className="text-slate-100 font-bold text-base">{getEventLabel(selectedEntry)}</p>
-                    <div className="text-sm text-red-100 bg-red-600/20 p-3 rounded-lg border border-red-500/30 leading-relaxed font-medium">
+                    <p className="text-neutral-100 font-bold text-base">{getEventLabel(selectedEntry)}</p>
+                    <div className="text-sm text-danger-100 bg-danger-600/20 p-3 rounded-lg border border-danger-500/30 leading-relaxed font-medium">
                       {getEventDescription(selectedEntry)}
                     </div>
                     {selectedEntry.affectedAssemblyId && (
-                      <Link to={`/assemblies/${selectedEntry.affectedAssemblyId}`} className="inline-flex items-center gap-2 text-xs text-red-400 font-black hover:underline mt-2">
+                      <Link to={`/assemblies/${selectedEntry.affectedAssemblyId}`} className="inline-flex items-center gap-2 text-xs text-danger-400 font-black hover:underline mt-2">
                         {t('common.actions.edit')} {selectedEntry.affectedAssemblyName}
                       </Link>
                     )}
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-slate-100">{getEventLabel(selectedEntry)}</p>
+                    <p className="text-neutral-100">{getEventLabel(selectedEntry)}</p>
                     {selectedEntry.type === 'member_admission' && selectedEntry.linkedAssemblyId && (
-                      <Link to={`/assemblies/${selectedEntry.linkedAssemblyId}`} className="text-[10px] text-blue-400 font-bold hover:underline flex items-center gap-1">
+                      <Link to={`/assemblies/${selectedEntry.linkedAssemblyId}`} className="text-[10px] text-accent-400 font-bold hover:underline flex items-center gap-1">
                         <FileText size={10} /> {t('timeline.session')}
                       </Link>
                     )}
@@ -232,23 +232,23 @@ const TimelineView = () => {
                 )}
               </div>
 
-              <div className="flex items-center gap-3 text-slate-400 text-sm flex-wrap">
+              <div className="flex items-center gap-3 text-neutral-400 text-sm flex-wrap">
                 <span className="flex items-center gap-2">
-                  <Calendar size={14} className="text-blue-400 shrink-0" />
+                  <Calendar size={14} className="text-accent-400 shrink-0" />
                   {formatLongDate(selectedEntry.start)}
                 </span>
                 {selectedEntry.type === 'assembly' && (
                   <>
-                    <span className="text-slate-800">·</span>
-                    <span className="flex items-center gap-1.5 uppercase text-[10px] font-black tracking-widest text-slate-500">
+                    <span className="text-neutral-800">·</span>
+                    <span className="flex items-center gap-1.5 uppercase text-[10px] font-black tracking-widest text-neutral-500">
                       <MapPin size={12} />
                       {selectedEntry.location || 'N/A'}
                     </span>
-                    <span className="text-slate-800">·</span>
+                    <span className="text-neutral-800">·</span>
                     <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                      selectedEntry.mode === 'in_person' ? 'bg-emerald-900/40 text-emerald-400 border-emerald-800' : 
-                      selectedEntry.mode === 'remote' ? 'bg-cyan-900/40 text-cyan-400 border-cyan-800' :
-                      'bg-violet-900/40 text-violet-400 border-violet-800'
+                      selectedEntry.mode === 'in_person' ? 'bg-success-900/40 text-success-400 border-success-800' :
+                      selectedEntry.mode === 'remote' ? 'bg-info-900/40 text-info-400 border-info-800' :
+                      'bg-special-900/40 text-special-400 border-special-800'
                     }`}>
                       {selectedEntry.mode === 'in_person' && <UsersIcon size={12} />}
                       {selectedEntry.mode === 'remote' && <Video size={12} />}
@@ -260,14 +260,14 @@ const TimelineView = () => {
               </div>
 
               {selectedEntry.type === 'assembly' && selectedEntry.agendaItems && selectedEntry.agendaItems.length > 0 && (
-                <div className="pt-3 border-t border-slate-800">
-                  <p className="text-xs text-slate-500 uppercase tracking-widest font-black flex items-center gap-2 mb-2"><ListOrdered size={12} /> {t('timeline.agenda')}</p>
+                <div className="pt-3 border-t border-neutral-800">
+                  <p className="text-xs text-neutral-500 uppercase tracking-widest font-black flex items-center gap-2 mb-2"><ListOrdered size={12} /> {t('timeline.agenda')}</p>
                   <ul className="space-y-2">
                     {selectedEntry.agendaItems.map((odg: TimelineAgendaItem, idx: number) => (
-                      <li key={idx} className="text-sm text-slate-300">
-                        <span className="font-bold text-slate-400 mr-1">{odg.number}.</span>
+                      <li key={idx} className="text-sm text-neutral-300">
+                        <span className="font-bold text-neutral-400 mr-1">{odg.number}.</span>
                         <span className="font-medium">{odg.title}</span>
-                        {odg.description && <p className="text-xs text-slate-500 mt-0.5 pl-4">{odg.description}</p>}
+                        {odg.description && <p className="text-xs text-neutral-500 mt-0.5 pl-4">{odg.description}</p>}
                       </li>
                     ))}
                   </ul>
@@ -275,40 +275,40 @@ const TimelineView = () => {
               )}
 
               {selectedEntry.type === 'assembly' && (selectedEntry.googleDocsLink || selectedEntry.pdfLink) && (
-                <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-800">
-                  {selectedEntry.googleDocsLink && <a href={selectedEntry.googleDocsLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 py-2 px-4 rounded-lg text-xs font-bold border border-blue-500/20"><FileCode size={14} /><span>DOCS</span></a>}
-                  {selectedEntry.pdfLink && <a href={selectedEntry.pdfLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-red-600/10 hover:bg-red-600/20 text-red-400 py-2 px-4 rounded-lg text-xs font-bold border border-red-500/20"><FileDown size={14} /><span>PDF</span></a>}
+                <div className="flex flex-wrap gap-2 pt-3 border-t border-neutral-800">
+                  {selectedEntry.googleDocsLink && <a href={selectedEntry.googleDocsLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-accent-600/10 hover:bg-accent-600/20 text-accent-400 py-2 px-4 rounded-lg text-xs font-bold border border-accent-500/20"><FileCode size={14} /><span>DOCS</span></a>}
+                  {selectedEntry.pdfLink && <a href={selectedEntry.pdfLink} target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 bg-danger-600/10 hover:bg-danger-600/20 text-danger-400 py-2 px-4 rounded-lg text-xs font-bold border border-danger-500/20"><FileDown size={14} /><span>PDF</span></a>}
                 </div>
               )}
 
               {selectedEntry.type === 'assembly' && !selectedEntry.googleDocsLink && !selectedEntry.pdfLink && (
-                <p className="text-xs text-slate-500 italic">{t('timeline.noDocumentLinks')}</p>
+                <p className="text-xs text-neutral-500 italic">{t('timeline.noDocumentLinks')}</p>
               )}
 
               {selectedEntry.type === 'assembly' && (() => {
                 const members = getMembersAtDate(selectedEntry.start);
                 return members.length > 0 ? (
-                  <div className="pt-3 border-t border-slate-800">
+                  <div className="pt-3 border-t border-neutral-800">
                     <div className="flex items-center justify-between mb-2">
-                      <p className="text-xs text-slate-500 uppercase tracking-widest font-black flex items-center gap-1"><Users size={12} /> {t('timeline.members')}</p>
-                      <span className="bg-slate-900 text-blue-400 text-xs px-2 py-0.5 rounded-full font-bold border border-blue-900/30">{members.length}</span>
+                      <p className="text-xs text-neutral-500 uppercase tracking-widest font-black flex items-center gap-1"><Users size={12} /> {t('timeline.members')}</p>
+                      <span className="bg-neutral-900 text-accent-400 text-xs px-2 py-0.5 rounded-full font-bold border border-accent-900/30">{members.length}</span>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5">
                       {members.map((mem: MembershipHistory) => (
-                        <div key={mem.id} className="text-xs text-slate-300 truncate font-medium bg-slate-900/40 px-2 py-1 rounded border border-slate-800/30">
+                        <div key={mem.id} className="text-xs text-neutral-300 truncate font-medium bg-neutral-900/40 px-2 py-1 rounded border border-neutral-800/30">
                           {mem.firstName} {mem.lastName}
                         </div>
                       ))}
                     </div>
                     {members.length > 24 && (
-                      <button type="button" onClick={() => setModalState({ isOpen: true, date: selectedEntry.start, members, label: getEventLabel(selectedEntry) })} className="mt-2 text-xs text-blue-400 font-bold hover:underline">{t('timeline.viewAll')} ({members.length})</button>
+                      <button type="button" onClick={() => setModalState({ isOpen: true, date: selectedEntry.start, members, label: getEventLabel(selectedEntry) })} className="mt-2 text-xs text-accent-400 font-bold hover:underline">{t('timeline.viewAll')} ({members.length})</button>
                     )}
                   </div>
                 ) : null;
               })()}
             </div>
           ) : (
-            <div className="p-6 flex flex-col items-center justify-center text-center text-slate-500 min-h-[160px]">
+            <div className="p-6 flex flex-col items-center justify-center text-center text-neutral-500 min-h-[160px]">
               <FileText size={32} className="opacity-30 mb-3" />
               <p className="text-sm font-medium">{t('timeline.selectEvent')}</p>
               <p className="text-xs mt-1">{t('timeline.clickPrompt')}</p>
@@ -321,7 +321,7 @@ const TimelineView = () => {
           className="relative flex-1 overflow-y-auto overflow-x-auto pr-4 custom-scrollbar scroll-smooth min-w-0"
         >
           <div className="relative py-12 min-w-[1000px]">
-            <div className="absolute left-[180px] top-0 bottom-0 w-1 bg-slate-700/50 shadow-[0_0_10px_rgba(51,65,85,0.2)]" />
+            <div className="absolute left-[180px] top-0 bottom-0 w-1 bg-neutral-700/50 shadow-[0_0_10px_rgba(51,65,85,0.2)]" />
 
             {(() => {
               const MONTH_NAMES = i18n.language === 'it'
@@ -363,8 +363,8 @@ const TimelineView = () => {
 
                   yearEvents.push(
                     <div key={`month-${year}-${mIdx}`} className="absolute left-[180px] flex items-center z-10" style={{ top: `${yearHeight}px` }}>
-                      <div className="w-4 h-px bg-slate-500/30" />
-                      <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] -translate-x-full pr-8 w-32 text-right">
+                      <div className="w-4 h-px bg-neutral-500/30" />
+                      <div className="text-[10px] font-black text-neutral-500 uppercase tracking-[0.2em] -translate-x-full pr-8 w-32 text-right">
                         {monthName}
                       </div>
                     </div>
@@ -381,7 +381,7 @@ const TimelineView = () => {
 
                       yearEvents.push(
                         <div key={dayStr} className="absolute left-[180px] flex items-start z-20 hover:z-[70]" style={{ top: `${groupY}px` }}>
-                          <div className="w-8 h-px bg-slate-600 mt-5 shrink-0" />
+                          <div className="w-8 h-px bg-neutral-600 mt-5 shrink-0" />
                           <div className="flex flex-wrap gap-3 max-w-[1000px]">
                             {group.map(entry => {
                               const isAssembly = entry.type === 'assembly';
@@ -391,22 +391,22 @@ const TimelineView = () => {
 
                               let colorClass = '';
                               if (isAssembly) {
-                                if (entry.complianceStatus === 'warning') colorClass = 'bg-yellow-600/10 text-yellow-500 border-yellow-500/40 after:absolute after:-top-1 after:-right-1 after:w-2 after:h-2 after:bg-yellow-500 after:rounded-full after:animate-ping';
-                                else colorClass = 'bg-purple-600/10 text-purple-400 border-purple-500/30';
+                                if (entry.complianceStatus === 'warning') colorClass = 'bg-warning-600/10 text-warning-500 border-warning-500/40 after:absolute after:-top-1 after:-right-1 after:w-2 after:h-2 after:bg-warning-500 after:rounded-full after:animate-ping';
+                                else colorClass = 'bg-special-600/10 text-special-400 border-special-500/30';
                               } else if (isAmm) {
-                                colorClass = 'bg-green-600/10 text-green-400 border-green-500/30';
+                                colorClass = 'bg-success-600/10 text-success-400 border-success-500/30';
                               } else if (isPen) {
                                 if (entry.severity === 'critical') {
-                                  colorClass = 'bg-red-600/10 text-red-400 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]';
+                                  colorClass = 'bg-danger-600/10 text-danger-400 border-danger-500/30 shadow-[0_0_15px_rgba(239,68,68,0.1)]';
                                 } else if (entry.severity === 'low') {
-                                  colorClass = 'bg-slate-800/40 text-slate-400 border-slate-700/80';
+                                  colorClass = 'bg-neutral-800/40 text-neutral-400 border-neutral-700/80';
                                 } else {
-                                  colorClass = 'bg-yellow-600/20 text-yellow-500 border-yellow-500/50 shadow-[0_0_15px_rgba(234,179,8,0.1)]';
+                                  colorClass = 'bg-warning-600/20 text-warning-500 border-warning-500/50 shadow-[0_0_15px_rgba(234,179,8,0.1)]';
                                 }
                               } else if (isErr) {
-                                colorClass = 'bg-red-600/20 text-red-500 border-red-500/50 animate-pulse-subtle shadow-[0_0_15px_rgba(239,68,68,0.2)]';
+                                colorClass = 'bg-danger-600/20 text-danger-500 border-danger-500/50 animate-pulse-subtle shadow-[0_0_15px_rgba(239,68,68,0.2)]';
                               } else {
-                                colorClass = 'bg-red-600/10 text-red-400 border-red-500/30';
+                                colorClass = 'bg-danger-600/10 text-danger-400 border-danger-500/30';
                               }
 
                               let dLabel = '';
@@ -434,7 +434,7 @@ const TimelineView = () => {
                                   key={entry.id}
                                   type="button"
                                   onClick={() => setSelectedId(prev => prev === entry.id ? null : entry.id)}
-                                  className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg border shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:brightness-110 cursor-pointer text-left ${colorClass} ${selectedId === entry.id ? 'ring-2 ring-blue-400 ring-offset-2 ring-offset-slate-900' : ''}`}
+                                  className={`relative flex items-center space-x-2 px-3 py-2 rounded-lg border shadow-lg backdrop-blur-md transition-all hover:scale-[1.02] hover:brightness-110 cursor-pointer text-left ${colorClass} ${selectedId === entry.id ? 'ring-2 ring-accent-400 ring-offset-2 ring-offset-neutral-900' : ''}`}
                                 >
                                   {isAssembly ? <FileText size={14} /> : isAmm ? <UserPlus size={14} /> : isPen ? <Info size={14} /> : isErr ? <AlertTriangle size={14} /> : <UserMinus size={14} />}
                                   <div className="flex flex-col">
@@ -457,9 +457,9 @@ const TimelineView = () => {
                   <div key={year} className="relative w-full mb-10 last:mb-0" style={{ minHeight: `${yearHeight + 100}px` }}>
                     <div className="sticky top-12 z-[100] h-0 pointer-events-none">
                       <div className="absolute left-[180px] -translate-x-1/2 flex items-center justify-center pointer-events-auto">
-                        <div className="bg-slate-900 border-2 border-blue-600 rounded-full pl-2 pr-2.5 py-4 flex flex-row items-center justify-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.2)] -translate-x-[calc(100%+30px)]">
-                          <span className="text-sm font-black text-white [writing-mode:vertical-lr] rotate-180 tracking-[0.2em] uppercase leading-none">{year}</span>
-                          <div className="w-2 h-2 bg-blue-500 rounded-full shadow-[0_0_10px_#3b82f6] animate-pulse shrink-0" />
+                        <div className="bg-neutral-900 border-2 border-accent-600 rounded-full pl-2 pr-2.5 py-4 flex flex-row items-center justify-center gap-2 shadow-[0_0_20px_rgba(59,130,246,0.2)] -translate-x-[calc(100%+30px)]">
+                          <span className="text-sm font-black text-fg [writing-mode:vertical-lr] rotate-180 tracking-[0.2em] uppercase leading-none">{year}</span>
+                          <div className="w-2 h-2 bg-accent-500 rounded-full shadow-[0_0_10px_#3b82f6] animate-pulse shrink-0" />
                         </div>
                       </div>
                     </div>
@@ -473,19 +473,19 @@ const TimelineView = () => {
           </div>
         </div>
 
-        <div className="bg-slate-900 border-t border-slate-800 py-3 px-8 flex justify-center space-x-8 shrink-0 overflow-x-auto custom-scrollbar no-scrollbar-buttons">
-          <LegendItem icon={<FileText size={14} className="text-purple-400" />} label={t('timeline.legend.assemblies')} />
-          <LegendItem icon={<UserPlus size={14} className="text-green-500" />} label={t('timeline.legend.admissions')} />
-          <LegendItem icon={<UserMinus size={14} className="text-red-500" />} label={t('timeline.legend.resignations')} />
-          <LegendItem icon={<Info size={14} className="text-yellow-500" />} label={t('timeline.legend.pending')} />
-          <LegendItem icon={<AlertTriangle size={14} className="text-red-600" />} label={t('timeline.legend.error')} />
+        <div className="bg-neutral-900 border-t border-neutral-800 py-3 px-8 flex justify-center space-x-8 shrink-0 overflow-x-auto custom-scrollbar no-scrollbar-buttons">
+          <LegendItem icon={<FileText size={14} className="text-special-400" />} label={t('timeline.legend.assemblies')} />
+          <LegendItem icon={<UserPlus size={14} className="text-success-500" />} label={t('timeline.legend.admissions')} />
+          <LegendItem icon={<UserMinus size={14} className="text-danger-500" />} label={t('timeline.legend.resignations')} />
+          <LegendItem icon={<Info size={14} className="text-warning-500" />} label={t('timeline.legend.pending')} />
+          <LegendItem icon={<AlertTriangle size={14} className="text-danger-600" />} label={t('timeline.legend.error')} />
         </div>
       </div>
 
-      <div className="bg-blue-900/10 border border-blue-900/30 p-4 rounded-xl flex items-start space-x-4 max-w-[1600px] mx-auto shadow-sm">
-        <Info className="text-blue-400 shrink-0 mt-0.5" size={20} />
+      <div className="bg-accent-900/10 border border-accent-900/30 p-4 rounded-xl flex items-start space-x-4 max-w-[1600px] mx-auto shadow-sm">
+        <Info className="text-accent-400 shrink-0 mt-0.5" size={20} />
         <div className="flex flex-col">
-          <p className="text-[13px] text-slate-400 font-medium leading-relaxed">
+          <p className="text-[13px] text-neutral-400 font-medium leading-relaxed">
             {t('timeline.help')}
           </p>
         </div>
@@ -504,10 +504,10 @@ const TimelineView = () => {
 
 const LegendItem = ({ icon, label }: { icon: ReactNode; label: string }) => (
   <div className="flex items-center space-x-2 group cursor-default">
-    <div className="p-1.5 bg-slate-800/50 rounded-md border border-slate-700/50 transition-colors shadow-inner">
+    <div className="p-1.5 bg-neutral-800/50 rounded-md border border-neutral-700/50 transition-colors shadow-inner">
       {icon}
     </div>
-    <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest group-hover:text-slate-300 transition-colors">{label}</span>
+    <span className="text-[10px] text-neutral-500 font-black uppercase tracking-widest group-hover:text-neutral-300 transition-colors">{label}</span>
   </div>
 );
 

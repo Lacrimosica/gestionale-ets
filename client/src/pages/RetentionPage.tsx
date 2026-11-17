@@ -43,27 +43,27 @@ const PersonRow = ({ p }: { p: RetentionPerson }) => {
   if (!p.phone) missingFields.push('Tel');
 
   return (
-    <div className="flex items-center justify-between gap-3 py-2 border-b border-slate-800/40 last:border-0">
+    <div className="flex items-center justify-between gap-3 py-2 border-b border-neutral-800/40 last:border-0">
       <Link
         to={`/people/${p.id}`}
-        className="text-sm text-slate-200 hover:text-white font-medium transition-colors"
+        className="text-sm text-neutral-200 hover:text-fg font-medium transition-colors"
       >
         {p.lastName} {p.firstName}
       </Link>
       <div className="flex items-center gap-2 flex-wrap justify-end">
         {/* Phase 5: Use new field names with fallback to old */}
         {(p.appearsInRuntsProceedings ?? p.appearsInRuntsVerbale) && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-800/50">
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-success-950/40 text-success-400 border border-success-800/50">
             RUNTS
           </span>
         )}
         {(p.isInVolunteerRegistryPhysical ?? p.inLibroVolontariCartaceo) && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-950/40 text-blue-400 border border-blue-800/50 flex items-center gap-1">
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-accent-950/40 text-accent-400 border border-accent-800/50 flex items-center gap-1">
             <BookOpen size={9} /> {t('retention.libroVol')}
           </span>
         )}
         {missingFields.length > 0 && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-950/40 text-amber-400 border border-amber-800/50">
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-warning-950/40 text-warning-400 border border-warning-800/50">
             {t('retention.missing')}: {missingFields.join(', ')}
           </span>
         )}
@@ -89,15 +89,15 @@ const GroupCard = ({ icon, title, subtitle, count, people, borderColor, headerCo
   const preview = expanded ? people : people.slice(0, 5);
 
   return (
-    <div className={`rounded-xl border ${borderColor} bg-slate-900/40 overflow-hidden`}>
+    <div className={`rounded-xl border ${borderColor} bg-neutral-900/40 overflow-hidden`}>
       <div className={`p-4 flex items-start gap-3 ${headerColor}`}>
         <div className="mt-0.5">{icon}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-sm font-bold text-white">{title}</span>
+            <span className="text-sm font-bold text-fg">{title}</span>
             <span className={`text-2xl font-black ${countColor}`}>{count}</span>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">{subtitle}</p>
+          <p className="text-xs text-neutral-400 mt-0.5">{subtitle}</p>
         </div>
       </div>
 
@@ -109,7 +109,7 @@ const GroupCard = ({ icon, title, subtitle, count, people, borderColor, headerCo
           {people.length > 5 && (
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="text-xs text-slate-500 hover:text-slate-300 mt-2 transition-colors"
+              className="text-xs text-neutral-500 hover:text-neutral-300 mt-2 transition-colors"
             >
               {expanded ? t('retention.showLess') : t('retention.showAll', { count: people.length })}
             </button>
@@ -164,11 +164,11 @@ const RetentionPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-xl font-black text-white flex items-center gap-2">
-            <Trash2 size={20} className="text-red-400" />
+          <h1 className="text-xl font-black text-fg flex items-center gap-2">
+            <Trash2 size={20} className="text-danger-400" />
             {t('retention.title', { defaultValue: 'Eliminabilità persone' })}
           </h1>
-          <p className="text-xs text-slate-400 mt-1 max-w-xl">
+          <p className="text-xs text-neutral-400 mt-1 max-w-xl">
             {t('retention.subtitle', { defaultValue: 'Analisi degli obblighi di conservazione dei dati. Indica chi può essere rimosso dalla storia dell\'associazione, chi richiede regolarizzazione e chi è permanentemente ancorato.' })}
           </p>
         </div>
@@ -176,7 +176,7 @@ const RetentionPage = () => {
           <button
             onClick={loadData}
             disabled={loading}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white border border-slate-700 hover:border-slate-500 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-fg border border-neutral-700 hover:border-neutral-500 px-3 py-1.5 rounded-lg transition-all disabled:opacity-50"
           >
             {loading ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
             {t('common.actions.refresh', { defaultValue: 'Aggiorna' })}
@@ -185,7 +185,7 @@ const RetentionPage = () => {
             <button
               onClick={handleRecompute}
               disabled={recomputing || loading}
-              className="flex items-center gap-1.5 text-xs font-bold bg-purple-700 hover:bg-purple-600 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-all"
+              className="flex items-center gap-1.5 text-xs font-bold bg-special-700 hover:bg-special-600 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg transition-all"
             >
               {recomputing ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
               {t('retention.recompute', { defaultValue: 'Ricalcola tutto' })}
@@ -195,32 +195,32 @@ const RetentionPage = () => {
       </div>
 
       {error && (
-        <div className="text-sm text-red-400 bg-red-950/30 border border-red-900/40 rounded-lg px-4 py-3">
+        <div className="text-sm text-danger-400 bg-danger-950/30 border border-danger-900/40 rounded-lg px-4 py-3">
           {error}
         </div>
       )}
 
       {/* Legend */}
-      <div className="text-xs text-slate-500 bg-slate-900/40 border border-slate-800/50 rounded-lg px-4 py-3 space-y-1">
-        <p className="font-bold text-slate-400 mb-2">{t('retention.legendTitle')}</p>
-        <p><span className="text-red-400 font-bold">{t('retention.groups.canRemove')}</span> — {t('retention.legend.canRemoveDesc')}</p>
-        <p><span className="text-amber-400 font-bold">{t('retention.groups.regularize')}</span> — {t('retention.legend.regularizeDesc')}</p>
-        <p><span className="text-slate-300 font-bold">{t('retention.groups.anchored')}</span> — {t('retention.legend.anchoredDesc')}</p>
-        <p className="pt-1 text-slate-600">{t('retention.legend.flagNote', { runts: 'RUNTS', libro: t('retention.libroVol') })}</p>
+      <div className="text-xs text-neutral-500 bg-neutral-900/40 border border-neutral-800/50 rounded-lg px-4 py-3 space-y-1">
+        <p className="font-bold text-neutral-400 mb-2">{t('retention.legendTitle')}</p>
+        <p><span className="text-danger-400 font-bold">{t('retention.groups.canRemove')}</span> — {t('retention.legend.canRemoveDesc')}</p>
+        <p><span className="text-warning-400 font-bold">{t('retention.groups.regularize')}</span> — {t('retention.legend.regularizeDesc')}</p>
+        <p><span className="text-neutral-300 font-bold">{t('retention.groups.anchored')}</span> — {t('retention.legend.anchoredDesc')}</p>
+        <p className="pt-1 text-neutral-600">{t('retention.legend.flagNote', { runts: 'RUNTS', libro: t('retention.libroVol') })}</p>
       </div>
 
       {/* Totals summary */}
       {data && (
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: t('retention.totals.total'), value: data.totals.total, color: 'text-slate-300' },
-            { label: t('retention.totals.canRemove'), value: data.totals.canRemove, color: 'text-red-400' },
-            { label: t('retention.totals.regularize'), value: data.totals.regularize, color: 'text-amber-400' },
-            { label: t('retention.totals.anchored'), value: data.totals.anchored, color: 'text-slate-400' },
+            { label: t('retention.totals.total'), value: data.totals.total, color: 'text-neutral-300' },
+            { label: t('retention.totals.canRemove'), value: data.totals.canRemove, color: 'text-danger-400' },
+            { label: t('retention.totals.regularize'), value: data.totals.regularize, color: 'text-warning-400' },
+            { label: t('retention.totals.anchored'), value: data.totals.anchored, color: 'text-neutral-400' },
           ].map((item) => (
-            <div key={item.label} className="bg-slate-900/40 border border-slate-800/50 rounded-lg p-3 text-center">
+            <div key={item.label} className="bg-neutral-900/40 border border-neutral-800/50 rounded-lg p-3 text-center">
               <div className={`text-2xl font-black ${item.color}`}>{item.value}</div>
-              <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wide mt-0.5">{item.label}</div>
+              <div className="text-[10px] text-neutral-500 uppercase font-bold tracking-wide mt-0.5">{item.label}</div>
             </div>
           ))}
         </div>
@@ -229,45 +229,45 @@ const RetentionPage = () => {
       {/* Groups */}
       {loading && !data ? (
         <div className="flex justify-center py-16">
-          <Loader2 size={28} className="animate-spin text-slate-600" />
+          <Loader2 size={28} className="animate-spin text-neutral-600" />
         </div>
       ) : data ? (
         <div className="space-y-4">
           <GroupCard
-            icon={<Trash2 size={16} className="text-red-400" />}
+            icon={<Trash2 size={16} className="text-danger-400" />}
             title={t('retention.groups.canRemove', { defaultValue: 'Possono essere rimossi' })}
             subtitle={t('retention.groups.canRemoveDesc', { defaultValue: 'Nessun obbligo di conservazione. È sicuro eliminare questi record.' })}
             count={data.totals.canRemove}
             people={data.canRemove}
-            borderColor="border-red-900/40"
-            headerColor="bg-red-950/20"
-            countColor="text-red-400"
+            borderColor="border-danger-900/40"
+            headerColor="bg-danger-950/20"
+            countColor="text-danger-400"
           />
           <GroupCard
-            icon={<AlertTriangle size={16} className="text-amber-400" />}
+            icon={<AlertTriangle size={16} className="text-warning-400" />}
             title={t('retention.groups.regularize', { defaultValue: 'Regolarizzazione necessaria' })}
             subtitle={t('retention.groups.regularizeDesc', { defaultValue: 'Obblighi di conservazione attivi ma dati anagrafici incompleti. Completare prima di poter valutare la rimozione.' })}
             count={data.totals.regularize}
             people={data.regularize}
-            borderColor="border-amber-900/40"
-            headerColor="bg-amber-950/20"
-            countColor="text-amber-400"
+            borderColor="border-warning-900/40"
+            headerColor="bg-warning-950/20"
+            countColor="text-warning-400"
           />
           <GroupCard
-            icon={<Lock size={16} className="text-slate-400" />}
+            icon={<Lock size={16} className="text-neutral-400" />}
             title={t('retention.groups.anchored', { defaultValue: 'Permanentemente ancorati' })}
             subtitle={t('retention.groups.anchoredDesc', { defaultValue: 'Obblighi di conservazione attivi. Dati completi — nessuna azione richiesta.' })}
             count={data.totals.anchored}
             people={data.anchored}
-            borderColor="border-slate-700/40"
-            headerColor="bg-slate-800/20"
-            countColor="text-slate-400"
+            borderColor="border-neutral-700/40"
+            headerColor="bg-neutral-800/20"
+            countColor="text-neutral-400"
           />
         </div>
       ) : null}
 
       {/* Person libro volontari note */}
-      <div className="text-xs text-slate-600 border-t border-slate-800/40 pt-4">
+      <div className="text-xs text-neutral-600 border-t border-neutral-800/40 pt-4">
         <p className="flex items-start gap-1.5">
           <FileCheck size={12} className="mt-0.5 shrink-0" />
           {t('retention.libroNote', { defaultValue: 'Il campo "Libro Volontari Cartaceo" e le date di iscrizione/uscita si configurano nel profilo di ogni persona.' })}

@@ -10,7 +10,7 @@ import type {
   ConvocationDetail,
 } from '../../types/assembly';
 
-const DOC_INPUT_CLS = 'w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all';
+const DOC_INPUT_CLS = 'w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:ring-2 focus:ring-success-600 focus:border-transparent transition-all';
 
 const ODG_TO_DOC_WORKFLOW: Record<string, WorkflowType> = {
   'member_admission': 'member_admission',
@@ -244,34 +244,34 @@ export const DocumentGenerationPanel = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 max-w-2xl w-full my-8">
+      <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6 max-w-2xl w-full my-8">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-white">Generazione Documenti</h2>
+          <h2 className="text-xl font-bold text-fg">Generazione Documenti</h2>
           <button
             onClick={() => onGenConfigChange({ ...genConfig, isOpen: false })}
-            className="text-slate-400 hover:text-white transition-colors"
+            className="text-neutral-400 hover:text-fg transition-colors"
           >
             <X size={20} />
           </button>
         </div>
 
         {docGenError && (
-          <div className="mb-4 p-4 bg-red-950/30 border border-red-800 rounded-lg flex items-start gap-3">
-            <AlertCircle size={18} className="text-red-400 shrink-0 mt-0.5" />
-            <p className="text-sm text-red-200">{docGenError}</p>
+          <div className="mb-4 p-4 bg-danger-950/30 border border-danger-800 rounded-lg flex items-start gap-3">
+            <AlertCircle size={18} className="text-danger-400 shrink-0 mt-0.5" />
+            <p className="text-sm text-danger-200">{docGenError}</p>
           </div>
         )}
 
         {docResult && (
-          <div className="mb-4 p-4 bg-emerald-950/30 border border-emerald-800 rounded-lg">
-            <p className="text-sm text-emerald-200">Documentos generados correctamente</p>
+          <div className="mb-4 p-4 bg-success-950/30 border border-success-800 rounded-lg">
+            <p className="text-sm text-success-200">Documentos generados correctamente</p>
           </div>
         )}
 
         <div className="space-y-4 max-h-[70vh] overflow-y-auto">
           {/* Workflow Selection */}
           <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wide block mb-2">Tipi di Documento</label>
+            <label className="text-xs font-bold text-neutral-400 uppercase tracking-wide block mb-2">Tipi di Documento</label>
             <div className="space-y-2">
               {[
                 { key: 'member_admission', label: 'Ammissione Soci' },
@@ -280,14 +280,14 @@ export const DocumentGenerationPanel = ({
                 { key: 'member_exclusion', label: 'Esclusione Soci' },
                 { key: 'member_resignation', label: 'Dimissioni Soci' },
               ].map(({ key, label }) => (
-                <label key={key} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/30 cursor-pointer transition-colors">
+                <label key={key} className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-800/30 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
                     checked={genConfig.activeWorkflows.includes(key as WorkflowType)}
                     onChange={() => toggleWorkflow(key as WorkflowType)}
-                    className="w-4 h-4 accent-emerald-500"
+                    className="w-4 h-4 accent-success-500"
                   />
-                  <span className="text-sm text-slate-300">{label}</span>
+                  <span className="text-sm text-neutral-300">{label}</span>
                 </label>
               ))}
             </div>
@@ -296,7 +296,7 @@ export const DocumentGenerationPanel = ({
           {/* Attendance Info */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Soci Totali</label>
+              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">Soci Totali</label>
               <input
                 type="number"
                 value={genConfig.sociTotali}
@@ -305,7 +305,7 @@ export const DocumentGenerationPanel = ({
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Soci Presenti</label>
+              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">Soci Presenti</label>
               <input
                 type="number"
                 value={genConfig.sociPresenti}
@@ -318,7 +318,7 @@ export const DocumentGenerationPanel = ({
           {/* Workflow Data Fields */}
           {genConfig.activeWorkflows.includes('member_admission') && (
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Nuovi Soci</label>
+              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">Nuovi Soci</label>
               <textarea
                 value={genConfig.data.newMembers.join('\n')}
                 onChange={(e) => setGenField('data', {
@@ -334,7 +334,7 @@ export const DocumentGenerationPanel = ({
 
           {/* Signatory Role */}
           <div>
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Ruolo Firmatario</label>
+            <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">Ruolo Firmatario</label>
             <input
               type="text"
               value={genConfig.signatoryRole}
@@ -346,7 +346,7 @@ export const DocumentGenerationPanel = ({
           {/* Formula Fields */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Formula Convocazione</label>
+              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">Formula Convocazione</label>
               <select
                 value={genConfig.formulaPrima}
                 onChange={(e) => setGenField('formulaPrima', e.target.value)}
@@ -359,7 +359,7 @@ export const DocumentGenerationPanel = ({
               </select>
             </div>
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-1">Formula Apertura</label>
+              <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">Formula Apertura</label>
               <select
                 value={genConfig.formulaApertura}
                 onChange={(e) => setGenField('formulaApertura', e.target.value)}
@@ -378,7 +378,7 @@ export const DocumentGenerationPanel = ({
             type="button"
             disabled={docGenerating || !genConfig.sociTotali || !genConfig.sociPresenti}
             onClick={handleGenerateDocuments}
-            className="w-full relative flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-sm transition-all shadow-lg hover:shadow-emerald-900/20 active:scale-[0.98]"
+            className="w-full relative flex items-center justify-center gap-2 px-6 py-4 rounded-xl bg-gradient-to-r from-success-600 to-success-600 hover:from-success-500 hover:to-success-500 disabled:opacity-50 text-fg font-bold text-sm transition-all shadow-lg hover:shadow-success-900/20 active:scale-[0.98]"
           >
             {docGenerating ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
             {docGenerating ? 'Generazione in corso...' : 'Genera Documenti'}

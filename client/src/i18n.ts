@@ -8,6 +8,8 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
+    supportedLngs: ['en', 'it'],
+    load: 'languageOnly',
     resources: {
       en: {
         translation: enTranslations

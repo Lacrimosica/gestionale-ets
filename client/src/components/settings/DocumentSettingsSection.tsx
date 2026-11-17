@@ -112,19 +112,19 @@ const DocumentSettingsSection = ({
         onTemplateChange={onPreviewTemplateChange}
       />
 
-      <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+      <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl space-y-4">
         <button
           onClick={() => onToggleSection('documents')}
           className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
         >
           <div className="flex items-center gap-3">
-            <FileText className="text-sky-400" size={20} />
+            <FileText className="text-info-400" size={20} />
             <div className="text-left">
-              <h2 className="text-lg font-semibold text-white">Impostazioni Documenti</h2>
-              <p className="text-sm text-slate-500">Org info, statute articles, Google Drive templates and modality options</p>
+              <h2 className="text-lg font-semibold text-fg">Impostazioni Documenti</h2>
+              <p className="text-sm text-neutral-500">Org info, statute articles, Google Drive templates and modality options</p>
             </div>
           </div>
-          <ChevronDown size={20} className={`text-slate-400 transition-transform ${expandedSections.documents ? 'rotate-180' : ''}`} />
+          <ChevronDown size={20} className={`text-neutral-400 transition-transform ${expandedSections.documents ? 'rotate-180' : ''}`} />
         </button>
 
         {expandedSections.documents && (
@@ -171,23 +171,23 @@ const DocumentSettingsSection = ({
               <button
                 onClick={handleSave}
                 disabled={savingDoc}
-                className="flex items-center gap-2 bg-sky-600 hover:bg-sky-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold text-sm"
+                className="flex items-center gap-2 bg-info-600 hover:bg-info-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold text-sm"
               >
                 <Save size={14} />
                 {savingDoc ? 'Saving...' : 'Save document settings'}
               </button>
-              {docMessage && <p className="text-sm text-slate-400">{docMessage}</p>}
+              {docMessage && <p className="text-sm text-neutral-400">{docMessage}</p>}
             </div>
 
             {/* Document preview */}
-            <div className="border border-slate-800 rounded-xl p-5 bg-slate-950/40 space-y-3">
+            <div className="border border-neutral-800 rounded-xl p-5 bg-neutral-950/40 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Document Preview</h3>
+                <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider">Document Preview</h3>
                 <div className="flex items-center gap-2">
                   <select
                     value={previewTemplate}
                     onChange={(e) => onPreviewTemplateChange(e.target.value as typeof previewTemplate)}
-                    className="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-white text-xs"
+                    className="bg-neutral-950 border border-neutral-700 rounded-lg px-2 py-1 text-fg text-xs"
                   >
                     <optgroup label="Assemblee dei Soci">
                       <option value="convocation">Convocazione Ordinaria</option>
@@ -203,15 +203,15 @@ const DocumentSettingsSection = ({
                   </select>
                   <button
                     onClick={() => onPreviewOpen(true)}
-                    className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white px-3 py-1 rounded-lg text-xs font-semibold"
+                    className="flex items-center gap-1 bg-neutral-700 hover:bg-neutral-600 text-fg px-3 py-1 rounded-lg text-xs font-semibold"
                   >
                     <Eye size={13} />
                     Preview
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-slate-500">
-                Settings values are substituted. Per-assembly fields shown as <span className="text-sky-400 font-mono">⟨PLACEHOLDER⟩</span>.
+              <p className="text-xs text-neutral-500">
+                Settings values are substituted. Per-assembly fields shown as <span className="text-info-400 font-mono">⟨PLACEHOLDER⟩</span>.
               </p>
             </div>
 

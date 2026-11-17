@@ -80,27 +80,27 @@ export const ExportSection = ({ expanded, onToggle }: Props) => {
   };
 
   return (
-    <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+    <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl space-y-4">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
       >
         <div className="flex items-center gap-3">
-          <Download className="text-cyan-400" size={20} />
+          <Download className="text-info-400" size={20} />
           <div className="text-left">
-            <h2 className="text-lg font-semibold text-white">{t('settings.export.title')}</h2>
-            <p className="text-sm text-slate-500">{t('settings.export.description')}</p>
+            <h2 className="text-lg font-semibold text-fg">{t('settings.export.title')}</h2>
+            <p className="text-sm text-neutral-500">{t('settings.export.description')}</p>
           </div>
         </div>
         <ChevronDown
           size={20}
-          className={`text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
+          className={`text-neutral-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
         />
       </button>
 
       {expanded && (
         <div className="space-y-4 pt-2">
-          <p className="text-sm text-slate-400">{t('settings.export.selectTables')}</p>
+          <p className="text-sm text-neutral-400">{t('settings.export.selectTables')}</p>
           <div className="space-y-2">
             {EXPORTABLE_TABLES.map(({ key, labelKey }) => (
               <label key={key} className="flex items-center gap-3 cursor-pointer">
@@ -108,9 +108,9 @@ export const ExportSection = ({ expanded, onToggle }: Props) => {
                   type="checkbox"
                   checked={selected.has(key)}
                   onChange={() => toggle(key)}
-                  className="w-4 h-4 accent-cyan-400"
+                  className="w-4 h-4 accent-info-400"
                 />
-                <span className="text-sm text-slate-200">{t(labelKey)}</span>
+                <span className="text-sm text-neutral-200">{t(labelKey)}</span>
               </label>
             ))}
           </div>
@@ -118,7 +118,7 @@ export const ExportSection = ({ expanded, onToggle }: Props) => {
           <button
             onClick={handleExport}
             disabled={loading || selected.size === 0}
-            className="flex items-center gap-2 px-4 py-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-info-600 hover:bg-info-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors"
           >
             {loading ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -132,8 +132,8 @@ export const ExportSection = ({ expanded, onToggle }: Props) => {
             <div
               className={`text-sm px-3 py-2 rounded-lg ${
                 message.type === 'success'
-                  ? 'bg-emerald-900/30 border border-emerald-700/50 text-emerald-300'
-                  : 'bg-red-900/30 border border-red-700/50 text-red-300'
+                  ? 'bg-success-900/30 border border-success-700/50 text-success-300'
+                  : 'bg-danger-900/30 border border-danger-700/50 text-danger-300'
               }`}
             >
               {message.text}

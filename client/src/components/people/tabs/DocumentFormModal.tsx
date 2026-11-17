@@ -53,7 +53,7 @@ const DocumentFormModal = ({
       confirmLabel={isEditing ? t('common.actions.saveChanges') : t('common.actions.save')}
     >
       {!rules && (
-        <div className="p-4 bg-red-900/30 border border-red-700 rounded-lg text-red-200 mb-4">
+        <div className="p-4 bg-danger-900/30 border border-danger-700 rounded-lg text-danger-200 mb-4">
           {t('compliance.rulesNotConfigured', { defaultValue: 'Compliance rules are not configured. Please contact an administrator.' })}
         </div>
       )}
@@ -61,7 +61,7 @@ const DocumentFormModal = ({
         <select
           value={form.documentType}
           onChange={e => onFormChange('documentType', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
           disabled={!rules}
         >
           {rules && Object.entries(rules.documentTypes).map(([value, doc]: [string, any]) => (
@@ -74,7 +74,7 @@ const DocumentFormModal = ({
           type="text"
           value={form.version}
           onChange={e => onFormChange('version', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <ModalField label={t('common.fields.signedAt', { defaultValue: 'Signed At' })}>
@@ -82,7 +82,7 @@ const DocumentFormModal = ({
           type="date"
           value={form.signedAt}
           onChange={e => onFormChange('signedAt', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <ModalField label="Drive URL">
@@ -90,7 +90,7 @@ const DocumentFormModal = ({
           type="text"
           value={form.driveUrl}
           onChange={e => onFormChange('driveUrl', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <div className="space-y-2">
@@ -125,8 +125,8 @@ const DocumentFormModal = ({
         <ModalField label={t('compliance.consents', { defaultValue: 'Consents' })}>
           <div className="space-y-2">
             {activeConsentTypes.map((consentType) => (
-              <div key={consentType} className="border border-slate-700 rounded-lg p-3 bg-slate-900">
-                <div className="text-sm font-semibold text-white mb-2">
+              <div key={consentType} className="border border-neutral-700 rounded-lg p-3 bg-neutral-900">
+                <div className="text-sm font-semibold text-fg mb-2">
                   {t(`people.consents.${consentType}`, { defaultValue: consentType })}
                 </div>
                 <div className="flex gap-2">
@@ -138,7 +138,7 @@ const DocumentFormModal = ({
                       onChange={() => onConsentChange(consentType, 'granted')}
                       className="w-4 h-4"
                     />
-                    <span className="text-emerald-400">{t('common.status.granted', { defaultValue: 'Granted' })}</span>
+                    <span className="text-success-400">{t('common.status.granted', { defaultValue: 'Granted' })}</span>
                   </label>
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
                     <input
@@ -148,7 +148,7 @@ const DocumentFormModal = ({
                       onChange={() => onConsentChange(consentType, 'withdrawn')}
                       className="w-4 h-4"
                     />
-                    <span className="text-red-400">{t('common.status.withdrawn', { defaultValue: 'Withdrawn' })}</span>
+                    <span className="text-danger-400">{t('common.status.withdrawn', { defaultValue: 'Withdrawn' })}</span>
                   </label>
                   <label className="flex items-center gap-2 text-sm cursor-pointer">
                     <input
@@ -158,7 +158,7 @@ const DocumentFormModal = ({
                       onChange={() => onConsentChange(consentType, 'pending')}
                       className="w-4 h-4"
                     />
-                    <span className="text-slate-400">{t('common.status.pending', { defaultValue: 'Pending' })}</span>
+                    <span className="text-neutral-400">{t('common.status.pending', { defaultValue: 'Pending' })}</span>
                   </label>
                 </div>
               </div>
@@ -171,7 +171,7 @@ const DocumentFormModal = ({
         <textarea
           value={form.notes}
           onChange={e => onFormChange('notes', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm min-h-[80px]"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm min-h-[80px]"
         />
       </ModalField>
     </OverlayModal>

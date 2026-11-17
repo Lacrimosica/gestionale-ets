@@ -6,30 +6,30 @@ interface VotingResultsFieldProps {
   onChange: (votes: VotingResult[]) => void;
 }
 
-const DOC_INPUT_CLS = 'w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all';
+const DOC_INPUT_CLS = 'w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:ring-2 focus:ring-success-600 focus:border-transparent transition-all';
 
 export const VotingResultsField = ({ votes, onChange }: VotingResultsFieldProps) => (
-  <div className="space-y-2.5 mt-2 bg-slate-900/50 rounded-lg p-3 border border-slate-800/50">
+  <div className="space-y-2.5 mt-2 bg-neutral-900/50 rounded-lg p-3 border border-neutral-800/50">
     <div className="flex items-center justify-between">
-      <p className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1.5">
+      <p className="text-[10px] font-bold text-neutral-500 uppercase flex items-center gap-1.5">
         <UsersIcon size={10} />
         Risultati Votazione
       </p>
       <button
         type="button"
         onClick={() => onChange([...votes, { outcome: "all'unanimità" }])}
-        className="text-[10px] text-emerald-400 hover:text-emerald-300 font-bold uppercase transition-colors"
+        className="text-[10px] text-success-400 hover:text-success-300 font-bold uppercase transition-colors"
       >
         + Aggiungi Votazione
       </button>
     </div>
 
     {votes.length === 0 ? (
-      <p className="text-[10px] text-slate-600 italic">Nessuna votazione registrata. Verrà usato "all'unanimità" per l'intero punto.</p>
+      <p className="text-[10px] text-neutral-600 italic">Nessuna votazione registrata. Verrà usato "all'unanimità" per l'intero punto.</p>
     ) : (
       <div className="space-y-2">
         {votes.map((v, vIdx) => (
-          <div key={vIdx} className="flex flex-wrap gap-2 items-start border-b border-slate-800/30 pb-2 last:border-0 last:pb-0">
+          <div key={vIdx} className="flex flex-wrap gap-2 items-start border-b border-neutral-800/30 pb-2 last:border-0 last:pb-0">
             <input
               placeholder="Oggetto (es: Bilancio Consuntivo)"
               value={v.title || ''}
@@ -56,7 +56,7 @@ export const VotingResultsField = ({ votes, onChange }: VotingResultsFieldProps)
             <button
               type="button"
               onClick={() => onChange(votes.filter((_, j) => j !== vIdx))}
-              className="p-1 text-slate-600 hover:text-red-400"
+              className="p-1 text-neutral-600 hover:text-danger-400"
             >
               <X size={14} />
             </button>

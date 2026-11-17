@@ -396,8 +396,8 @@ export default function SetupWizardPage() {
   // Show loading while checking setup status
   if (statusLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="text-slate-300">{t('setup.loading')}</div>
+      <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4">
+        <div className="text-neutral-300">{t('setup.loading')}</div>
       </div>
     );
   }
@@ -405,15 +405,15 @@ export default function SetupWizardPage() {
   // Show error if server is unreachable
   if (statusError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-neutral-800 rounded-lg shadow-2xl p-8 border border-neutral-700">
           <div className="text-center space-y-4">
             <div className="text-4xl">⚠️</div>
-            <h1 className="text-2xl font-bold text-white">{t('setup.serverUnreachable.title')}</h1>
-            <p className="text-slate-300">{t('setup.serverUnreachable.message')}</p>
+            <h1 className="text-2xl font-bold text-fg">{t('setup.serverUnreachable.title')}</h1>
+            <p className="text-neutral-300">{t('setup.serverUnreachable.message')}</p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              className="mt-6 px-6 py-2 bg-accent-600 hover:bg-accent-700 text-white rounded-lg transition-colors"
             >
               {t('setup.serverUnreachable.retry')}
             </button>
@@ -426,13 +426,13 @@ export default function SetupWizardPage() {
   // Show blocked UI if in closed mode and setup is incomplete
   if (deploymentMode === 'closed' && needsSetup) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
+      <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-neutral-800 rounded-lg shadow-2xl p-8 border border-neutral-700">
           <div className="text-center space-y-4">
             <div className="text-4xl">🔒</div>
-            <h1 className="text-2xl font-bold text-white">{t('setup.systemLocked.title')}</h1>
-            <p className="text-slate-300">{t('setup.systemLocked.message')}</p>
-            <p className="text-sm text-slate-400">{t('setup.systemLocked.contactAdmin')}</p>
+            <h1 className="text-2xl font-bold text-fg">{t('setup.systemLocked.title')}</h1>
+            <p className="text-neutral-300">{t('setup.systemLocked.message')}</p>
+            <p className="text-sm text-neutral-400">{t('setup.systemLocked.contactAdmin')}</p>
           </div>
         </div>
       </div>
@@ -440,16 +440,16 @@ export default function SetupWizardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4 relative">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4 relative">
       <button
         type="button"
         onClick={() => i18n.changeLanguage(i18n.language === 'it' ? 'en' : 'it')}
-        className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-400 hover:text-white text-xs font-medium transition-all"
+        className="absolute top-4 right-4 px-3 py-1.5 rounded-full bg-neutral-700 hover:bg-neutral-600 border border-neutral-600 text-neutral-400 hover:text-fg text-xs font-medium transition-all"
       >
         {i18n.language === 'it' ? 'EN' : 'IT'}
       </button>
 
-      <div className="w-full max-w-lg bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
+      <div className="w-full max-w-lg bg-neutral-800 rounded-lg shadow-2xl p-8 border border-neutral-700">
         {/* Progress Indicator */}
         <div className="mb-8">
           <div className="flex justify-between mb-2">
@@ -458,10 +458,10 @@ export default function SetupWizardPage() {
                 key={step.number}
                 className={`flex items-center justify-center w-10 h-10 rounded-full font-medium text-sm transition-colors ${
                   step.number === currentStep
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-accent-600 text-white'
                     : completedSteps.includes(step.number)
-                      ? 'bg-green-600 text-white'
-                      : 'bg-slate-700 text-slate-400'
+                      ? 'bg-success-600 text-white'
+                      : 'bg-neutral-700 text-neutral-400'
                 }`}
               >
                 {completedSteps.includes(step.number) ? '✓' : step.number}
@@ -469,8 +469,8 @@ export default function SetupWizardPage() {
             ))}
           </div>
           <div className="text-center">
-            <h2 className="text-xl font-bold text-white">{steps[currentStep - 1].title}</h2>
-            <p className="text-slate-400 text-sm mt-1">
+            <h2 className="text-xl font-bold text-fg">{steps[currentStep - 1].title}</h2>
+            <p className="text-neutral-400 text-sm mt-1">
               {t('setup.stepLabel', { current: currentStep, total: steps.length })}
             </p>
           </div>
@@ -478,7 +478,7 @@ export default function SetupWizardPage() {
 
         {/* Error Display */}
         {error && (
-          <div className="mb-6 p-4 bg-red-900/20 border border-red-600 rounded-lg text-red-200 text-sm">
+          <div className="mb-6 p-4 bg-danger-900/20 border border-danger-600 rounded-lg text-danger-200 text-sm">
             {error}
           </div>
         )}
@@ -487,7 +487,7 @@ export default function SetupWizardPage() {
         {currentStep === 1 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-2">
+              <label className="block text-sm font-medium text-neutral-200 mb-2">
                 {t('setup.orgInfo.orgName')} *
               </label>
               <input
@@ -495,12 +495,12 @@ export default function SetupWizardPage() {
                 value={formData.orgName}
                 onChange={(e) => handleOrgNameChange(e.target.value)}
                 placeholder={t('setup.orgInfo.orgNamePlaceholder')}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-2">
+              <label className="block text-sm font-medium text-neutral-200 mb-2">
                 {t('setup.orgInfo.shortName')} *
               </label>
               <input
@@ -509,13 +509,13 @@ export default function SetupWizardPage() {
                 value={formData.shortName}
                 onChange={(e) => handleInputChange('shortName', e.target.value)}
                 placeholder={t('setup.orgInfo.shortNamePlaceholder')}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
               />
-              <p className="text-xs text-slate-400 mt-1">{t('setup.orgInfo.shortNameHint')}</p>
+              <p className="text-xs text-neutral-400 mt-1">{t('setup.orgInfo.shortNameHint')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-2">
+              <label className="block text-sm font-medium text-neutral-200 mb-2">
                 {t('setup.orgInfo.slug')} *
               </label>
               <input
@@ -523,9 +523,9 @@ export default function SetupWizardPage() {
                 value={formData.slug}
                 onChange={(e) => handleInputChange('slug', e.target.value)}
                 placeholder={t('setup.orgInfo.slugPlaceholder')}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
               />
-              <p className="text-xs text-slate-400 mt-1">{t('setup.orgInfo.slugHint')}</p>
+              <p className="text-xs text-neutral-400 mt-1">{t('setup.orgInfo.slugHint')}</p>
             </div>
           </div>
         )}
@@ -534,7 +534,7 @@ export default function SetupWizardPage() {
         {currentStep === 2 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-3">
+              <label className="block text-sm font-medium text-neutral-200 mb-3">
                 {t('setup.authSettings.authDomain')}
               </label>
               <input
@@ -542,13 +542,13 @@ export default function SetupWizardPage() {
                 value={formData.authDomain}
                 onChange={(e) => handleInputChange('authDomain', e.target.value)}
                 placeholder={t('setup.authSettings.authDomainPlaceholder')}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
               />
-              <p className="text-xs text-slate-400 mt-1">{t('setup.authSettings.authDomainHint')}</p>
+              <p className="text-xs text-neutral-400 mt-1">{t('setup.authSettings.authDomainHint')}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-3">
+              <label className="block text-sm font-medium text-neutral-200 mb-3">
                 {t('setup.authSettings.signupMode')}
               </label>
               <div className="space-y-2">
@@ -559,9 +559,9 @@ export default function SetupWizardPage() {
                     value="invite_only"
                     checked={formData.domainSignupMode === 'invite_only'}
                     onChange={(e) => handleInputChange('domainSignupMode', e.target.value)}
-                    className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    className="w-4 h-4 text-accent-600 focus:ring-2 focus:ring-accent-500"
                   />
-                  <span className="ml-3 text-slate-300">{t('setup.authSettings.inviteOnly')}</span>
+                  <span className="ml-3 text-neutral-300">{t('setup.authSettings.inviteOnly')}</span>
                 </label>
                 <label className="flex items-center">
                   <input
@@ -570,9 +570,9 @@ export default function SetupWizardPage() {
                     value="open"
                     checked={formData.domainSignupMode === 'open'}
                     onChange={(e) => handleInputChange('domainSignupMode', e.target.value)}
-                    className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                    className="w-4 h-4 text-accent-600 focus:ring-2 focus:ring-accent-500"
                   />
-                  <span className="ml-3 text-slate-300">{t('setup.authSettings.open')}</span>
+                  <span className="ml-3 text-neutral-300">{t('setup.authSettings.open')}</span>
                 </label>
               </div>
             </div>
@@ -583,7 +583,7 @@ export default function SetupWizardPage() {
         {currentStep === 3 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-200 mb-2">
+              <label className="block text-sm font-medium text-neutral-200 mb-2">
                 {t('setup.adminAccount.adminEmail')} *
               </label>
               <input
@@ -592,20 +592,20 @@ export default function SetupWizardPage() {
                 onChange={(e) => handleInputChange('adminEmail', e.target.value)}
                 disabled={!!googlePreFill}
                 placeholder={t('setup.adminAccount.adminEmailPlaceholder')}
-                className={`w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ${
+                className={`w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 ${
                   googlePreFill ? 'opacity-75 cursor-not-allowed' : ''
                 }`}
               />
             </div>
 
             {googlePreFill ? (
-              <div className="p-4 bg-blue-900/20 border border-blue-600 rounded-lg">
-                <p className="text-blue-200 text-sm">{t('setup.adminAccount.googleSignIn')}</p>
+              <div className="p-4 bg-accent-900/20 border border-accent-600 rounded-lg">
+                <p className="text-accent-200 text-sm">{t('setup.adminAccount.googleSignIn')}</p>
               </div>
             ) : (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-2">
+                  <label className="block text-sm font-medium text-neutral-200 mb-2">
                     {t('setup.adminAccount.password')} *
                   </label>
                   <input
@@ -613,12 +613,12 @@ export default function SetupWizardPage() {
                     value={formData.adminPassword}
                     onChange={(e) => handleInputChange('adminPassword', e.target.value)}
                     placeholder={t('setup.adminAccount.passwordPlaceholder')}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-200 mb-2">
+                  <label className="block text-sm font-medium text-neutral-200 mb-2">
                     {t('setup.adminAccount.confirmPassword')} *
                   </label>
                   <input
@@ -626,7 +626,7 @@ export default function SetupWizardPage() {
                     value={formData.confirmPassword}
                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
                     placeholder={t('setup.adminAccount.confirmPasswordPlaceholder')}
-                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500"
                   />
                 </div>
               </>
@@ -636,17 +636,17 @@ export default function SetupWizardPage() {
 
         {/* Step 4: Summary */}
         {currentStep === 4 && (
-          <div className="space-y-4 text-slate-300 text-sm">
-            <div className="bg-slate-700/50 p-4 rounded-lg">
-              <p className="font-medium text-slate-100 mb-2">{t('setup.summary.organization')}</p>
+          <div className="space-y-4 text-neutral-300 text-sm">
+            <div className="bg-neutral-700/50 p-4 rounded-lg">
+              <p className="font-medium text-neutral-100 mb-2">{t('setup.summary.organization')}</p>
               <p>{formData.orgName} ({formData.shortName})</p>
-              <p className="text-xs text-slate-400 mt-1">{t('setup.summary.slugLabel', { slug: formData.slug })}</p>
+              <p className="text-xs text-neutral-400 mt-1">{t('setup.summary.slugLabel', { slug: formData.slug })}</p>
             </div>
 
-            <div className="bg-slate-700/50 p-4 rounded-lg">
-              <p className="font-medium text-slate-100 mb-2">{t('setup.summary.configuration')}</p>
+            <div className="bg-neutral-700/50 p-4 rounded-lg">
+              <p className="font-medium text-neutral-100 mb-2">{t('setup.summary.configuration')}</p>
               <p>{t('setup.summary.domain', { domain: formData.authDomain || t('setup.summary.domainNotSet') })}</p>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-neutral-400 mt-1">
                 {t('setup.summary.signupModeLabel', {
                   mode: formData.domainSignupMode === 'invite_only'
                     ? t('setup.authSettings.inviteOnly')
@@ -655,12 +655,12 @@ export default function SetupWizardPage() {
               </p>
             </div>
 
-            <div className="bg-slate-700/50 p-4 rounded-lg">
-              <p className="font-medium text-slate-100 mb-2">{t('setup.summary.administrator')}</p>
+            <div className="bg-neutral-700/50 p-4 rounded-lg">
+              <p className="font-medium text-neutral-100 mb-2">{t('setup.summary.administrator')}</p>
               <p>{formData.adminEmail}</p>
             </div>
 
-            <p className="text-xs text-slate-400 italic">{t('setup.summary.editLater')}</p>
+            <p className="text-xs text-neutral-400 italic">{t('setup.summary.editLater')}</p>
           </div>
         )}
 
@@ -670,7 +670,7 @@ export default function SetupWizardPage() {
             <button
               onClick={handleBack}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed text-fg rounded-lg transition-colors"
             >
               {t('setup.navigation.back')}
             </button>
@@ -680,7 +680,7 @@ export default function SetupWizardPage() {
             <button
               onClick={handleNext}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-accent-600 hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
               {t('setup.navigation.next')}
             </button>
@@ -688,7 +688,7 @@ export default function SetupWizardPage() {
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+              className="flex-1 px-4 py-2 bg-success-600 hover:bg-success-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
             >
               {loading ? t('setup.navigation.creating') : t('setup.navigation.createOrganization')}
             </button>
@@ -696,12 +696,12 @@ export default function SetupWizardPage() {
         </div>
 
         {/* Dev/Testing Section */}
-        <div className="mt-6 pt-6 border-t border-slate-700">
-          <p className="text-xs text-slate-500 font-medium mb-3">{t('setup.testing.label')}</p>
+        <div className="mt-6 pt-6 border-t border-neutral-700">
+          <p className="text-xs text-neutral-500 font-medium mb-3">{t('setup.testing.label')}</p>
           <button
             onClick={handleQuickSetup}
             disabled={loading}
-            className="w-full px-4 py-2 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-slate-300 text-sm rounded-lg transition-colors"
+            className="w-full px-4 py-2 bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed text-neutral-300 text-sm rounded-lg transition-colors"
           >
             {loading ? t('setup.testing.creating') : t('setup.testing.quickSetup')}
           </button>

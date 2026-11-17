@@ -25,13 +25,13 @@ export const AssemblyRolesSection = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-purple-400">
+      <div className="flex items-center gap-2 text-special-400">
         <UsersIcon size={16} />
         <h3 className="text-xs font-black uppercase tracking-widest">Figure Istituzionali</h3>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('common.fields.president')}</label>
+          <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('common.fields.president')}</label>
           <SingleMemberPicker
             candidates={memberCandidates}
             value={form.presidentId}
@@ -42,7 +42,7 @@ export const AssemblyRolesSection = ({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t('common.fields.secretary')}</label>
+          <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('common.fields.secretary')}</label>
           <SingleMemberPicker
             candidates={memberCandidates}
             value={form.secretaryId}

@@ -13,9 +13,9 @@ const getFixUrl = (alert: { personId: string; group: string }) => {
 };
 
 const severityClasses: Record<string, string> = {
-  critical: 'border-red-900/60 bg-red-950/30 text-red-200',
-  warning: 'border-amber-900/60 bg-amber-950/30 text-amber-200',
-  info: 'border-blue-900/60 bg-blue-950/30 text-blue-200',
+  critical: 'border-danger-900/60 bg-danger-950/30 text-danger-200',
+  warning: 'border-warning-900/60 bg-warning-950/30 text-warning-200',
+  info: 'border-accent-900/60 bg-accent-950/30 text-accent-200',
 };
 
 const CompliancePage = () => {
@@ -70,15 +70,15 @@ const CompliancePage = () => {
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">{t('nav.compliance')}</h1>
-          <p className="text-slate-400 mt-2">{t('compliance.subtitle')}</p>
+          <h1 className="text-3xl font-bold text-fg">{t('nav.compliance')}</h1>
+          <p className="text-neutral-400 mt-2">{t('compliance.subtitle')}</p>
         </div>
         <button
           onClick={() => setShowSuppressed((value) => !value)}
           className={`px-4 py-2 rounded-lg border text-sm font-semibold transition-all ${
             showSuppressed
-              ? 'border-slate-600 bg-slate-800 text-white'
-              : 'border-slate-800 bg-slate-900 text-slate-300 hover:border-slate-700'
+              ? 'border-neutral-600 bg-neutral-800 text-fg'
+              : 'border-neutral-800 bg-neutral-900 text-neutral-300 hover:border-neutral-700'
           }`}
         >
           {showSuppressed ? t('compliance.alerts.activeAlerts') : t('compliance.alerts.suppressedAlerts')}
@@ -87,25 +87,25 @@ const CompliancePage = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <SummaryCard
-          icon={<ShieldAlert size={20} className="text-red-300" />}
+          icon={<ShieldAlert size={20} className="text-danger-300" />}
           label={t('compliance.alerts.activeAlerts')}
           value={summary?.totalActiveAlerts ?? 0}
         />
         <SummaryCard
-          icon={<BellOff size={20} className="text-slate-300" />}
+          icon={<BellOff size={20} className="text-neutral-300" />}
           label={t('compliance.alerts.suppressedAlerts')}
           value={summary?.totalSuppressedAlerts ?? 0}
         />
         <SummaryCard
-          icon={<AlertTriangle size={20} className="text-amber-300" />}
+          icon={<AlertTriangle size={20} className="text-warning-300" />}
           label={t('compliance.alerts.activeAlerts')} // Should probably be 'Open Groups' in common.json
           value={summary?.groups.length ?? 0}
         />
       </div>
 
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
         <div className="flex flex-col gap-4 mb-6">
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-fg">
           {showSuppressed ? t('compliance.alerts.suppressedAlerts') : t('compliance.alerts.activeAlerts')}
           </h2>
 
@@ -116,8 +116,8 @@ const CompliancePage = () => {
                 onClick={() => setFilter(filter.id)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
                   state.filter === filter.id
-                    ? 'bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-900/20'
-                    : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                    ? 'bg-warning-600 border-warning-500 text-white shadow-lg shadow-warning-900/20'
+                    : 'bg-neutral-950 border-neutral-800 text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
                 }`}
               >
                 {filter.label}
@@ -127,32 +127,32 @@ const CompliancePage = () => {
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" size={18} />
               <input
                 type="text"
                 placeholder={t('common.fields.searchPlaceholder')}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg py-2 pl-10 pr-4 text-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-600 focus:border-transparent transition-all"
+                className="w-full bg-neutral-950 border border-neutral-800 rounded-lg py-2 pl-10 pr-4 text-neutral-200 focus:outline-none focus:ring-2 focus:ring-warning-600 focus:border-transparent transition-all"
                 value={state.searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-            <div className="text-sm text-slate-500 font-medium">
-              <span className="text-amber-400 font-bold">{totalItems}</span> {t('common.status.resultsFound', { count: totalItems })}
+            <div className="text-sm text-neutral-500 font-medium">
+              <span className="text-warning-400 font-bold">{totalItems}</span> {t('common.status.resultsFound', { count: totalItems })}
             </div>
           </div>
         </div>
 
         {loading ? (
-          <div className="text-slate-500 py-12 text-center">{t('common.status.loading')}</div>
+          <div className="text-neutral-500 py-12 text-center">{t('common.status.loading')}</div>
         ) : items.length === 0 ? (
-          <div className="text-slate-500 py-12 text-center border border-dashed border-slate-800 rounded-xl">
+          <div className="text-neutral-500 py-12 text-center border border-dashed border-neutral-800 rounded-xl">
             {t('compliance.alerts.noActiveAlerts')}
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-slate-800">
+          <div className="overflow-x-auto rounded-xl border border-neutral-800">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-950/50 text-slate-400 text-xs uppercase tracking-wider">
+                <tr className="bg-neutral-950/50 text-neutral-400 text-xs uppercase tracking-wider">
                   <SortableHeader label={t('people.person')} active={state.sortBy === 'personName'} order={state.sortOrder} onClick={() => setSort('personName')} />
                   <SortableHeader label={t('common.fields.label')} active={state.sortBy === 'title'} order={state.sortOrder} onClick={() => setSort('title')} />
                   <SortableHeader label="Group" active={state.sortBy === 'group'} order={state.sortOrder} onClick={() => setSort('group')} />
@@ -161,29 +161,29 @@ const CompliancePage = () => {
                   <th className="px-6 py-4 font-semibold text-right">{t('common.fields.actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-neutral-800">
                 {items.map((alert) => (
-                  <tr key={alert.key} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={alert.key} className="hover:bg-neutral-800/40 transition-colors">
                     <td className="px-6 py-4">
-                      <Link to={`/people/${alert.personId}`} className="font-semibold text-slate-200 hover:text-white">
+                      <Link to={`/people/${alert.personId}`} className="font-semibold text-neutral-200 hover:text-fg">
                         {alert.personName}
                       </Link>
                     </td>
-                    <td className="px-6 py-4 text-slate-200">
+                    <td className="px-6 py-4 text-neutral-200">
                       {t(alert.title, { label: t(alert.labelKey || '') })}
                     </td>
-                    <td className="px-6 py-4 text-slate-400">{t(alert.group)}</td>
+                    <td className="px-6 py-4 text-neutral-400">{t(alert.group)}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold uppercase ${severityClasses[alert.severity]}`}>
                         {alert.severity}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-slate-400 max-w-md">{alert.description}</td>
+                    <td className="px-6 py-4 text-sm text-neutral-400 max-w-md">{alert.description}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           to={getFixUrl(alert)}
-                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-700/50 text-sm font-medium text-blue-300 hover:bg-blue-800/50 hover:text-blue-200 transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-accent-900/40 border border-accent-700/50 text-sm font-medium text-accent-300 hover:bg-accent-800/50 hover:text-accent-200 transition-colors"
                         >
                           <ExternalLink size={13} />
                           {t('compliance.alerts.fix', { defaultValue: 'Fix' })}
@@ -191,14 +191,14 @@ const CompliancePage = () => {
                         {alert.suppression ? (
                           <button
                             onClick={() => releaseSuppression(alert.suppression!.id)}
-                            className="px-3 py-2 rounded-lg bg-slate-950/50 border border-slate-700 text-sm font-medium text-white hover:bg-slate-900"
+                            className="px-3 py-2 rounded-lg bg-neutral-950/50 border border-neutral-700 text-sm font-medium text-fg hover:bg-neutral-900"
                           >
                             {t('compliance.alerts.reactivate')}
                           </button>
                         ) : (
                           <button
                             onClick={() => setSuppressionTarget({ key: alert.key, personaId: alert.personId })}
-                            className="px-3 py-2 rounded-lg bg-slate-950/50 border border-slate-700 text-sm font-medium text-white hover:bg-slate-900"
+                            className="px-3 py-2 rounded-lg bg-neutral-950/50 border border-neutral-700 text-sm font-medium text-fg hover:bg-neutral-900"
                           >
                             {t('compliance.alerts.suppress')}
                           </button>
@@ -217,7 +217,7 @@ const CompliancePage = () => {
           totalPages={totalPages}
           pageSize={pageSize}
           totalItems={totalItems}
-          accentClassName="text-amber-400"
+          accentClassName="text-warning-400"
           onPageChange={setPage}
           onPageSizeChange={setPageSize}
         />
@@ -240,14 +240,14 @@ const CompliancePage = () => {
               <input
                 value={suppressionReason}
                 onChange={(e) => setSuppressionReason(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+                className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
               />
             </Field>
             <Field label={t('common.fields.notes')}>
               <textarea
                 value={suppressionNote}
                 onChange={(e) => setSuppressionNote(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm min-h-[100px]"
+                className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm min-h-[100px]"
               />
             </Field>
           </div>
@@ -258,7 +258,7 @@ const CompliancePage = () => {
 };
 
 const SortableHeader = ({ label, active, order, onClick }: { label: string; active: boolean; order: 'asc' | 'desc'; onClick: () => void }) => (
-  <th className="px-6 py-4 font-semibold cursor-pointer hover:text-white transition-colors group" onClick={onClick}>
+  <th className="px-6 py-4 font-semibold cursor-pointer hover:text-fg transition-colors group" onClick={onClick}>
     <div className="flex items-center space-x-2">
       <span>{label}</span>
       {active ? (order === 'asc' ? <ArrowUp size={12} /> : <ArrowDown size={12} />) : <ArrowUpDown size={12} className="opacity-20 group-hover:opacity-100" />}
@@ -284,15 +284,15 @@ const ModalCard = ({
   const { t } = useTranslation();
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-lg p-6 space-y-4">
+      <div className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl w-full max-w-lg p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white">{title}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">{t('common.actions.close')}</button>
+          <h3 className="text-lg font-bold text-fg">{title}</h3>
+          <button onClick={onClose} className="text-neutral-400 hover:text-fg">{t('common.actions.close')}</button>
         </div>
         {children}
         <div className="flex justify-end gap-3 pt-2">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700">{t('common.actions.cancel')}</button>
-          <button onClick={onConfirm} disabled={confirmDisabled} className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white text-sm font-semibold">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg bg-neutral-800 text-neutral-300 text-sm font-medium hover:bg-neutral-700">{t('common.actions.cancel')}</button>
+          <button onClick={onConfirm} disabled={confirmDisabled} className="px-4 py-2 rounded-lg bg-warning-600 hover:bg-warning-500 disabled:opacity-50 text-white text-sm font-semibold">
             {confirmLabel}
           </button>
         </div>
@@ -303,19 +303,19 @@ const ModalCard = ({
 
 const Field = ({ label, children }: { label: string; children: ReactNode }) => (
   <div className="space-y-1">
-    <label className="text-xs text-slate-500 font-bold uppercase tracking-tighter">{label}</label>
+    <label className="text-xs text-neutral-500 font-bold uppercase tracking-tighter">{label}</label>
     {children}
   </div>
 );
 
 const SummaryCard = ({ icon, label, value }: { icon: ReactNode; label: string; value: number }) => (
-  <div className="bg-slate-900 border border-slate-800 rounded-xl p-5">
+  <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-5">
     <div className="flex items-center justify-between mb-4">
       {icon}
-      <span className="text-xs text-slate-500 uppercase tracking-wider">Today</span>
+      <span className="text-xs text-neutral-500 uppercase tracking-wider">Today</span>
     </div>
-    <div className="text-sm text-slate-400">{label}</div>
-    <div className="text-3xl font-bold text-white mt-1">{value}</div>
+    <div className="text-sm text-neutral-400">{label}</div>
+    <div className="text-3xl font-bold text-fg mt-1">{value}</div>
   </div>
 );
 

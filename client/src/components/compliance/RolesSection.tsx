@@ -52,9 +52,9 @@ export const RolesSection = ({
   const docTypeKeys = Object.keys(rules.documentTypes);
 
   return (
-    <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-5 space-y-3">
+    <div className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-5 space-y-3">
       <SectionHeader
-        icon={<Tag className="text-indigo-400" size={18} />}
+        icon={<Tag className="text-accent-400" size={18} />}
         title={t('settings.compliance.sections.roles')}
         subtitle={t('settings.compliance.sections.rolesSubtitle')}
       />
@@ -66,18 +66,18 @@ export const RolesSection = ({
           return (
             <div
               key={key}
-              className="border border-slate-800 rounded-lg overflow-hidden"
+              className="border border-neutral-800 rounded-lg overflow-hidden"
             >
-              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/60">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-900/60">
                 <div className="flex items-center gap-2.5 min-w-0 flex-wrap gap-y-1">
-                  <span className="font-mono text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shrink-0">
+                  <span className="font-mono text-xs text-neutral-500 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700 shrink-0">
                     {key}
                   </span>
-                  <span className="text-sm text-slate-200 font-medium">
+                  <span className="text-sm text-neutral-200 font-medium">
                     {displayLabel}
                   </span>
                   {config.description && (
-                    <span className="text-xs text-slate-500 italic truncate max-w-[200px] border-l border-slate-800 pl-2 ml-1">
+                    <span className="text-xs text-neutral-500 italic truncate max-w-[200px] border-l border-neutral-800 pl-2 ml-1">
                       {config.description}
                     </span>
                   )}
@@ -94,7 +94,7 @@ export const RolesSection = ({
                     onClick={() =>
                       setExpandedRoleKey(isExpanded ? null : key)
                     }
-                    className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="p-1.5 rounded text-neutral-400 hover:text-fg hover:bg-neutral-800 transition-colors"
                   >
                     {isExpanded ? (
                       <ChevronUp size={14} />
@@ -107,7 +107,7 @@ export const RolesSection = ({
                     onClick={() =>
                       onDeleteRequest({ type: 'role', key })
                     }
-                    className="p-1.5 rounded text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                    className="p-1.5 rounded text-neutral-600 hover:text-danger-400 hover:bg-danger-900/20 transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -115,7 +115,7 @@ export const RolesSection = ({
               </div>
 
               {isExpanded && (
-                <div className="px-4 py-3 bg-slate-950/40 border-t border-slate-800 space-y-3">
+                <div className="px-4 py-3 bg-neutral-950/40 border-t border-neutral-800 space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <FieldInput
                       label={t('settings.compliance.fields.labelI18nKey')}
@@ -137,7 +137,7 @@ export const RolesSection = ({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
                       <FileText size={10} /> {t('settings.compliance.fields.requiredDocuments')}
                     </label>
                     <div className="flex flex-wrap gap-1.5 mb-2">
@@ -156,7 +156,7 @@ export const RolesSection = ({
                         />
                       ))}
                       {(config.requiredDocuments ?? []).length === 0 && (
-                        <span className="text-xs text-slate-600 italic">
+                        <span className="text-xs text-neutral-600 italic">
                           {t('settings.compliance.fields.none')}
                         </span>
                       )}
@@ -179,7 +179,7 @@ export const RolesSection = ({
                                 ],
                               })
                             }
-                            className="text-xs px-2 py-0.5 rounded-full border border-dashed border-slate-700 text-slate-500 hover:border-blue-500 hover:text-blue-400 transition-colors"
+                            className="text-xs px-2 py-0.5 rounded-full border border-dashed border-neutral-700 text-neutral-500 hover:border-accent-500 hover:text-accent-400 transition-colors"
                           >
                             + {d}
                           </button>
@@ -188,7 +188,7 @@ export const RolesSection = ({
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider flex items-center gap-1">
                       <GitMerge size={10} /> {t('settings.compliance.fields.inheritsFrom')}
                     </label>
                     <div className="flex flex-wrap gap-1.5 mb-2">
@@ -207,7 +207,7 @@ export const RolesSection = ({
                         />
                       ))}
                       {(config.inherits ?? []).length === 0 && (
-                        <span className="text-xs text-slate-600 italic">
+                        <span className="text-xs text-neutral-600 italic">
                           {t('settings.compliance.fields.noInheritance')}
                         </span>
                       )}
@@ -230,7 +230,7 @@ export const RolesSection = ({
                                 ],
                               })
                             }
-                            className="text-xs px-2 py-0.5 rounded-full border border-dashed border-slate-700 text-slate-500 hover:border-indigo-500 hover:text-indigo-400 transition-colors"
+                            className="text-xs px-2 py-0.5 rounded-full border border-dashed border-neutral-700 text-neutral-500 hover:border-accent-500 hover:text-accent-400 transition-colors"
                           >
                             + {r}
                           </button>
@@ -246,8 +246,8 @@ export const RolesSection = ({
 
       {/* Add new role form */}
       {newRoleForm ? (
-        <div className="border border-indigo-700/40 rounded-xl p-4 bg-indigo-900/10 space-y-3">
-          <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest">
+        <div className="border border-accent-700/40 rounded-xl p-4 bg-accent-900/10 space-y-3">
+          <p className="text-xs font-bold text-accent-400 uppercase tracking-widest">
             {t('settings.compliance.forms.newRole')}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -286,7 +286,7 @@ export const RolesSection = ({
           />
 
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+            <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
               {t('settings.compliance.fields.requiredDocuments')}
             </label>
             <div className="flex flex-wrap gap-1.5">
@@ -308,8 +308,8 @@ export const RolesSection = ({
                   }
                   className={`text-xs px-2 py-0.5 rounded-full border transition-colors ${
                     newRoleForm.requiredDocuments.includes(d)
-                      ? 'bg-blue-900/40 text-blue-300 border-blue-700'
-                      : 'border-dashed border-slate-700 text-slate-500 hover:border-blue-500 hover:text-blue-400'
+                      ? 'bg-accent-900/40 text-accent-300 border-accent-700'
+                      : 'border-dashed border-neutral-700 text-neutral-500 hover:border-accent-500 hover:text-accent-400'
                   }`}
                 >
                   {d}
@@ -322,19 +322,19 @@ export const RolesSection = ({
             <button
               type="button"
               onClick={handleAddRole}
-              className="px-3 py-1.5 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-500"
+              className="px-3 py-1.5 bg-accent-600 text-white text-sm font-semibold rounded-lg hover:bg-accent-500"
             >
               {t('settings.compliance.forms.add')}
             </button>
             <button
               type="button"
               onClick={() => setNewRoleForm(null)}
-              className="px-3 py-1.5 bg-slate-800 text-slate-300 text-sm rounded-lg hover:bg-slate-700"
+              className="px-3 py-1.5 bg-neutral-800 text-neutral-300 text-sm rounded-lg hover:bg-neutral-700"
             >
               {t('settings.compliance.forms.cancel')}
             </button>
             {message && (
-              <span className="text-sm text-red-400">{message}</span>
+              <span className="text-sm text-danger-400">{message}</span>
             )}
           </div>
         </div>
@@ -342,7 +342,7 @@ export const RolesSection = ({
         <button
           type="button"
           onClick={() => setNewRoleForm(emptyRoleForm())}
-          className="flex items-center gap-2 text-sm text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
+          className="flex items-center gap-2 text-sm text-accent-400 hover:text-accent-300 font-semibold transition-colors"
         >
           <Plus size={16} /> {t('settings.compliance.forms.addRole')}
         </button>

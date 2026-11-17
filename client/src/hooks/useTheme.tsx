@@ -14,7 +14,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
-const DEFAULT_THEME_KEY = 'dark-slate';
+const DEFAULT_THEME_KEY = 'niki-light';
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuth();

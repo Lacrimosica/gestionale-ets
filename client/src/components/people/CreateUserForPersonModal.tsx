@@ -113,34 +113,34 @@ const CreateUserForPersonModal = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-2xl space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6 w-full max-w-2xl space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-slate-200 font-semibold">
-            <UserPlus size={18} className="text-cyan-400" />
+          <div className="flex items-center gap-2 text-neutral-200 font-semibold">
+            <UserPlus size={18} className="text-info-400" />
             Crea Account Utente
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white text-lg leading-none">
+          <button onClick={onClose} className="text-neutral-500 hover:text-fg text-lg leading-none">
             ✕
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-400">
-              Email <span className="text-red-500">*</span>
+            <label className="text-sm font-medium text-neutral-400">
+              Email <span className="text-danger-500">*</span>
             </label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="utente@example.org"
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
               required
             />
             {suggestion && !email && (
               <button
                 type="button"
                 onClick={handleApplySuggestion}
-                className="inline-flex items-center gap-2 px-2 py-1 bg-amber-900/40 border border-amber-700 rounded text-xs text-amber-200 hover:bg-amber-900/60 transition-colors"
+                className="inline-flex items-center gap-2 px-2 py-1 bg-warning-900/40 border border-warning-700 rounded text-xs text-warning-200 hover:bg-warning-900/60 transition-colors"
               >
                 <Zap size={12} />
                 Suggerisci: {suggestion}
@@ -150,24 +150,24 @@ const CreateUserForPersonModal = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">
-                Password <span className="text-red-500">*</span>
+              <label className="text-sm font-medium text-neutral-400">
+                Password <span className="text-danger-500">*</span>
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
                 required
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-400">Ruolo</label>
+              <label className="text-sm font-medium text-neutral-400">Ruolo</label>
               <select
                 value={role}
                 onChange={(e) => handleRoleChange(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
               >
                 <option value="admin">Admin</option>
                 <option value="manager">Manager</option>
@@ -178,19 +178,19 @@ const CreateUserForPersonModal = ({
 
           <PermissionChecklist permissions={permissions} onToggle={handleTogglePermission} />
 
-          {error && <p ref={errorRef} className="text-sm text-red-400">{error}</p>}
-          {message && <p className="text-sm text-green-400">{message}</p>}
+          {error && <p ref={errorRef} className="text-sm text-danger-400">{error}</p>}
+          {message && <p className="text-sm text-success-400">{message}</p>}
 
           <div className="flex items-center gap-3 pt-1">
             <button
               type="submit"
               disabled={saving || !email || !password}
-              className="inline-flex items-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
+              className="inline-flex items-center gap-2 bg-info-600 hover:bg-info-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
             >
               <Save size={16} />
               Crea Account
             </button>
-            <button type="button" onClick={onClose} className="text-sm text-slate-400 hover:text-white">
+            <button type="button" onClick={onClose} className="text-sm text-neutral-400 hover:text-fg">
               Annulla
             </button>
           </div>

@@ -47,28 +47,28 @@ const EditableUserCard = ({
   const canDelete = canManage && !user.isCoreAdmin && !isCurrentUser;
 
   return (
-    <div className="border border-slate-800 rounded-xl px-4 py-3 bg-slate-950/30">
+    <div className="border border-neutral-800 rounded-xl px-4 py-3 bg-neutral-950/30">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-cyan-300 border border-slate-700 shrink-0">
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-neutral-800 text-info-300 border border-neutral-700 shrink-0">
             {user.isCoreAdmin ? 'core_admin' : user.role}
           </span>
-          <p className="text-slate-200 text-sm truncate">{user.email}</p>
+          <p className="text-neutral-200 text-sm truncate">{user.email}</p>
         </div>
         {canManage && (
-          <button onClick={onEditToggle} className="text-xs text-slate-400 hover:text-white shrink-0">
+          <button onClick={onEditToggle} className="text-xs text-neutral-400 hover:text-fg shrink-0">
             {isEditing ? t('common.actions.close') : t('common.actions.edit')}
           </button>
         )}
       </div>
 
       {isEditing && canManage && (
-        <div className="border border-slate-800 rounded-lg p-4 bg-slate-950/60 space-y-4 mt-3">
+        <div className="border border-neutral-800 rounded-lg p-4 bg-neutral-950/60 space-y-4 mt-3">
           <div className="grid grid-cols-1 gap-4">
             <input
               value={draft.email}
               onChange={(e) => setDraft((prev) => ({ ...prev, email: e.target.value }))}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
             />
             <select
               value={draft.role}
@@ -77,7 +77,7 @@ const EditableUserCard = ({
                 const role = e.target.value;
                 setDraft((prev) => ({ ...prev, role, permissions: getPermissionsForRole(role) }));
               }}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
             >
               {roleOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -102,18 +102,18 @@ const EditableUserCard = ({
             <button
               onClick={() => onSave(draft)}
               disabled={user.isCoreAdmin}
-              className="bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
+              className="bg-info-600 hover:bg-info-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
             >
               {t('settings.users.saveUserButton')}
             </button>
-            <button onClick={onEditToggle} className="text-sm text-slate-400 hover:text-white">
+            <button onClick={onEditToggle} className="text-sm text-neutral-400 hover:text-fg">
               {t('common.actions.cancel')}
             </button>
           </div>
           {canResetPasswords && (
-            <div className="border border-slate-800 rounded-lg p-4 bg-slate-950/40 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-slate-200">
-                <KeyRound size={16} className="text-amber-400" />
+            <div className="border border-neutral-800 rounded-lg p-4 bg-neutral-950/40 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-neutral-200">
+                <KeyRound size={16} className="text-warning-400" />
                 {t('settings.users.resetPasswordSectionTitle')}
               </div>
               <div className="grid grid-cols-1 gap-3">
@@ -125,7 +125,7 @@ const EditableUserCard = ({
                     setResetPasswordDraft((prev) => ({ ...prev, password: e.target.value }));
                   }}
                   placeholder={t('settings.users.resetPasswordPlaceholder')}
-                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
                 />
                 <input
                   type="password"
@@ -135,10 +135,10 @@ const EditableUserCard = ({
                     setResetPasswordDraft((prev) => ({ ...prev, confirmPassword: e.target.value }));
                   }}
                   placeholder={t('settings.users.confirmResetPasswordPlaceholder')}
-                  className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                  className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
                 />
               </div>
-              {resetPasswordError && <p className="text-sm text-red-400">{resetPasswordError}</p>}
+              {resetPasswordError && <p className="text-sm text-danger-400">{resetPasswordError}</p>}
               <div className="flex justify-end">
                 <button
                   onClick={() => {
@@ -154,7 +154,7 @@ const EditableUserCard = ({
                     setResetPasswordDraft({ password: '', confirmPassword: '' });
                     setResetPasswordError(null);
                   }}
-                  className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg font-semibold"
+                  className="bg-warning-600 hover:bg-warning-500 text-white px-4 py-2 rounded-lg font-semibold"
                 >
                   {t('settings.users.resetPasswordButton')}
                 </button>
@@ -163,14 +163,14 @@ const EditableUserCard = ({
           )}
 
           {canDelete && (
-            <div className="border border-red-900/40 rounded-lg p-4 bg-red-950/20 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-red-300">
+            <div className="border border-danger-900/40 rounded-lg p-4 bg-danger-950/20 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-danger-300">
                 <Trash2 size={16} />
                 {t('settings.users.deleteUserSectionTitle')}
               </div>
               <button
                 onClick={onDeleteUser}
-                className="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg font-semibold"
+                className="bg-danger-600 hover:bg-danger-500 text-white px-4 py-2 rounded-lg font-semibold"
               >
                 {t('settings.users.deleteUserButton')}
               </button>

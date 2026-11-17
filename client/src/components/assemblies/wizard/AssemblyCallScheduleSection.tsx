@@ -37,24 +37,24 @@ export const AssemblyCallScheduleSection = ({
       {form.type === 'constitution' ? (
         /* Constitution: single meeting date, no convocation concept */
         <div className="space-y-3">
-          <div className="flex items-center gap-2 text-green-400">
+          <div className="flex items-center gap-2 text-success-400">
             <CalendarIcon size={16} />
             <h3 className="text-xs font-black uppercase tracking-widest">Data Assemblea Costituente</h3>
           </div>
-          <div className="bg-green-900/10 border border-green-800/20 rounded-xl p-4 space-y-3">
+          <div className="bg-success-900/10 border border-success-800/20 rounded-xl p-4 space-y-3">
             <div className="grid grid-cols-5 gap-2">
               <div className="col-span-3 space-y-1">
-                <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.date')}</label>
-                <input type="date" value={form.firstCallDate} onChange={e => setForm({ ...form, firstCallDate: e.target.value, convocationDate: computeConvocationDate(e.target.value) })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white" />
+                <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.date')}</label>
+                <input type="date" value={form.firstCallDate} onChange={e => setForm({ ...form, firstCallDate: e.target.value, convocationDate: computeConvocationDate(e.target.value) })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg" />
               </div>
               <div className="col-span-2 space-y-1">
-                <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.time')}</label>
-                <input type="time" value={form.firstCallTime} onChange={e => setForm({ ...form, firstCallTime: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white" />
+                <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.time')}</label>
+                <input type="time" value={form.firstCallTime} onChange={e => setForm({ ...form, firstCallTime: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg" />
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.mode')}</label>
-              <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as any })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white">
+              <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.mode')}</label>
+              <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as any })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
                 <option value="in_person">{t('assemblies.modes.in_person')}</option>
                 <option value="remote">{t('assemblies.modes.remote')}</option>
                 <option value="hybrid">{t('assemblies.modes.hybrid')}</option>
@@ -65,42 +65,42 @@ export const AssemblyCallScheduleSection = ({
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-purple-400">
+            <div className="flex items-center gap-2 text-special-400">
               <CalendarIcon size={16} />
               <h3 className="text-xs font-black uppercase tracking-widest">Pianificazione Convocazioni</h3>
             </div>
-            <label className="flex items-center gap-2 cursor-pointer bg-slate-800/40 px-2 py-1 rounded-md hover:bg-slate-800/60 transition-colors">
+            <label className="flex items-center gap-2 cursor-pointer bg-neutral-800/40 px-2 py-1 rounded-md hover:bg-neutral-800/60 transition-colors">
               <input
                 type="checkbox"
                 checked={form.hasSecondCall}
                 onChange={(e) => setForm({ ...form, hasSecondCall: e.target.checked })}
-                className="accent-purple-500"
+                className="accent-special-500"
               />
-              <span className="text-[10px] font-bold uppercase text-slate-300 italic">Aggiungi 2ª conv.</span>
+              <span className="text-[10px] font-bold uppercase text-neutral-300 italic">Aggiungi 2ª conv.</span>
             </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* 1A CONV */}
-            <div className="bg-purple-900/10 border border-purple-800/20 rounded-xl p-4 space-y-4">
-              <div className="flex items-center gap-2 border-b border-purple-800/20 pb-2">
-                <span className="text-[10px] font-black bg-purple-500 text-white px-1.5 py-0.5 rounded italic">1ª</span>
-                <span className="text-xs font-bold text-slate-300">Prima convocazione</span>
+            <div className="bg-special-900/10 border border-special-800/20 rounded-xl p-4 space-y-4">
+              <div className="flex items-center gap-2 border-b border-special-800/20 pb-2">
+                <span className="text-[10px] font-black bg-special-500 text-white px-1.5 py-0.5 rounded italic">1ª</span>
+                <span className="text-xs font-bold text-neutral-300">Prima convocazione</span>
               </div>
               <div className="space-y-3">
                 <div className="grid grid-cols-5 gap-2">
                   <div className="col-span-3 space-y-1">
-                    <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.date')}</label>
-                    <input type="date" value={form.firstCallDate} onChange={e => setForm({ ...form, firstCallDate: e.target.value, convocationDate: computeConvocationDate(e.target.value) })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white" />
+                    <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.date')}</label>
+                    <input type="date" value={form.firstCallDate} onChange={e => setForm({ ...form, firstCallDate: e.target.value, convocationDate: computeConvocationDate(e.target.value) })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg" />
                   </div>
                   <div className="col-span-2 space-y-1">
-                    <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.time')}</label>
-                    <input type="time" value={form.firstCallTime} onChange={e => setForm({ ...form, firstCallTime: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white" />
+                    <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.time')}</label>
+                    <input type="time" value={form.firstCallTime} onChange={e => setForm({ ...form, firstCallTime: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg" />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.mode')}</label>
-                  <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as any })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white">
+                  <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.mode')}</label>
+                  <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as any })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
                     <option value="in_person">{t('assemblies.modes.in_person')}</option>
                     <option value="remote">{t('assemblies.modes.remote')}</option>
                     <option value="hybrid">{t('assemblies.modes.hybrid')}</option>
@@ -108,8 +108,8 @@ export const AssemblyCallScheduleSection = ({
                 </div>
                 {(form.mode === 'in_person' || form.mode === 'hybrid') && (
                   <div className="space-y-1">
-                    <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.location')}</label>
-                    <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white">
+                    <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.location')}</label>
+                    <select value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
                       <option value="">— seleziona sede —</option>
                       {addresses.map((a) => (
                         <option key={a.id} value={a.address}>{a.address}</option>
@@ -119,13 +119,13 @@ export const AssemblyCallScheduleSection = ({
                 )}
                 {(form.mode === 'remote' || form.mode === 'hybrid') && (
                   <div className="space-y-1">
-                    <label className="text-[10px] text-slate-500 uppercase">{t('assemblies.platformLink', { defaultValue: 'Piattaforma / Link' })}</label>
+                    <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.platformLink', { defaultValue: 'Piattaforma / Link' })}</label>
                     <input
                       type="url"
                       value={form.meetLink || ''}
                       onChange={e => setForm({ ...form, meetLink: e.target.value })}
                       placeholder="https://zoom.us/j/..., https://meet.google.com/..."
-                      className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white"
+                      className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg"
                     />
                   </div>
                 )}
@@ -134,25 +134,25 @@ export const AssemblyCallScheduleSection = ({
 
             {/* 2A CONV */}
             {form.hasSecondCall ? (
-              <div className="bg-teal-900/10 border border-teal-800/20 rounded-xl p-4 space-y-4 animate-in slide-in-from-right-4">
-                <div className="flex items-center gap-2 border-b border-teal-800/20 pb-2">
-                  <span className="text-[10px] font-black bg-teal-500 text-white px-1.5 py-0.5 rounded italic">2ª</span>
-                  <span className="text-xs font-bold text-slate-300">Seconda convocazione</span>
+              <div className="bg-success-900/10 border border-success-800/20 rounded-xl p-4 space-y-4 animate-in slide-in-from-right-4">
+                <div className="flex items-center gap-2 border-b border-success-800/20 pb-2">
+                  <span className="text-[10px] font-black bg-success-500 text-white px-1.5 py-0.5 rounded italic">2ª</span>
+                  <span className="text-xs font-bold text-neutral-300">Seconda convocazione</span>
                 </div>
                 <div className="space-y-3">
                   <div className="grid grid-cols-5 gap-2">
                     <div className="col-span-3 space-y-1">
-                      <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.date')}</label>
-                      <input type="date" value={form.secondCallDate} onChange={e => setForm({ ...form, secondCallDate: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white" />
+                      <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.date')}</label>
+                      <input type="date" value={form.secondCallDate} onChange={e => setForm({ ...form, secondCallDate: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg" />
                     </div>
                     <div className="col-span-2 space-y-1">
-                      <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.time')}</label>
-                      <input type="time" value={form.secondCallTime} onChange={e => setForm({ ...form, secondCallTime: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white" />
+                      <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.time')}</label>
+                      <input type="time" value={form.secondCallTime} onChange={e => setForm({ ...form, secondCallTime: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg" />
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.mode')}</label>
-                    <select value={form.secondCallMode} onChange={e => setForm({ ...form, secondCallMode: e.target.value as any })} className="w-full bg-slate-950 border border-teal-900/10 rounded px-2 py-1.5 text-xs text-white">
+                    <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.mode')}</label>
+                    <select value={form.secondCallMode} onChange={e => setForm({ ...form, secondCallMode: e.target.value as any })} className="w-full bg-neutral-950 border border-success-900/10 rounded px-2 py-1.5 text-xs text-fg">
                       <option value="in_person">{t('assemblies.modes.in_person')}</option>
                       <option value="remote">{t('assemblies.modes.remote')}</option>
                       <option value="hybrid">{t('assemblies.modes.hybrid')}</option>
@@ -160,8 +160,8 @@ export const AssemblyCallScheduleSection = ({
                   </div>
                   {(form.secondCallMode === 'in_person' || form.secondCallMode === 'hybrid') && (
                     <div className="space-y-1">
-                      <label className="text-[10px] text-slate-500 uppercase">{t('common.fields.location')}</label>
-                      <select value={form.secondCallLocation} onChange={e => setForm({ ...form, secondCallLocation: e.target.value })} className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white">
+                      <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.location')}</label>
+                      <select value={form.secondCallLocation} onChange={e => setForm({ ...form, secondCallLocation: e.target.value })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
                         <option value="">— seleziona sede —</option>
                         {addresses.map((a) => (
                           <option key={a.id} value={a.address}>{a.address}</option>
@@ -171,21 +171,21 @@ export const AssemblyCallScheduleSection = ({
                   )}
                   {(form.secondCallMode === 'remote' || form.secondCallMode === 'hybrid') && (
                     <div className="space-y-1">
-                      <label className="text-[10px] text-slate-500 uppercase">{t('assemblies.platformLink', { defaultValue: 'Piattaforma / Link' })}</label>
+                      <label className="text-[10px] text-neutral-500 uppercase">{t('assemblies.platformLink', { defaultValue: 'Piattaforma / Link' })}</label>
                       <input
                         type="url"
                         value={form.meetLink || ''}
                         onChange={e => setForm({ ...form, meetLink: e.target.value })}
                         placeholder="https://zoom.us/j/..., https://meet.google.com/..."
-                        className="w-full bg-slate-950 border border-slate-800 rounded px-2 py-1.5 text-xs text-white"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg"
                       />
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-slate-800 rounded-xl flex items-center justify-center p-4">
-                <p className="text-[10px] text-slate-600 font-bold uppercase italic text-center">Nessuna seconda convocazione pianificata</p>
+              <div className="border-2 border-dashed border-neutral-800 rounded-xl flex items-center justify-center p-4">
+                <p className="text-[10px] text-neutral-600 font-bold uppercase italic text-center">Nessuna seconda convocazione pianificata</p>
               </div>
             )}
           </div>
@@ -198,15 +198,15 @@ export const AssemblyCallScheduleSection = ({
             const tooLate = daysBefore !== null && daysBefore < 15;
             return (
               <div className="space-y-1">
-                <label className="text-[10px] text-slate-500 uppercase">Data invio convocazione</label>
+                <label className="text-[10px] text-neutral-500 uppercase">Data invio convocazione</label>
                 <input
                   type="date"
                   value={form.convocationDate}
                   onChange={e => setForm({ ...form, convocationDate: e.target.value })}
-                  className={`w-full bg-slate-950 border rounded px-2 py-1.5 text-xs text-white ${tooLate ? 'border-red-600' : 'border-slate-800'}`}
+                  className={`w-full bg-neutral-950 border rounded px-2 py-1.5 text-xs text-fg ${tooLate ? 'border-danger-600' : 'border-neutral-800'}`}
                 />
                 {tooLate && (
-                  <p className="text-[10px] text-red-400 flex items-center gap-1">
+                  <p className="text-[10px] text-danger-400 flex items-center gap-1">
                     <span>⚠</span> La convocazione deve essere inviata almeno 15 giorni prima ({daysBefore} gg).
                   </p>
                 )}

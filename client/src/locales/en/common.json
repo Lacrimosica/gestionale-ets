@@ -581,7 +581,19 @@
       "noAccount": "Don't have an account?",
       "createOrganization": "Create an organization",
       "emailInvalid": "Please enter a valid email address.",
-      "authError": "Authentication error"
+      "authError": "Authentication error",
+      "brandTagline": "Nonprofit Intelligence, Kindly Implemented",
+      "brandHeadline": "Good governance starts with looking after people.",
+      "brandDescription": "Bring your members, meetings and important records together in one clear, calm workspace.",
+      "featurePeople": "People & membership",
+      "featureGovernance": "Meetings & governance",
+      "featureCompliance": "Clear compliance",
+      "welcomeEyebrow": "Your Niki workspace",
+      "welcomeTitle": "Welcome back",
+      "welcomeDescription": "Sign in to continue to your organization.",
+      "backToEmail": "Back to email",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     }
   },
   "setup": {

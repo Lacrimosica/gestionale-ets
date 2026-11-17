@@ -10,7 +10,6 @@
    dark-slate reproduces the original Tailwind values exactly; light themes
    invert the scales so the same class reads correctly on a light background. */
 
-:root,
 [data-theme="dark-slate"] {
   --fg: #ffffff;
   --neutral-50: oklch(98.4% 0.003 247.858); --neutral-100: oklch(96.8% 0.007 247.896); --neutral-200: oklch(92.9% 0.013 255.508); --neutral-300: oklch(86.9% 0.022 252.894); --neutral-400: oklch(70.4% 0.04 256.788); --neutral-500: oklch(55.4% 0.046 257.417);
@@ -43,8 +42,8 @@
   --success-600: oklch(59.6% 0.145 163.225); --success-700: oklch(50.8% 0.118 165.612); --success-800: oklch(43.2% 0.095 166.913); --success-900: oklch(37.8% 0.077 168.94); --success-950: oklch(26.2% 0.051 172.552);
   --info-50: oklch(98.4% 0.019 200.873); --info-100: oklch(95.6% 0.045 203.388); --info-200: oklch(91.7% 0.08 205.041); --info-300: oklch(86.5% 0.127 207.078); --info-400: oklch(78.9% 0.154 211.53); --info-500: oklch(71.5% 0.143 215.221);
   --info-600: oklch(60.9% 0.126 221.723); --info-700: oklch(52% 0.105 223.128); --info-800: oklch(45% 0.085 224.283); --info-900: oklch(39.8% 0.07 227.392); --info-950: oklch(30.2% 0.056 229.695);
-  --special-50: oklch(97.7% 0.014 308.299); --special-100: oklch(94.6% 0.033 307.174); --special-200: oklch(90.2% 0.063 306.703); --special-300: oklch(82.7% 0.119 306.383); --special-400: oklch(71.4% 0.203 305.504); --special-500: oklch(62.7% 0.265 303.9);
-  --special-600: oklch(55.8% 0.288 302.321); --special-700: oklch(49.6% 0.265 301.924); --special-800: oklch(43.8% 0.218 303.724); --special-900: oklch(38.1% 0.176 304.987); --special-950: oklch(29.1% 0.149 302.717);
+  --special-50: #FDF2F0; --special-100: #FBE3DF; --special-200: #F6C6BE; --special-300: #F2A090; --special-400: #EE7B67; --special-500: #D9504A;
+  --special-600: #CF3F3F; --special-700: #B32F37; --special-800: #8E1B2C; --special-900: #6E1522; --special-950: #3F0C14;
 }
 
 [data-theme="beige-blue-light"] {
@@ -65,6 +64,7 @@
   --special-600: oklch(55.8% 0.288 302.321); --special-700: oklch(49.6% 0.265 301.924); --special-800: oklch(82.7% 0.119 306.383); --special-900: oklch(90.2% 0.063 306.703); --special-950: oklch(94.6% 0.033 307.174);
 }
 
+:root:not([data-theme]),
 [data-theme="niki-light"] {
   --fg: #1F1D24;
   --neutral-50: #141218; --neutral-100: #1F1D24; --neutral-200: #2C2931; --neutral-300: #46424C; --neutral-400: #57515C; --neutral-500: #6E6872;
@@ -79,8 +79,77 @@
   --success-600: oklch(59.6% 0.145 163.225); --success-700: oklch(50.8% 0.118 165.612); --success-800: oklch(84.5% 0.143 164.978); --success-900: oklch(90.5% 0.093 164.15); --success-950: oklch(95% 0.052 163.051);
   --info-50: oklch(30.2% 0.056 229.695); --info-100: oklch(39.8% 0.07 227.392); --info-200: oklch(39.8% 0.07 227.392); --info-300: oklch(45% 0.085 224.283); --info-400: oklch(52% 0.105 223.128); --info-500: oklch(60.9% 0.126 221.723);
   --info-600: oklch(60.9% 0.126 221.723); --info-700: oklch(52% 0.105 223.128); --info-800: oklch(86.5% 0.127 207.078); --info-900: oklch(91.7% 0.08 205.041); --info-950: oklch(95.6% 0.045 203.388);
-  --special-50: oklch(29.1% 0.149 302.717); --special-100: oklch(38.1% 0.176 304.987); --special-200: oklch(38.1% 0.176 304.987); --special-300: oklch(43.8% 0.218 303.724); --special-400: oklch(49.6% 0.265 301.924); --special-500: oklch(55.8% 0.288 302.321);
-  --special-600: oklch(55.8% 0.288 302.321); --special-700: oklch(49.6% 0.265 301.924); --special-800: oklch(82.7% 0.119 306.383); --special-900: oklch(90.2% 0.063 306.703); --special-950: oklch(94.6% 0.033 307.174);
+  --special-50: #3F0C14; --special-100: #6E1522; --special-200: #6E1522; --special-300: #8E1B2C; --special-400: #A12634; --special-500: #C0303D;
+  --special-600: #C0303D; --special-700: #A12634; --special-800: #F2A090; --special-900: #F6C6BE; --special-950: #FBE3DF;
+}
+
+@keyframes login-orbit {
+  0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(18px, 12px) scale(1.04) rotate(180deg); }
+}
+
+@keyframes poppy-drift {
+  0% { transform: translate3d(0, -8vh, 0) rotate(-25deg); }
+  25% { transform: translate3d(var(--petal-drift-1), 22vh, 0) rotate(55deg); }
+  55% { transform: translate3d(var(--petal-drift-2), 60vh, 0) rotate(145deg); }
+  80% { transform: translate3d(var(--petal-drift-3), 88vh, 0) rotate(245deg); }
+  100% { transform: translate3d(var(--petal-drift-4), 112vh, 0) rotate(330deg); }
+}
+
+@keyframes login-feature-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes login-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes login-glow {
+  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.12; }
+  50% { transform: translate(20px, -16px) scale(1.12); opacity: 0.22; }
+}
+
+.login-orbit {
+  animation: login-orbit 30s ease-in-out infinite;
+}
+
+.login-orbit-reverse {
+  animation: login-orbit 22s ease-in-out infinite reverse;
+}
+
+.login-petal {
+  height: auto;
+  opacity: 0.18;
+  animation: poppy-drift 24s linear infinite;
+}
+
+.login-petal-left {
+  animation-timing-function: ease-in-out;
+}
+
+.login-feature {
+  animation: login-feature-float 5s ease-in-out infinite;
+}
+
+.login-enter {
+  animation: login-enter 650ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.login-glow {
+  animation: login-glow 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-orbit,
+  .login-orbit-reverse,
+  .login-petal,
+  .login-feature,
+  .login-enter,
+  .login-glow {
+    animation: none;
+  }
 }
 
 @theme inline {
@@ -120,20 +189,20 @@
   line-height: 1.5;
   font-weight: 400;
 
-  /* Theme variables — overwritten at runtime by ThemeProvider */
-  --theme-bg-primary: #0f172a;
-  --theme-bg-secondary: #1e293b;
-  --theme-bg-surface: #1e293b;
-  --theme-text-primary: #e2e8f0;
-  --theme-text-secondary: #94a3b8;
-  --theme-text-muted: #64748b;
-  --theme-accent-primary: #3b82f6;
-  --theme-accent-primary-hover: #2563eb;
-  --theme-accent-secondary: #60a5fa;
-  --theme-border: #334155;
-  --theme-sidebar-bg: #0f172a;
-  --theme-sidebar-text: #e2e8f0;
-  --theme-sidebar-accent: #3b82f6;
+  /* Default to Niki Light before authentication and when no theme is selected. */
+  --theme-bg-primary: #F8F5F0;
+  --theme-bg-secondary: #EFE9E2;
+  --theme-bg-surface: #FCFAF7;
+  --theme-text-primary: #1F1D24;
+  --theme-text-secondary: #4A4650;
+  --theme-text-muted: #8A8490;
+  --theme-accent-primary: #C0303D;
+  --theme-accent-primary-hover: #8E1B2C;
+  --theme-accent-secondary: #E4572E;
+  --theme-border: #E3DAD0;
+  --theme-sidebar-bg: #1F1D24;
+  --theme-sidebar-text: #F8F5F0;
+  --theme-sidebar-accent: #EE7B67;
 }
 
 body {
@@ -142,4 +211,34 @@ body {
   min-height: 100vh;
   background-color: var(--theme-bg-primary);
   color: var(--theme-text-primary);
+}
+
+button:not(:disabled),
+a[href],
+[role="button"],
+input[type="submit"],
+input[type="button"] {
+  cursor: url("/brand/niki-cursor.svg") 1 5, pointer;
+}
+
+body,
+body * {
+  cursor: url("/brand/niki-cursor.svg") 1 5, auto;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"],
+input[type="week"],
+textarea,
+[contenteditable="true"] {
+  cursor: text;
 }

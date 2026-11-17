@@ -82,6 +82,7 @@ social-democratic party emblem.
 |---|---|
 | [`client/public/brand/niki-logo.svg`](../../client/public/brand/niki-logo.svg) | Full lockup: bloom, roots, wordmark, tagline. Website, documents, login. |
 | [`client/public/brand/niki-mark.svg`](../../client/public/brand/niki-mark.svg) | Bloom only, transparent background. App icon, avatars, small spaces. |
+| [`client/public/brand/niki-cursor.svg`](../../client/public/brand/niki-cursor.svg) | One coral figure from the bloom, used as the app-wide pointer; editable text keeps its text cursor. |
 | [`client/public/favicon.svg`](../../client/public/favicon.svg) | Same as the mark. |
 
 All shapes are flat fills; every figure is the same `#body` path rotated and scaled,
@@ -120,8 +121,10 @@ text (Lexend with fallbacks) and should be converted to outlines for print.
 
 ### UI themes
 
-The app exposes two presets in [`client/src/themes.ts`](../../client/src/themes.ts):
-`niki-light` and `niki-dark` (selectable in Settings → Theme). Interactive accents are
+The app exposes four presets in [`client/src/themes.ts`](../../client/src/themes.ts),
+ordered with the Niki red themes first: `niki-light`, `niki-dark`, `beige-blue-light`
+and `dark-slate`. Niki Light is the default for new or unset preferences (selectable in
+Settings → Theme). Interactive accents are
 darker than the logo reds so that white button text meets WCAG AA.
 
 | Pair | Contrast |
@@ -147,7 +150,7 @@ opacity modifiers included):
 | `warning-…` | amber, yellow, orange | Warnings, expiring items |
 | `success-…` | emerald, green, teal | Success, active/valid states |
 | `info-…` | cyan, sky | Informational highlights |
-| `special-…` | purple, violet, fuchsia | Categorical highlights (e.g. assemblies, sessions) |
+| `special-…` | purple, violet, fuchsia | Categorical highlights (e.g. assemblies, sessions); Niki themes tint this scale red to match the brand |
 | `fg` | `text-white` used as text | Strongest foreground text (`text-fg`) |
 
 How it works:
@@ -167,8 +170,7 @@ How it works:
 
 Tools (in `client/`):
 
-- `npm run lint:colors` — fails on raw palette classes outside
-  `scripts/theme-colors-allowlist.json` (paths not yet migrated; the goal is an empty list).
+- `npm run lint:colors` — fails on raw Tailwind palette classes anywhere in `src/`.
 - `node scripts/theme-codemod.mjs <path>` — rewrites raw palette classes to tokens and
   `text-white` to `text-fg`, keeping white text on solid coloured backgrounds (it lists
   those so you can double-check them).
@@ -213,16 +215,18 @@ buttons labelled with words (not icon-only).
 The product is being renamed incrementally. Done so far:
 
 - Logo, mark and favicon; browser tab title (`client/index.html`)
-- `niki-light` / `niki-dark` theme presets, backed by theme token scales; app shell and
-  shared components migrated (remaining areas tracked in issues #18–#21)
+- `niki-light` / `niki-dark` theme presets, backed by theme token scales; all app pages
+  and components use shared scales for palette colors, so changing the theme cascades
+  throughout the interface. Brand-specific white surfaces and black modal overlays stay
+  fixed intentionally.
 - Docs: this guide, README, CLAUDE.md, DATABASE.md, DEPLOYMENT.md headers
 
 Still named *Gestionale* / *gestionale-ets* (to change in later passes):
 
-- UI strings: sidebar title and `document.title` (`client/src/hooks/useBranding.tsx`,
-  `client/src/components/Sidebar.tsx`), locale placeholders in `client/src/locales/`
+- UI strings: sidebar title (`client/src/components/Sidebar.tsx`), locale placeholders
+  in `client/src/locales/`
 - Package names, repo name, Cloudflare project/worker names and staging URLs
-- Default theme is still `dark-slate` (DB column default and server fallback)
+- Default app theme is Niki Light; users' already-saved theme preferences are preserved
 - `ETS_Gestionale_PRD.md` (historical document, intentionally unchanged)
 
 Note: an organization's own name and logo (Settings → Branding) are separate from the

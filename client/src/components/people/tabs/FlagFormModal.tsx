@@ -29,14 +29,14 @@ const FlagFormModal = ({ isOpen, isEditing, form, onFormChange, onSave, onClose 
           type="text"
           value={form.label}
           onChange={e => onFormChange('label', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <ModalField label={t('compliance.flagSeverity', { defaultValue: 'Severity' })}>
         <select
           value={form.severity}
           onChange={e => onFormChange('severity', e.target.value as any)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         >
           <option value="info">Info</option>
           <option value="warning">Warning</option>
@@ -48,7 +48,7 @@ const FlagFormModal = ({ isOpen, isEditing, form, onFormChange, onSave, onClose 
           type="text"
           value={form.note}
           onChange={e => onFormChange('note', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
     </OverlayModal>

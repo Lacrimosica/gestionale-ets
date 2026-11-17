@@ -62,26 +62,26 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
   if (generatedUrl) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
+        <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-white">{t('settings.inviteUser.createdTitle')}</h2>
-            <button onClick={onClose} className="text-slate-500 hover:text-white text-lg leading-none">
+            <h2 className="text-lg font-semibold text-fg">{t('settings.inviteUser.createdTitle')}</h2>
+            <button onClick={onClose} className="text-neutral-500 hover:text-fg text-lg leading-none">
               ✕
             </button>
           </div>
 
-          <div className="bg-green-900/20 border border-green-700 rounded-lg p-4">
-            <p className="text-green-200 text-sm mb-4">
+          <div className="bg-success-900/20 border border-success-700 rounded-lg p-4">
+            <p className="text-success-200 text-sm mb-4">
               {t('settings.inviteUser.createdMessage')}
             </p>
 
-            <div className="bg-slate-800 border border-slate-600 rounded-lg p-3 break-all font-mono text-sm text-slate-300 mb-4">
+            <div className="bg-neutral-800 border border-neutral-600 rounded-lg p-3 break-all font-mono text-sm text-neutral-300 mb-4">
               {generatedUrl}
             </div>
 
             <button
               onClick={handleCopyUrl}
-              className="w-full inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="w-full inline-flex items-center justify-center gap-2 bg-info-600 hover:bg-info-500 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
               <Copy size={16} />
               {copySuccess ? t('settings.inviteUser.copiedButton') : t('settings.inviteUser.copyButton')}
@@ -91,13 +91,13 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
           <div className="flex gap-3 pt-2">
             <button
               onClick={handleNewInvite}
-              className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="flex-1 bg-neutral-700 hover:bg-neutral-600 text-fg px-4 py-2 rounded-lg font-medium transition-colors"
             >
               {t('settings.inviteUser.newInviteButton')}
             </button>
             <button
               onClick={onClose}
-              className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="flex-1 bg-neutral-700 hover:bg-neutral-600 text-fg px-4 py-2 rounded-lg font-medium transition-colors"
             >
               {t('settings.inviteUser.closeButton')}
             </button>
@@ -109,26 +109,26 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
+      <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-6 w-full max-w-lg space-y-4 shadow-2xl">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-slate-200 font-semibold">
-            <Mail size={18} className="text-cyan-400" />
+          <div className="flex items-center gap-2 text-neutral-200 font-semibold">
+            <Mail size={18} className="text-info-400" />
             {t('settings.inviteUser.title')}
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white text-lg leading-none">
+          <button onClick={onClose} className="text-neutral-500 hover:text-fg text-lg leading-none">
             ✕
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-900/20 border border-red-700 rounded-lg p-3 text-red-200 text-sm">
+          <div className="bg-danger-900/20 border border-danger-700 rounded-lg p-3 text-danger-200 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleCreateInvite} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               {t('settings.inviteUser.emailLabel')}
             </label>
             <input
@@ -137,22 +137,22 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="user@example.com"
               disabled={loading}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white placeholder-slate-500 disabled:opacity-50"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg placeholder-neutral-500 disabled:opacity-50"
             />
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-neutral-500 mt-1">
               {t('settings.inviteUser.emailHint')}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
+            <label className="block text-sm font-medium text-neutral-300 mb-2">
               {t('settings.inviteUser.roleLabel')}
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
               disabled={loading}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white disabled:opacity-50"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg disabled:opacity-50"
             >
               {roleOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -162,8 +162,8 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
             </select>
           </div>
 
-          <div className="bg-slate-800 border border-slate-700 rounded-lg p-3 text-sm text-slate-300">
-            <p className="font-medium text-white mb-2">{t('settings.inviteUser.howItWorks')}</p>
+          <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-3 text-sm text-neutral-300">
+            <p className="font-medium text-fg mb-2">{t('settings.inviteUser.howItWorks')}</p>
             <ul className="space-y-1 list-disc list-inside text-xs">
               <li>{t('settings.inviteUser.step1')}</li>
               <li>{t('settings.inviteUser.step2')}</li>
@@ -176,7 +176,7 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+              className="flex-1 inline-flex items-center justify-center gap-2 bg-info-600 hover:bg-info-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
             >
               {loading ? <Loader size={16} className="animate-spin" /> : <Send size={16} />}
               {loading ? t('common.status.saving') : t('settings.inviteUser.createButton')}
@@ -185,7 +185,7 @@ export default function InviteUserModal({ onClose }: InviteUserModalProps) {
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 text-slate-400 hover:text-white disabled:opacity-50"
+              className="flex-1 text-neutral-400 hover:text-fg disabled:opacity-50"
             >
               {t('settings.inviteUser.cancelButton')}
             </button>

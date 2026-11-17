@@ -89,11 +89,11 @@ export default function SetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-slate-800 rounded-lg shadow-2xl p-8 border border-slate-700">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4">
+      <div className="w-full max-w-sm bg-neutral-800 rounded-lg shadow-2xl p-8 border border-neutral-700">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-white mb-2">Imposta Password</h1>
-          <p className="text-slate-400 text-sm">
+          <h1 className="text-2xl font-bold text-fg mb-2">Imposta Password</h1>
+          <p className="text-neutral-400 text-sm">
             {isFirst
               ? 'Hai acceduto con Google. Imposta una password per proteggere il tuo account.'
               : 'Imposta una nuova password.'}
@@ -101,26 +101,26 @@ export default function SetPasswordPage() {
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-900/20 border border-red-600 rounded-lg text-red-200 text-sm">
+          <div className="mb-6 p-4 bg-danger-900/20 border border-danger-600 rounded-lg text-danger-200 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-2">
+            <label className="block text-sm font-medium text-neutral-200 mb-2">
               Email
             </label>
             <input
               type="email"
               value={email}
               disabled
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-slate-400 disabled:opacity-75"
+              className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-neutral-400 disabled:opacity-75"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-2">
+            <label className="block text-sm font-medium text-neutral-200 mb-2">
               Password *
             </label>
             <input
@@ -129,12 +129,12 @@ export default function SetPasswordPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Almeno 8 caratteri"
               disabled={loading}
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-75"
+              className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 disabled:opacity-75"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-2">
+            <label className="block text-sm font-medium text-neutral-200 mb-2">
               Conferma Password *
             </label>
             <input
@@ -143,14 +143,14 @@ export default function SetPasswordPage() {
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Ripeti la password"
               disabled={loading}
-              className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:opacity-75"
+              className="w-full px-4 py-2 bg-neutral-700 border border-neutral-600 rounded-lg text-fg placeholder-neutral-400 focus:outline-none focus:border-accent-500 focus:ring-1 focus:ring-accent-500 disabled:opacity-75"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-6"
+            className="w-full px-4 py-2 bg-accent-600 text-white rounded-lg font-medium hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors mt-6"
           >
             {loading ? 'Impostazione password...' : 'Continua'}
           </button>

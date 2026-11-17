@@ -27,16 +27,16 @@ export const BaseRequirementsSection = ({
   ];
 
   return (
-    <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-5 space-y-4">
+    <div className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-5 space-y-4">
       <SectionHeader
-        icon={<SquareDot className="text-emerald-400" size={18} />}
+        icon={<SquareDot className="text-success-400" size={18} />}
         title={t('settings.compliance.sections.baseRequirements')}
         subtitle={t('settings.compliance.sections.baseRequirementsSubtitle')}
       />
       <div className="space-y-4">
         {baseContexts.map(({ key, label }) => (
           <div key={key} className="space-y-2">
-            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <p className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
               {label}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -49,8 +49,8 @@ export const BaseRequirementsSection = ({
                     onClick={() => onToggleBaseReq(key, d)}
                     className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-all ${
                       included
-                        ? 'bg-emerald-900/40 text-emerald-300 border-emerald-700 shadow-sm'
-                        : 'border-dashed border-slate-700 text-slate-500 hover:border-emerald-600 hover:text-emerald-400'
+                        ? 'bg-success-900/40 text-success-300 border-success-700 shadow-sm'
+                        : 'border-dashed border-neutral-700 text-neutral-500 hover:border-success-600 hover:text-success-400'
                     }`}
                   >
                     {included ? '✓ ' : '+ '}

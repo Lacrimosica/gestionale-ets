@@ -45,17 +45,17 @@ const EditPeriodModal = ({
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <ModalField label={modalType === 'vol_edit' ? t('people.enrollmentDate', { defaultValue: 'Enrollment Date' }) : t('people.admissionDate', { defaultValue: 'Admission Date' })}>
-          <input type="date" value={periodForm.date} onChange={e => setPeriodForm(prev => ({ ...prev, date: e.target.value }))} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" />
+          <input type="date" value={periodForm.date} onChange={e => setPeriodForm(prev => ({ ...prev, date: e.target.value }))} className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm" />
         </ModalField>
         <ModalField label={modalType === 'vol_edit' ? t('people.exitDate', { defaultValue: 'Exit Date' }) : t('people.resignationDate', { defaultValue: 'Resignation Date' })}>
-          <input type="date" value={periodForm.endDate} onChange={e => setPeriodForm(prev => ({ ...prev, endDate: e.target.value }))} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" />
+          <input type="date" value={periodForm.endDate} onChange={e => setPeriodForm(prev => ({ ...prev, endDate: e.target.value }))} className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm" />
         </ModalField>
       </div>
       <ModalField label={t('people.exitReason', { defaultValue: 'Exit/Resignation Reason' })}>
-        <input value={periodForm.reason} onChange={e => setPeriodForm(prev => ({ ...prev, reason: e.target.value }))} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm" />
+        <input value={periodForm.reason} onChange={e => setPeriodForm(prev => ({ ...prev, reason: e.target.value }))} className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm" />
       </ModalField>
       <ModalField label={t('common.fields.notes')}>
-        <textarea value={periodForm.notes} onChange={e => setPeriodForm(prev => ({ ...prev, notes: e.target.value }))} className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm min-h-[80px]" />
+        <textarea value={periodForm.notes} onChange={e => setPeriodForm(prev => ({ ...prev, notes: e.target.value }))} className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm min-h-[80px]" />
       </ModalField>
     </OverlayModal>
   );

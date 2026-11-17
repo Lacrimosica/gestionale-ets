@@ -64,7 +64,7 @@ export const AgendaItemCard = ({
 
   if (isEditing) {
     return (
-      <li className="bg-slate-950/50 rounded-lg border border-slate-800">
+      <li className="bg-neutral-950/50 rounded-lg border border-neutral-800">
         <div className="p-3 flex flex-col gap-2">
           <div className="flex gap-2">
             <input
@@ -72,13 +72,13 @@ export const AgendaItemCard = ({
               min={1}
               value={editForm.number}
               onChange={e => setNumber(e.target.value)}
-              className="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-white text-sm shrink-0"
+              className="w-16 bg-neutral-950 border border-neutral-700 rounded-lg px-2 py-1.5 text-fg text-sm shrink-0"
             />
             <input
               type="text"
               value={editForm.title}
               onChange={e => setTitle(e.target.value)}
-              className="flex-1 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-sm"
+              className="flex-1 bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-1.5 text-fg text-sm"
             />
           </div>
           <textarea
@@ -86,12 +86,12 @@ export const AgendaItemCard = ({
             value={editForm.description}
             onChange={e => setDescription(e.target.value)}
             placeholder={t('assemblies.agendaDescPlaceholder', { defaultValue: 'Description (optional)' })}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-sm focus:ring-1 focus:ring-amber-500/30 transition-all resize-y"
+            className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-1.5 text-fg text-sm focus:ring-1 focus:ring-warning-500/30 transition-all resize-y"
           />
           <select
             value={editForm.workflowType}
             onChange={e => setWorkflowType(e.target.value as WorkflowItemType | '')}
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-sm"
+            className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-1.5 text-fg text-sm"
           >
             <option value="">— Punto generico —</option>
             <option value="member_admission">Ammissione soci</option>
@@ -104,14 +104,14 @@ export const AgendaItemCard = ({
             <button
               onClick={onSave}
               disabled={saving || !editForm.title.trim()}
-              className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
+              className="flex items-center gap-1.5 bg-warning-600 hover:bg-warning-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
             >
               <Check size={13} />
               {saving ? t('common.status.saving') : t('common.actions.save')}
             </button>
             <button
               onClick={onCancel}
-              className="flex items-center gap-1.5 text-slate-400 hover:text-white px-3 py-1.5 rounded-lg text-xs"
+              className="flex items-center gap-1.5 text-neutral-400 hover:text-fg px-3 py-1.5 rounded-lg text-xs"
             >
               <X size={13} /> {t('common.actions.cancel')}
             </button>
@@ -122,37 +122,37 @@ export const AgendaItemCard = ({
   }
 
   return (
-    <li className={`bg-slate-950/50 rounded-lg border transition-colors ${item.workflowType ? 'border-purple-800/40' : 'border-slate-800'}`}>
+    <li className={`bg-neutral-950/50 rounded-lg border transition-colors ${item.workflowType ? 'border-special-800/40' : 'border-neutral-800'}`}>
       <div className="p-3 flex gap-3 items-start">
-        <span className="text-slate-500 font-bold shrink-0">{item.number}.</span>
+        <span className="text-neutral-500 font-bold shrink-0">{item.number}.</span>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-slate-200 font-medium">{item.title}</p>
+            <p className="text-neutral-200 font-medium">{item.title}</p>
             {item.workflowType && (
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-900/40 text-purple-300 border border-purple-800/50 uppercase tracking-wide shrink-0">
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-special-900/40 text-special-300 border border-special-800/50 uppercase tracking-wide shrink-0">
                 {WORKFLOW_LABELS_IT[item.workflowType]}
               </span>
             )}
           </div>
-          {item.description && <p className="text-slate-500 text-sm mt-0.5">{item.description}</p>}
+          {item.description && <p className="text-neutral-500 text-sm mt-0.5">{item.description}</p>}
         </div>
         <div className="flex gap-2 shrink-0 mt-0.5">
           <button
             onClick={() => onToggleExpand(item.id)}
-            className="text-slate-600 hover:text-purple-400 transition-colors"
+            className="text-neutral-600 hover:text-special-400 transition-colors"
             title="Configura"
           >
             <ChevronDown size={15} className={`transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
           </button>
           <button
             onClick={() => onStartEdit(item)}
-            className="text-slate-600 hover:text-amber-400 transition-colors"
+            className="text-neutral-600 hover:text-warning-400 transition-colors"
           >
             <Pencil size={15} />
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className="text-slate-600 hover:text-red-400 transition-colors"
+            className="text-neutral-600 hover:text-danger-400 transition-colors"
           >
             <Trash2 size={15} />
           </button>
@@ -160,7 +160,7 @@ export const AgendaItemCard = ({
       </div>
 
       {isExpanded && (
-        <div className={`border-t p-3 bg-slate-950/20 space-y-3 ${item.workflowType ? 'border-purple-800/20' : 'border-slate-800/40'}`}>
+        <div className={`border-t p-3 bg-neutral-950/20 space-y-3 ${item.workflowType ? 'border-special-800/20' : 'border-neutral-800/40'}`}>
           {item.workflowType && (
             <>
               <WorkflowItemConfigurator
@@ -178,12 +178,12 @@ export const AgendaItemCard = ({
                 />
               )}
 
-              <div className="flex justify-end pt-2 border-t border-slate-800/50 mt-4">
+              <div className="flex justify-end pt-2 border-t border-neutral-800/50 mt-4">
                 <button
                   type="button"
                   onClick={onSaveWorkflow}
                   disabled={savingWorkflow}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 hover:shadow-emerald-900/20"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-success-600 hover:bg-success-500 disabled:opacity-50 text-white rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 hover:shadow-success-900/20"
                 >
                   {savingWorkflow ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                   {savingWorkflow ? t('common.status.saving') : 'Salva Configurazione'}

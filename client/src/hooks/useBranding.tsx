@@ -114,7 +114,7 @@ export const BrandingProvider = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    document.title = branding.shortName === 'Gestionale' ? 'Gestionale' : `${branding.shortName} Gestionale`;
+    document.title = branding.shortName === 'Gestionale' ? 'Niki' : `${branding.shortName} | Niki`;
   }, [branding.shortName]);
 
   return (

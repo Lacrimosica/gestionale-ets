@@ -178,22 +178,22 @@ export const CreateAssemblyWizard = ({
     || (form.hasSecondCall && (!form.secondCallDate || ((form.secondCallMode === 'in_person' || form.secondCallMode === 'hybrid') && !form.secondCallLocation)));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/50 shrink-0">
+        <div className="p-5 border-b border-neutral-800 flex items-center justify-between bg-neutral-900/50 shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="bg-purple-600/20 p-2 rounded-lg text-purple-400">
+            <div className="bg-special-600/20 p-2 rounded-lg text-special-400">
               <Plus size={20} />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">{t('assemblies.newAssembly')}</h2>
-              <p className="text-xs text-slate-500">Configurazione guidata nuova assemblea</p>
+              <h2 className="text-lg font-bold text-fg">{t('assemblies.newAssembly')}</h2>
+              <p className="text-xs text-neutral-500">Configurazione guidata nuova assemblea</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="text-slate-400 hover:text-white p-2 hover:bg-slate-800 rounded-full transition-colors"
+            className="text-neutral-400 hover:text-fg p-2 hover:bg-neutral-800 rounded-full transition-colors"
           >
             <X size={20} />
           </button>
@@ -245,15 +245,15 @@ export const CreateAssemblyWizard = ({
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-slate-800 bg-slate-900/50 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-4 text-[10px] text-slate-500">
-            <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800">
-              <div className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+        <div className="p-5 border-t border-neutral-800 bg-neutral-900/50 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4 text-[10px] text-neutral-500">
+            <div className="flex items-center gap-1.5 bg-neutral-950 px-2 py-1 rounded border border-neutral-800">
+              <div className="w-1.5 h-1.5 rounded-full bg-special-500" />
               1ª call: {form.firstCallDate ? formatDate(form.firstCallDate) : '??'}
             </div>
             {form.hasSecondCall && (
-              <div className="flex items-center gap-1.5 bg-slate-950 px-2 py-1 rounded border border-slate-800">
-                <div className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+              <div className="flex items-center gap-1.5 bg-neutral-950 px-2 py-1 rounded border border-neutral-800">
+                <div className="w-1.5 h-1.5 rounded-full bg-success-500" />
                 2ª call: {form.secondCallDate ? formatDate(form.secondCallDate) : '??'}
               </div>
             )}
@@ -261,14 +261,14 @@ export const CreateAssemblyWizard = ({
           <div className="flex items-center space-x-3">
             <button
               onClick={handleClose}
-              className="px-6 py-2 rounded-lg font-bold text-slate-400 hover:text-white transition-all text-sm"
+              className="px-6 py-2 rounded-lg font-bold text-neutral-400 hover:text-fg transition-all text-sm"
             >
               {t('common.actions.cancel')}
             </button>
             <button
               onClick={handleCreate}
               disabled={isButtonDisabled}
-              className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 text-white px-8 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-purple-900/20 text-sm"
+              className="flex items-center space-x-2 bg-special-600 hover:bg-special-500 disabled:opacity-50 text-white px-8 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-special-900/20 text-sm"
             >
               {creating ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
               <span>{creating ? t('common.status.loading') : t('common.actions.create')}</span>

@@ -21,7 +21,7 @@ export const WorkflowItemConfigurator = ({
   if (workflowType === 'member_admission') {
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Nuovi soci</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">Nuovi soci</label>
         <MemberPickerField
           candidates={candidates}
           loading={candidatesLoading}
@@ -35,7 +35,7 @@ export const WorkflowItemConfigurator = ({
   if (workflowType === 'member_resignation') {
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Soci dimissionari</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">Soci dimissionari</label>
         <MemberPickerField
           candidates={candidates}
           loading={candidatesLoading}
@@ -49,7 +49,7 @@ export const WorkflowItemConfigurator = ({
   if (workflowType === 'member_exclusion') {
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Soci esclusi</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">Soci esclusi</label>
         <MemberPickerField
           candidates={candidates}
           loading={candidatesLoading}
@@ -63,14 +63,14 @@ export const WorkflowItemConfigurator = ({
   if (workflowType === 'budget_approval') {
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Anno di riferimento</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">Anno di riferimento</label>
         <input
           type="number"
           min={2000}
           max={2100}
           value={currentData.budgetYear ?? new Date().getFullYear() - 1}
           onChange={(e) => onWorkflowDataChange({ ...currentData, budgetYear: Number(e.target.value) })}
-          className="w-32 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-sm"
+          className="w-32 bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-1.5 text-fg text-sm"
         />
       </div>
     );
@@ -79,7 +79,7 @@ export const WorkflowItemConfigurator = ({
   if (workflowType === 'board_election') {
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Nuovo direttivo</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">Nuovo direttivo</label>
         <MemberPickerField
           candidates={candidates}
           loading={candidatesLoading}

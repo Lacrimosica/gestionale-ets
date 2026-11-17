@@ -93,42 +93,42 @@ export const UsersManagementSection = ({
   );
 
   return (
-    <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+    <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl space-y-4">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
       >
         <div className="flex items-center gap-3">
-          <Users className="text-cyan-400" />
+          <Users className="text-info-400" />
           <div className="text-left">
-            <h2 className="text-lg font-semibold text-white">{t('settings.users.title')}</h2>
-            <p className="text-sm text-slate-500">{t('settings.users.description')}</p>
+            <h2 className="text-lg font-semibold text-fg">{t('settings.users.title')}</h2>
+            <p className="text-sm text-neutral-500">{t('settings.users.description')}</p>
           </div>
         </div>
-        <ChevronDown size={20} className={`text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown size={20} className={`text-neutral-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
       {expanded && (
         <div className="space-y-4 max-w-3xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex gap-2 text-sm">
-              {error && <p className="text-red-400">{error}</p>}
-              {userMessage && <p className="text-slate-300">{userMessage}</p>}
-              {resetMessage && <p className="text-slate-300">{resetMessage}</p>}
-              {deleteMessage && <p className="text-slate-300">{deleteMessage}</p>}
+              {error && <p className="text-danger-400">{error}</p>}
+              {userMessage && <p className="text-neutral-300">{userMessage}</p>}
+              {resetMessage && <p className="text-neutral-300">{resetMessage}</p>}
+              {deleteMessage && <p className="text-neutral-300">{deleteMessage}</p>}
             </div>
             {canManage && (
               <div className="ml-auto flex gap-2">
                 <button
                   onClick={() => onShowInviteModal(true)}
-                  className="inline-flex items-center gap-2 bg-amber-700 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
+                  className="inline-flex items-center gap-2 bg-warning-700 hover:bg-warning-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
                 >
                   <Mail size={15} />
                   {t('settings.users.inviteUser')}
                 </button>
                 <button
                   onClick={() => onShowAddModal(true)}
-                  className="inline-flex items-center gap-2 bg-cyan-700 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
+                  className="inline-flex items-center gap-2 bg-info-700 hover:bg-info-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium"
                 >
                   <UserPlus size={15} />
                   {t('settings.users.addUser')}
@@ -139,9 +139,9 @@ export const UsersManagementSection = ({
 
           <div className="space-y-2">
             {loading ? (
-              <div className="text-slate-500 text-sm">{t('settings.users.loadingUsers')}</div>
+              <div className="text-neutral-500 text-sm">{t('settings.users.loadingUsers')}</div>
             ) : editableUsers.length === 0 ? (
-              <div className="text-slate-500 text-sm">{t('settings.users.noUsers')}</div>
+              <div className="text-neutral-500 text-sm">{t('settings.users.noUsers')}</div>
             ) : (
               editableUsers.map((settingsUser) => (
                 <EditableUserCard

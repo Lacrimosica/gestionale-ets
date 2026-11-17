@@ -28,7 +28,7 @@ const SuppressAlertModal = ({ isOpen, form, onFormChange, onSave, onClose }: Sup
           type="text"
           value={form.reason}
           onChange={e => onFormChange('reason', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <ModalField label={t('common.fields.notes')}>
@@ -36,7 +36,7 @@ const SuppressAlertModal = ({ isOpen, form, onFormChange, onSave, onClose }: Sup
           type="text"
           value={form.note}
           onChange={e => onFormChange('note', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
     </OverlayModal>

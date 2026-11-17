@@ -751,7 +751,7 @@ settingsRouter.get('/user-preferences', async (c) => {
     .where(eq(userSetting.userId, payload.sub))
     .get();
 
-  return c.json({ theme: prefs?.theme ?? 'dark-slate' });
+  return c.json({ theme: prefs?.theme ?? 'niki-light' });
 });
 
 settingsRouter.put('/user-preferences', async (c) => {

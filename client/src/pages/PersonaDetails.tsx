@@ -123,14 +123,14 @@ const PersonaDetails = () => {
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-      <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+    <div className="flex flex-col items-center justify-center h-64 text-neutral-500">
+      <div className="w-8 h-8 border-4 border-accent-600 border-t-transparent rounded-full animate-spin mb-4"></div>
       <p>{t('common.status.loadingDetails', { defaultValue: 'Loading details...' })}</p>
     </div>
   );
 
   if (error || !person) return (
-    <div className="bg-red-900/20 border border-red-900 text-red-400 p-6 rounded-xl flex items-center space-x-4">
+    <div className="bg-danger-900/20 border border-danger-900 text-danger-400 p-6 rounded-xl flex items-center space-x-4">
       <AlertCircle size={32} />
       <div>
         <h3 className="font-bold text-lg">{t('common.status.error')}</h3>
@@ -148,18 +148,18 @@ const PersonaDetails = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <button onClick={() => navigate('/people')} className="p-2 hover:bg-slate-800 rounded-full transition-colors">
-            <ArrowLeft size={24} className="text-slate-400" />
+          <button onClick={() => navigate('/people')} className="p-2 hover:bg-neutral-800 rounded-full transition-colors">
+            <ArrowLeft size={24} className="text-neutral-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <h1 className="text-3xl font-bold text-fg flex items-center gap-3">
               <PersonNameTag name={`${person.firstName} ${person.lastName}`} isPresumedNonExistent={person.isPresumedNonExistent} />
             </h1>
             <div className="flex items-center space-x-2 mt-1">
-              <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${activeVolPeriod ? 'bg-green-900/40 text-green-400 border border-green-800' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${activeVolPeriod ? 'bg-success-900/40 text-success-400 border border-success-800' : 'bg-neutral-800 text-neutral-500 border border-neutral-700'}`}>
                 {activeVolPeriod ? t('people.volunteer') : t('people.notVolunteer', { defaultValue: 'people.notVolunteer' })}
               </span>
-              <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${activeSocioPeriod ? 'bg-blue-900/40 text-blue-400 border border-blue-800' : 'bg-slate-800 text-slate-500 border border-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase ${activeSocioPeriod ? 'bg-accent-900/40 text-accent-400 border border-accent-800' : 'bg-neutral-800 text-neutral-500 border border-neutral-700'}`}>
                 {activeSocioPeriod ? t('people.member') : t('people.notMember', { defaultValue: 'people.notMember' })}
               </span>
             </div>
@@ -170,7 +170,7 @@ const PersonaDetails = () => {
             <div className="flex space-x-2">
               <button
                 onClick={openDeletePersonModal}
-                className="bg-red-900/20 hover:bg-red-900/40 text-red-500 border border-red-900/50 px-3 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
+                className="bg-danger-900/20 hover:bg-danger-900/40 text-danger-500 border border-danger-900/50 px-3 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
                 title={t('people.deletePerson', { defaultValue: 'Delete Person' })}
               >
                 <Trash2 size={16} />
@@ -178,14 +178,14 @@ const PersonaDetails = () => {
               {canCreateUser && !person?.userId && (
                 <button
                   onClick={() => setShowCreateUserModal(true)}
-                  className="bg-purple-900/20 hover:bg-purple-900/40 text-purple-400 border border-purple-900/50 px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
+                  className="bg-special-900/20 hover:bg-special-900/40 text-special-400 border border-special-900/50 px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
                   title="Create user account for this person"
                 >
                   <UserPlus size={16} />
                   <span>Crea Account</span>
                 </button>
               )}
-              <button onClick={() => setIsProfileEditing(true)} className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all">
+              <button onClick={() => setIsProfileEditing(true)} className="bg-neutral-800 hover:bg-neutral-700 text-fg px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all">
                 <Edit2 size={16} />
                 <span>{t('common.actions.editProfile', { defaultValue: 'Edit Profile' })}</span>
               </button>
@@ -195,13 +195,13 @@ const PersonaDetails = () => {
             <div className="flex space-x-2">
               <button
                 onClick={() => setIsProfileEditing(false)}
-                className="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-bold transition-all"
+                className="bg-neutral-800 hover:bg-neutral-700 text-fg px-4 py-2 rounded-lg font-bold transition-all"
               >
                 {t('common.actions.cancel')}
               </button>
               <button
                 onClick={() => setIsProfileEditing(false)}
-                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
+                className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
               >
                 <Check size={16} />
                 <span>{t('common.actions.save')}</span>
@@ -212,7 +212,7 @@ const PersonaDetails = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-slate-900 p-1 rounded-xl border border-slate-800 w-fit">
+      <div className="flex space-x-1 bg-neutral-900 p-1 rounded-xl border border-neutral-800 w-fit">
         {[
           { id: 'profile', label: t('people.tabs.profile', { defaultValue: 'Profile' }), icon: User },
           { id: 'volunteer', label: t('people.tabs.volunteer', { defaultValue: 'Volunteering' }), icon: History },
@@ -223,7 +223,7 @@ const PersonaDetails = () => {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all ${activeTab === tab.id ? 'bg-slate-800 text-white shadow-lg' : 'text-slate-400 hover:text-slate-200'
+            className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all ${activeTab === tab.id ? 'bg-neutral-800 text-fg shadow-lg' : 'text-neutral-400 hover:text-neutral-200'
               }`}
           >
             <tab.icon size={18} />
@@ -233,7 +233,7 @@ const PersonaDetails = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl min-h-[400px]">
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl min-h-[400px]">
         {activeTab === 'profile' && person && (
           <ProfileTab
             person={person as any}

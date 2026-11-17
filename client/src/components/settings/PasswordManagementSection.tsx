@@ -27,19 +27,19 @@ export const PasswordManagementSection = ({
   const { t } = useTranslation();
 
   return (
-    <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+    <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl space-y-4">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
       >
         <div className="flex items-center gap-3">
-          <LockKeyhole className="text-emerald-400" />
+          <LockKeyhole className="text-success-400" />
           <div className="text-left">
-            <h2 className="text-lg font-semibold text-white">{t('settings.password.title')}</h2>
-            <p className="text-sm text-slate-500">{t('settings.password.description')}</p>
+            <h2 className="text-lg font-semibold text-fg">{t('settings.password.title')}</h2>
+            <p className="text-sm text-neutral-500">{t('settings.password.description')}</p>
           </div>
         </div>
-        <ChevronDown size={20} className={`text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        <ChevronDown size={20} className={`text-neutral-400 transition-transform ${expanded ? 'rotate-180' : ''}`} />
       </button>
 
       {expanded && (
@@ -50,30 +50,30 @@ export const PasswordManagementSection = ({
               placeholder={t('settings.password.currentPasswordPlaceholder')}
               value={form.currentPassword}
               onChange={(e) => onFormChange('currentPassword', e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
             />
             <input
               type="password"
               placeholder={t('settings.password.newPasswordPlaceholder')}
               value={form.newPassword}
               onChange={(e) => onFormChange('newPassword', e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
             />
             <input
               type="password"
               placeholder={t('settings.password.confirmPasswordPlaceholder')}
               value={form.confirmPassword}
               onChange={(e) => onFormChange('confirmPassword', e.target.value)}
-              className="bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white"
+              className="bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg"
             />
           </div>
 
-          {message && <p className="text-sm text-slate-300">{message}</p>}
+          {message && <p className="text-sm text-neutral-300">{message}</p>}
 
           <button
             onClick={onChangePassword}
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
+            className="inline-flex items-center gap-2 bg-success-600 hover:bg-success-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-semibold"
           >
             <Shield size={16} />
             {t('settings.password.updatePassword')}

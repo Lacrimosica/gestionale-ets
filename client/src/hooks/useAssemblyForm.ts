@@ -1,8 +1,7 @@
 import { useState, useCallback, type SetStateAction } from 'react';
 import { AGENDA_TEMPLATES } from '../components/assemblies/assemblyConstants';
 import type { Assembly } from './useAssemblies';
-import type { Candidate } from '../types/assembly';
-import { formatItalianList, resolveMemberNames } from '../lib/agenda-members';
+import { formatItalianList } from '../lib/agenda-members';
 
 interface AgendaItem {
   title: string;
@@ -10,6 +9,8 @@ interface AgendaItem {
   number: number;
   /** Person ids, sent as memberIds when the agenda item is created. */
   memberIds?: string[];
+  /** Display names for the wizard preview only; not sent. */
+  memberNames?: string[];
 }
 
 interface AssemblyForm {
@@ -39,7 +40,6 @@ const computeConvocationDate = (firstCallDate: string) => {
   return d.toISOString().split('T')[0];
 };
 
-/** @param memberCandidates people offered by the agenda member picker, used to name them in auto-generated titles. */
 const withTypeDefaults = (form: AssemblyForm): AssemblyForm => {
   switch (form.type) {
     case 'board_council':
@@ -53,7 +53,7 @@ const withTypeDefaults = (form: AssemblyForm): AssemblyForm => {
   }
 };
 
-export const useAssemblyForm = (memberCandidates: Candidate[] = []) => {
+export const useAssemblyForm = () => {
   const [form, setFormState] = useState<AssemblyForm>(() => {
     const firstCallDate = new Date().toISOString().split('T')[0];
     return {
@@ -92,21 +92,27 @@ export const useAssemblyForm = (memberCandidates: Candidate[] = []) => {
   const [newAgendaTitle, setNewAgendaTitle] = useState('');
   const [newAgendaWorkflow, setNewAgendaWorkflowState] = useState('');
   const [newAgendaMemberIds, setNewAgendaMemberIdsState] = useState<string[]>([]);
+  const [newAgendaMemberNames, setNewAgendaMemberNames] = useState<string[]>([]);
 
   /** Changing the workflow clears picked members and proposes a default title. */
   const setNewAgendaWorkflow = (workflow: string) => {
     setNewAgendaWorkflowState(workflow);
     setNewAgendaMemberIdsState([]);
+    setNewAgendaMemberNames([]);
     if (workflow === 'member_admission') setNewAgendaTitle('Ammissione soci');
     if (workflow === 'member_resignation') setNewAgendaTitle("Presa d'atto dimissioni");
   };
 
-  /** Picking members regenerates the title from their names. */
-  const setNewAgendaMemberIds = (memberIds: string[]) => {
+  /**
+   * Picking members regenerates the title from their names. The caller resolves
+   * names because candidate lists differ per workflow.
+   */
+  const setNewAgendaMemberIds = (memberIds: string[], memberNames: string[]) => {
     setNewAgendaMemberIdsState(memberIds);
-    if (!newAgendaWorkflow || memberIds.length === 0) return;
+    setNewAgendaMemberNames(memberNames);
+    if (!newAgendaWorkflow || memberNames.length === 0) return;
 
-    const names = formatItalianList(resolveMemberNames(memberIds, [], memberCandidates).map((m) => m.name));
+    const names = formatItalianList(memberNames);
     if (newAgendaWorkflow === 'member_admission') {
       setNewAgendaTitle(`Approvazione dell'ammissione alla qualità di socio di ${names}`);
     } else if (newAgendaWorkflow === 'member_resignation') {
@@ -118,6 +124,7 @@ export const useAssemblyForm = (memberCandidates: Candidate[] = []) => {
     if (!title.trim()) return;
 
     const memberIds = newAgendaMemberIds.length > 0 ? newAgendaMemberIds : undefined;
+    const memberNames = memberIds ? newAgendaMemberNames : undefined;
 
     setForm((prev) => ({
       ...prev,
@@ -128,12 +135,14 @@ export const useAssemblyForm = (memberCandidates: Candidate[] = []) => {
           workflowType,
           number: prev.initialAgenda.length + 1,
           memberIds,
+          memberNames,
         },
       ],
     }));
     setNewAgendaTitle('');
     setNewAgendaWorkflowState('');
     setNewAgendaMemberIdsState([]);
+    setNewAgendaMemberNames([]);
   };
 
   const removeAgendaItem = (index: number) => {

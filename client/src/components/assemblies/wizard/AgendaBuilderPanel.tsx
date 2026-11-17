@@ -1,14 +1,13 @@
 import { Plus, ListOrdered } from 'lucide-react';
 import type { MemberCandidate } from '../../SingleMemberPicker';
 import { MemberPickerField } from '../../MemberPickerField';
-import { resolveMemberNames } from '../../../lib/agenda-members';
 
 interface AssemblyForm {
   initialAgenda: Array<{
     number: number;
     title: string;
     workflowType: string;
-    memberIds?: string[];
+    memberNames?: string[];
   }>;
 }
 
@@ -24,6 +23,7 @@ interface AgendaBuilderPanelProps {
   addAgendaItem: (title: string, workflowType: string) => void;
   removeAgendaItem: (index: number) => void;
   applyCurrentTemplate: () => void;
+  /** Candidates for the selected workflow (they differ per workflow). */
   memberCandidates: MemberCandidate[];
   membersLoading: boolean;
 }
@@ -73,10 +73,8 @@ export const AgendaBuilderPanel = ({
                 {item.workflowType && (
                   <p className="text-[10px] text-purple-400 font-mono leading-none mt-1">{item.workflowType}</p>
                 )}
-                {item.memberIds && item.memberIds.length > 0 && (
-                  <p className="text-[10px] text-slate-500 truncate mt-1">
-                    {resolveMemberNames(item.memberIds, [], memberCandidates).map((m) => m.name).join(', ')}
-                  </p>
+                {item.memberNames && item.memberNames.length > 0 && (
+                  <p className="text-[10px] text-slate-500 truncate mt-1">{item.memberNames.join(', ')}</p>
                 )}
               </div>
               <button

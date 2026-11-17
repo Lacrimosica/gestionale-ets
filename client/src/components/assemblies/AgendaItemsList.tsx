@@ -5,13 +5,13 @@ import { ListOrdered } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 import { useAgendaItemForm } from '../../hooks/useAgendaItemForm';
 import { useAgendaItemEditForm } from '../../hooks/useAgendaItemEditForm';
+import { useWorkflowCandidates } from '../../hooks/useWorkflowCandidates';
 import { AgendaItemCard } from './AgendaItemCard';
 import { AddAgendaItemForm } from './AddAgendaItemForm';
 import { agendaMemberNames, formatItalianList, normalizeAgendaItem, resolveMemberNames } from '../../lib/agenda-members';
 import type {
   AgendaItem,
   ConvocationDetail,
-  Candidate,
   WorkflowItemData,
 } from '../../types/assembly';
 
@@ -20,8 +20,6 @@ interface AgendaItemsListProps {
   onConvocationDetailChange: (detail: ConvocationDetail) => void;
   testoVarie: string;
   onTestoVarieChange: (text: string) => void;
-  candidates: Candidate[];
-  candidatesLoading: boolean;
 }
 
 export const AgendaItemsList = ({
@@ -29,14 +27,16 @@ export const AgendaItemsList = ({
   onConvocationDetailChange,
   testoVarie,
   onTestoVarieChange,
-  candidates,
-  candidatesLoading,
 }: AgendaItemsListProps) => {
   const { t } = useTranslation();
 
   // State management via hooks
   const [expandedOdgItems, setExpandedOdgItems] = useState<Record<string, boolean>>({});
   const [savingWorkflowId, setSavingWorkflowId] = useState<string | null>(null);
+
+  const { candidatesFor, loadingFor } = useWorkflowCandidates(
+    (convocationDetail?.agendaItems ?? []).map((i) => i.workflowType),
+  );
 
   const newItemForm = useAgendaItemForm();
   const editForm = useAgendaItemEditForm();
@@ -117,7 +117,7 @@ export const AgendaItemsList = ({
   const handleUpdateOdgMembers = (itemId: string, memberIds: string[]) => {
     updateConvocationDetailItems((items) =>
       items.map((i) => i.id === itemId
-        ? { ...i, memberIds, members: resolveMemberNames(memberIds, i.members, candidates) }
+        ? { ...i, memberIds, members: resolveMemberNames(memberIds, i.members, candidatesFor(i.workflowType)) }
         : i)
     );
   };
@@ -196,8 +196,8 @@ export const AgendaItemsList = ({
                   onMembersChange={(ids) => handleUpdateOdgMembers(item.id, ids)}
                   onSaveWorkflow={() => handleSaveAgendaWorkflow(item)}
                   savingWorkflow={savingWorkflowId === item.id}
-                  candidates={candidates}
-                  candidatesLoading={candidatesLoading}
+                  candidates={candidatesFor(item.workflowType)}
+                  candidatesLoading={loadingFor(item.workflowType)}
                 />
               ))}
 

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { X, Check, Loader2, Plus } from 'lucide-react';
 import { useAssemblyForm } from '../../hooks/useAssemblyForm';
+import { useWorkflowCandidates } from '../../hooks/useWorkflowCandidates';
+import { resolveMemberNames } from '../../lib/agenda-members';
 import { useBoardGenerations, type BoardMemberWithDetails } from '../../hooks/useBoardGenerations';
 import { useAddresses } from '../../hooks/useSettings';
 import { normalizeRole } from '../../lib/board-roles';
@@ -47,7 +49,9 @@ export const CreateAssemblyWizard = ({
     removeAgendaItem,
     applyCurrentTemplate,
     computeConvocationDate,
-  } = useAssemblyForm(memberCandidates);
+  } = useAssemblyForm();
+  const { candidatesFor, loadingFor } = useWorkflowCandidates(isOpen ? [newAgendaWorkflow] : []);
+  const agendaCandidates = candidatesFor(newAgendaWorkflow);
 
   const [creating, setCreating] = useState(false);
   const [boardMembers, setBoardMembers] = useState<Record<string, BoardMemberWithDetails[]>>({});
@@ -235,12 +239,13 @@ export const CreateAssemblyWizard = ({
               newAgendaWorkflow={newAgendaWorkflow}
               setNewAgendaWorkflow={setNewAgendaWorkflow}
               newAgendaMemberIds={newAgendaMemberIds}
-              setNewAgendaMemberIds={setNewAgendaMemberIds}
+              setNewAgendaMemberIds={(ids) =>
+                setNewAgendaMemberIds(ids, resolveMemberNames(ids, [], agendaCandidates).map((m) => m.name))}
               addAgendaItem={addAgendaItem}
               removeAgendaItem={removeAgendaItem}
               applyCurrentTemplate={applyCurrentTemplate}
-              memberCandidates={memberCandidates}
-              membersLoading={membersLoading}
+              memberCandidates={agendaCandidates}
+              membersLoading={loadingFor(newAgendaWorkflow)}
             />
           </div>
         </div>

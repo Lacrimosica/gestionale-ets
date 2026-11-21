@@ -20,6 +20,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useSetupStatus } from '../hooks/useSetupStatus';
 import { useBranding } from '../hooks/useBranding';
 import { API_BASE_URL } from '../config';
+import { TwoStepSignIn } from '../components/auth/TwoStepSignIn';
+import { isPendingStep, type LoginResponse, type PendingStep } from '../lib/two-step';
 
 const genericBranding = {
   name: '',
@@ -55,6 +57,8 @@ const LoginPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [step, setStep] = useState<'email' | 'password'>('email');
+  // Set when the password was right but the server wants another step first.
+  const [pendingStep, setPendingStep] = useState<PendingStep | null>(null);
 
   const activeBranding = branding || genericBranding;
 
@@ -86,12 +90,17 @@ const LoginPage = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      const response = await axios.post<LoginResponse>(`${API_BASE_URL}/auth/login`, {
         email,
         password,
       });
 
-      login(response.data.token, response.data.user);
+      if (isPendingStep(response.data)) {
+        setPassword('');
+        setPendingStep(response.data);
+      } else {
+        login(response.data.token, response.data.user);
+      }
     } catch (err: unknown) {
       const message = axios.isAxiosError(err) ? err.response?.data?.error : undefined;
       setError(message || t('auth.loginPage.authError'));
@@ -214,6 +223,19 @@ const LoginPage = () => {
                 </div>
               )}
 
+              {pendingStep ? (
+                <TwoStepSignIn
+                  initial={pendingStep}
+                  email={email}
+                  onSignedIn={(session) => login(session.token, session.user)}
+                  onCancel={() => {
+                    setPendingStep(null);
+                    setStep('email');
+                    setError(null);
+                  }}
+                />
+              ) : (
+              <>
               <button
                 type="button"
                 onClick={() => { window.location.href = `${API_BASE_URL}/auth/google`; }}
@@ -325,6 +347,9 @@ const LoginPage = () => {
                   </div>
                 )}
               </form>
+
+              </>
+              )}
 
               {deploymentMode !== 'single_org' && deploymentMode !== 'closed' && (
                 <div className="mt-7 border-t border-neutral-700 pt-6">

@@ -1,15 +1,17 @@
 import { Hono } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import { drizzle } from 'drizzle-orm/d1';
-import { eq, count } from 'drizzle-orm';
+import { and, eq, count, isNull } from 'drizzle-orm';
 import { hashPassword, verifyPassword } from '../lib/auth';
 import { parseDeploymentMode, canCreateOrg, type DeploymentMode, getOrganizationSettingId } from '../lib/deployment-mode';
+import { rateLimitByIp, clientIp, type RateLimiter } from '../lib/rate-limit';
 import { organization, organizationUser, user, organizationSetting, invite, auditEvent } from '../db/schema';
 
 type Bindings = {
   DB: D1Database;
   JWT_SECRET: string;
   DEPLOYMENT_MODE?: string;
+  AUTH_RATE_LIMITER?: RateLimiter;
 };
 
 const setupRouter = new Hono<{ Bindings: Bindings }>();
@@ -38,7 +40,7 @@ setupRouter.get('/status', async (c) => {
 // ─── GET /api/setup/token ─────────────────────────────────────────────────────
 // Issue a short-lived setup session token (required for POST /api/setup)
 // Used for CSRF protection
-setupRouter.get('/token', async (c) => {
+setupRouter.get('/token', rateLimitByIp('setup-token'), async (c) => {
   try {
     const deploymentMode = parseDeploymentMode(c.env.DEPLOYMENT_MODE);
     if (deploymentMode === 'closed') {
@@ -68,7 +70,7 @@ setupRouter.get('/token', async (c) => {
 
 // ─── POST /api/setup ──────────────────────────────────────────────────────────
 // Create an organization and admin user. Guarded by deployment mode and rate limiting.
-setupRouter.post('/', async (c) => {
+setupRouter.post('/', rateLimitByIp('setup'), async (c) => {
   try {
     const db = drizzle(c.env.DB);
     const JWT_SECRET = c.env.JWT_SECRET;
@@ -96,8 +98,7 @@ setupRouter.post('/', async (c) => {
       return c.json({ error: 'Invalid or expired setup token' }, 401);
     }
 
-    // ─ Rate limiting disabled for development ─
-    const clientIp = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown';
+    const ip = clientIp(c);
 
     // ─ Deployment mode check ─
     const deploymentMode = parseDeploymentMode(c.env.DEPLOYMENT_MODE);
@@ -116,10 +117,25 @@ setupRouter.post('/', async (c) => {
       orgCreationToken?: string;
     };
 
-    const { orgName, shortName, slug, authDomain, domainSignupMode, adminEmail, adminPassword, googleToken, orgCreationToken } = body;
+    const { orgName, shortName, slug, adminEmail, adminPassword, googleToken, orgCreationToken } = body;
+    // Sign-in compares domains in lower case, and only 'open' allows domain self-signup.
+    const authDomain = body.authDomain?.trim().toLowerCase() || undefined;
+    const domainSignupMode = body.domainSignupMode ?? 'invite_only';
+    if (!['invite_only', 'open', 'disabled'].includes(domainSignupMode)) {
+      return c.json({ error: 'Invalid domain signup mode.' }, 400);
+    }
 
-    // Check if org creation is allowed
-    const hasOrgCreationToken = orgCreationToken ? true : false;
+    // Only a signed token of type 'org_creation' counts. Member invites live in the
+    // same table, so accepting any stored token would let every invitee create orgs.
+    let hasOrgCreationToken = false;
+    if (orgCreationToken) {
+      try {
+        const orgTokenPayload = await verify(orgCreationToken, JWT_SECRET, 'HS256') as { type?: string };
+        hasOrgCreationToken = orgTokenPayload.type === 'org_creation';
+      } catch {
+        hasOrgCreationToken = false;
+      }
+    }
     const canCreate = canCreateOrg(deploymentMode, completedOrgCount, hasOrgCreationToken);
 
     if (!canCreate) {
@@ -135,8 +151,9 @@ setupRouter.post('/', async (c) => {
       return c.json({ error: 'Organization creation is not allowed.' }, 403);
     }
 
-    // If using org-creation invite, validate and mark as used
-    if (hasOrgCreationToken && completedOrgCount > 0 && orgCreationToken) {
+    // If using org-creation invite, check it now; it is claimed just before the insert
+    const usesOrgCreationInvite = hasOrgCreationToken && completedOrgCount > 0 && !!orgCreationToken;
+    if (usesOrgCreationInvite) {
       const inviteRecord = await db
         .select()
         .from(invite)
@@ -156,8 +173,6 @@ setupRouter.post('/', async (c) => {
         return c.json({ error: 'This org-creation token has expired.' }, 403);
       }
 
-      // Token is valid; will mark as used after org creation
-      // (orgCreationToken is guaranteed to be defined here due to hasOrgCreationToken check)
     }
 
     // ─ Validate required fields ─
@@ -244,6 +259,18 @@ setupRouter.post('/', async (c) => {
       }
     }
 
+    // ─ Claim the org-creation invite: only one concurrent request can win ─
+    if (usesOrgCreationInvite) {
+      const claimed = await db
+        .update(invite)
+        .set({ usedAt: now })
+        .where(and(eq(invite.token, orgCreationToken!), isNull(invite.usedAt)))
+        .returning({ id: invite.id });
+      if (claimed.length !== 1) {
+        return c.json({ error: 'This org-creation token has already been used.' }, 403);
+      }
+    }
+
     // ─ Create org, admin user, membership and settings atomically ─
     // A partial write (e.g. org row without its admin) would permanently block
     // setup in single_org mode, so all rows go in one batch or none do.
@@ -304,26 +331,22 @@ setupRouter.post('/', async (c) => {
       ]);
     } catch (err: any) {
       console.error('Organization setup insert failed:', err.message, err);
+      // Nothing was created, so hand the invite back rather than burning it.
+      if (usesOrgCreationInvite) {
+        await db.update(invite).set({ usedAt: null }).where(eq(invite.token, orgCreationToken!)).run().catch(() => {});
+      }
       if (err.message && err.message.includes('UNIQUE')) {
         return c.json({ error: 'Organization already exists (concurrent creation detected).' }, 409);
       }
       throw err;
     }
 
-    // ─ Mark org-creation invite as used (if applicable) ─
-    if (hasOrgCreationToken && completedOrgCount > 0 && orgCreationToken) {
+    // ─ Record who redeemed the org-creation invite ─
+    if (usesOrgCreationInvite) {
       try {
-        await db
-          .update(invite)
-          .set({
-            usedAt: now,
-            usedByUserId: userId
-          })
-          .where(eq(invite.token, orgCreationToken))
-          .run();
+        await db.update(invite).set({ usedByUserId: userId }).where(eq(invite.token, orgCreationToken!)).run();
       } catch (err) {
-        console.error('Failed to mark org-creation invite as used:', err);
-        // Don't fail the entire setup; the org was created successfully
+        console.error('Failed to record org-creation invite redeemer:', err);
       }
     }
 
@@ -335,7 +358,7 @@ setupRouter.post('/', async (c) => {
         actorId: userId,
         orgId: orgId,
         payload: JSON.stringify({ orgName, shortName, slug, mode: deploymentMode }),
-        ip: clientIp,
+        ip,
         createdAt: now
       });
     } catch (err) {

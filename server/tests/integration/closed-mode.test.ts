@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
+import { eq } from 'drizzle-orm';
+import { initializeMiniflare, cleanupMiniflare, getMiniflareDB, getMiniflareRawDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import { createTestOrganization, createTestUser, createTestOrganizationUser } from '../setup/fixtures';
 import * as schema from '../../src/db/schema';
@@ -52,7 +53,7 @@ describe('Closed Mode — No New Organizations', () => {
     const retrieved = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.id === orgUser.id)
+      .where(eq(schema.organizationUser.id, orgUser.id))
       .get();
 
     expect(retrieved).toBeTruthy();
@@ -77,10 +78,10 @@ describe('Closed Mode — No New Organizations', () => {
     const db = getMiniflareDB();
 
     // Verify audit_event table exists for logging attempts
-    const result = await db.all(`
+    const result = await getMiniflareRawDB().prepare(`
       SELECT name FROM sqlite_master
       WHERE type='table' AND name='audit_event';
-    `);
+    `).all();
 
     expect(result.results?.length).toBeGreaterThan(0);
   });

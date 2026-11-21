@@ -3,7 +3,7 @@ import { useSettingsUsers } from './useSettings';
 import { getPermissionsForRole, type Permission } from '../lib/permissions';
 
 export const useUserManagement = (canViewUsers: boolean) => {
-  const { users, loading, error, createUser, updateUser, deleteUser } = useSettingsUsers(canViewUsers);
+  const { users, loading, error, refresh: refreshUsers, createUser, updateUser, deleteUser } = useSettingsUsers(canViewUsers);
 
   const [newUser, setNewUser] = useState({
     email: '',
@@ -23,6 +23,7 @@ export const useUserManagement = (canViewUsers: boolean) => {
 
   return {
     users,
+    refreshUsers,
     loading,
     error,
     newUser,

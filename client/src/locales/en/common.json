@@ -468,7 +468,12 @@
       "resetPasswordErrorMismatch": "Passwords do not match.",
       "resetPasswordButton": "Reset password",
       "deleteUserSectionTitle": "Delete user",
-      "deleteUserButton": "Delete user"
+      "deleteUserButton": "Delete user",
+      "twoStepBadge": "2-step",
+      "resetTwoStepTitle": "Reset two-step sign-in",
+      "resetTwoStepDescription": "For a lost phone or email. The user sets it up again at their next password sign-in.",
+      "resetTwoStepButton": "Reset two-step",
+      "resetTwoStepConfirm": "Reset two-step sign-in for {{email}}?"
     },
     "password": {
       "title": "Account security",
@@ -641,7 +646,9 @@
       "errorUpdatingUser": "Error updating user.",
       "errorUploadingLogo": "Error uploading logo.",
       "customizationSaved": "Customization updated successfully.",
-      "errorSavingCustomization": "Error saving customization."
+      "errorSavingCustomization": "Error saving customization.",
+      "userTwoStepReset": "Two-step sign-in reset.",
+      "errorResettingTwoStep": "Could not reset two-step sign-in."
     },
     "export": {
       "title": "Export / Backup",
@@ -687,6 +694,25 @@
         "compliance_documents": "Compliance Documents",
         "compliance_roles": "Compliance Roles"
       }
+    },
+    "twoStep": {
+      "title": "Two-step sign-in",
+      "description": "Ask for a code after your password",
+      "requiredNote": "Your role requires two-step sign-in. You can switch methods but must keep at least one.",
+      "passwordOnlyNote": "Applies when you sign in with a password. Google sign-in uses your Google account's own verification.",
+      "on": "On",
+      "off": "Off",
+      "unavailable": "Not configured on this server",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "recoveryCodes": "Recovery codes",
+      "recoveryLeft": "{{count}} unused",
+      "regenerate": "Generate new codes",
+      "confirmChange": "Confirm with a current code.",
+      "emailSent": "We emailed you a 6-digit code.",
+      "enabled": "Two-step method turned on.",
+      "disabled": "Two-step method turned off.",
+      "done": "Done"
     }
   },
   "auth": {
@@ -719,6 +745,43 @@
       "createOrganization": "Create an organization",
       "emailInvalid": "Please enter a valid email address.",
       "authError": "Authentication error"
+    },
+    "twoStep": {
+      "titleVerifyEmail": "Confirm your email",
+      "titleMfa": "Two-step sign-in",
+      "titleEnroll": "Set up two-step sign-in",
+      "titleEnrollTotp": "Connect an authenticator app",
+      "titleEnrollEmail": "Confirm email codes",
+      "titleRecovery": "Save your recovery codes",
+      "verifyEmailBody": "To protect your account, confirm your address once. We sent a 6-digit code to {{email}}.",
+      "mfaTotpBody": "Enter the 6-digit code from your authenticator app.",
+      "mfaEmailBody": "Enter the 6-digit code we sent to {{email}}.",
+      "mfaRecoveryBody": "Enter one of your recovery codes. Each code works once.",
+      "enrollBody": "Your role requires a second step when you sign in with a password. Choose how you want to receive codes.",
+      "enrollTotp": "Authenticator app",
+      "enrollTotpDesc": "Google Authenticator, 1Password, Authy… Works offline.",
+      "enrollEmail": "Email codes",
+      "enrollEmailDesc": "A code is sent to {{email}} each time you sign in.",
+      "scanQr": "Scan this QR code with your authenticator app, then enter the 6-digit code it shows.",
+      "manualKey": "Can't scan? Enter this key manually",
+      "codeLabel": "Code",
+      "recoveryLabel": "Recovery code",
+      "verify": "Verify",
+      "confirm": "Confirm",
+      "continue": "Continue",
+      "resend": "Send a new code",
+      "codeSent": "Code sent to {{email}}.",
+      "useApp": "Use the authenticator app",
+      "useEmail": "Send me a code by email",
+      "useRecovery": "Use a recovery code",
+      "startOver": "Start over",
+      "recoveryBody": "If you lose access to your codes, each of these lets you sign in once. Store them somewhere safe: they will not be shown again.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "download": "Download",
+      "savedConfirm": "I have saved these codes",
+      "expired": "This sign-in has expired. Please start over.",
+      "genericError": "Something went wrong. Please try again."
     }
   },
   "setup": {

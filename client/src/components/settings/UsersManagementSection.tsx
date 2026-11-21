@@ -14,6 +14,7 @@ interface User {
   permissions: Permission[];
   createdAt?: string;
   isCoreAdmin?: boolean;
+  mfaEnabled?: boolean;
 }
 
 interface UsersManagementSectionProps {
@@ -36,7 +37,7 @@ interface UsersManagementSectionProps {
   deleteMessage: string | null;
   resetMessage: string | null;
   onToggle: () => void;
-  onNewUserChange: (field: string, value: any) => void;
+  onNewUserChange: (field: 'email' | 'password' | 'role' | 'permissions', value: string | Permission[]) => void;
   onTogglePermission: (permission: Permission) => void;
   onShowAddModal: (show: boolean) => void;
   onShowInviteModal: (show: boolean) => void;
@@ -45,6 +46,7 @@ interface UsersManagementSectionProps {
   onDeleteUser: (id: string, email: string) => void;
   onConfirmDelete: (id: string) => Promise<void>;
   onResetPassword: (userId: string, newPassword: string) => Promise<void>;
+  onResetTwoStep?: (userId: string) => Promise<void>;
   onCancelDelete: () => void;
   onCreateUser: () => Promise<void>;
 }
@@ -78,6 +80,7 @@ export const UsersManagementSection = ({
   onDeleteUser,
   onConfirmDelete,
   onResetPassword,
+  onResetTwoStep,
   onCancelDelete,
   onCreateUser,
 }: UsersManagementSectionProps) => {
@@ -154,6 +157,7 @@ export const UsersManagementSection = ({
                   onEditToggle={() => onEditToggle(editingId === settingsUser.id ? null : settingsUser.id)}
                   onSave={onSaveUser}
                   onResetPassword={onResetPassword}
+                  onResetTwoStep={onResetTwoStep}
                   onDeleteUser={() => onDeleteUser(settingsUser.id, settingsUser.email)}
                 />
               ))

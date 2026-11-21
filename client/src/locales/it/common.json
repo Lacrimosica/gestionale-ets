@@ -493,7 +493,12 @@
       "resetPasswordErrorMismatch": "Le password non coincidono.",
       "resetPasswordButton": "Reimposta password",
       "deleteUserSectionTitle": "Elimina utente",
-      "deleteUserButton": "Elimina utente"
+      "deleteUserButton": "Elimina utente",
+      "twoStepBadge": "2 passaggi",
+      "resetTwoStepTitle": "Reimposta la verifica in due passaggi",
+      "resetTwoStepDescription": "Per un telefono o un'email persi. L'utente la riattiva al prossimo accesso con password.",
+      "resetTwoStepButton": "Reimposta 2 passaggi",
+      "resetTwoStepConfirm": "Reimpostare la verifica in due passaggi per {{email}}?"
     },
     "password": {
       "title": "Sicurezza account",
@@ -641,7 +646,9 @@
       "errorUpdatingUser": "Errore durante l'aggiornamento dell'utente.",
       "errorUploadingLogo": "Errore durante il caricamento del logo.",
       "customizationSaved": "Personalizzazione aggiornata con successo.",
-      "errorSavingCustomization": "Errore durante il salvataggio della personalizzazione."
+      "errorSavingCustomization": "Errore durante il salvataggio della personalizzazione.",
+      "userTwoStepReset": "Verifica in due passaggi reimpostata.",
+      "errorResettingTwoStep": "Impossibile reimpostare la verifica in due passaggi."
     },
     "export": {
       "title": "Esporta / Backup",
@@ -687,6 +694,25 @@
         "compliance_documents": "Documenti Conformità",
         "compliance_roles": "Ruoli Conformità"
       }
+    },
+    "twoStep": {
+      "title": "Verifica in due passaggi",
+      "description": "Chiedi un codice dopo la password",
+      "requiredNote": "Il tuo ruolo richiede la verifica in due passaggi. Puoi cambiare metodo ma devi tenerne almeno uno.",
+      "passwordOnlyNote": "Vale per l'accesso con password. L'accesso con Google usa la verifica del tuo account Google.",
+      "on": "Attiva",
+      "off": "Disattiva",
+      "unavailable": "Non configurata su questo server",
+      "turnOn": "Attiva",
+      "turnOff": "Disattiva",
+      "recoveryCodes": "Codici di recupero",
+      "recoveryLeft": "{{count}} non usati",
+      "regenerate": "Genera nuovi codici",
+      "confirmChange": "Conferma con un codice attuale.",
+      "emailSent": "Ti abbiamo inviato un codice di 6 cifre via email.",
+      "enabled": "Metodo di verifica attivato.",
+      "disabled": "Metodo di verifica disattivato.",
+      "done": "Fatto"
     }
   },
   "auth": {
@@ -719,6 +745,43 @@
       "createOrganization": "Crea un'organizzazione",
       "emailInvalid": "Inserisci un indirizzo email valido.",
       "authError": "Errore durante l'autenticazione"
+    },
+    "twoStep": {
+      "titleVerifyEmail": "Conferma la tua email",
+      "titleMfa": "Verifica in due passaggi",
+      "titleEnroll": "Attiva la verifica in due passaggi",
+      "titleEnrollTotp": "Collega un'app di autenticazione",
+      "titleEnrollEmail": "Conferma i codici via email",
+      "titleRecovery": "Salva i codici di recupero",
+      "verifyEmailBody": "Per proteggere il tuo account, conferma una volta il tuo indirizzo. Abbiamo inviato un codice di 6 cifre a {{email}}.",
+      "mfaTotpBody": "Inserisci il codice di 6 cifre mostrato dall'app di autenticazione.",
+      "mfaEmailBody": "Inserisci il codice di 6 cifre inviato a {{email}}.",
+      "mfaRecoveryBody": "Inserisci uno dei codici di recupero. Ogni codice vale una sola volta.",
+      "enrollBody": "Il tuo ruolo richiede un secondo passaggio quando accedi con la password. Scegli come ricevere i codici.",
+      "enrollTotp": "App di autenticazione",
+      "enrollTotpDesc": "Google Authenticator, 1Password, Authy… Funziona anche offline.",
+      "enrollEmail": "Codici via email",
+      "enrollEmailDesc": "A ogni accesso ricevi un codice su {{email}}.",
+      "scanQr": "Inquadra il codice QR con l'app di autenticazione, poi inserisci il codice di 6 cifre che mostra.",
+      "manualKey": "Non riesci a inquadrarlo? Inserisci la chiave a mano",
+      "codeLabel": "Codice",
+      "recoveryLabel": "Codice di recupero",
+      "verify": "Verifica",
+      "confirm": "Conferma",
+      "continue": "Continua",
+      "resend": "Invia un nuovo codice",
+      "codeSent": "Codice inviato a {{email}}.",
+      "useApp": "Usa l'app di autenticazione",
+      "useEmail": "Inviami un codice via email",
+      "useRecovery": "Usa un codice di recupero",
+      "startOver": "Ricomincia",
+      "recoveryBody": "Se perdi l'accesso ai codici, ognuno di questi ti permette di accedere una volta. Conservali in un posto sicuro: non verranno mostrati di nuovo.",
+      "copy": "Copia",
+      "copied": "Copiati",
+      "download": "Scarica",
+      "savedConfirm": "Ho salvato questi codici",
+      "expired": "Questo accesso è scaduto. Ricomincia.",
+      "genericError": "Qualcosa è andato storto. Riprova."
     }
   },
   "setup": {

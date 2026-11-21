@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -6,49 +6,62 @@ import { useSetupStatus } from '../hooks/useSetupStatus';
 
 type Mode = 'login' | 'drive';
 
+type CallbackResult =
+  | { kind: 'error'; message: string }
+  | { kind: 'login'; token: string; user: unknown }
+  | { kind: 'drive' };
+
+/**
+ * Read the OAuth redirect once, on mount. The server puts the session in the URL
+ * fragment so it never reaches a server log or Referer header; the query fallback
+ * covers a server not yet upgraded.
+ */
+function readCallback(mode: Mode, searchParams: URLSearchParams): CallbackResult {
+  const errorParam = searchParams.get('error');
+  if (errorParam) return { kind: 'error', message: decodeURIComponent(errorParam) };
+
+  if (mode === 'drive') {
+    return searchParams.get('success') === '1'
+      ? { kind: 'drive' }
+      : { kind: 'error', message: 'Autorizzazione Google Drive non riuscita.' };
+  }
+
+  const fragment = new URLSearchParams(window.location.hash.slice(1));
+  const token = fragment.get('token') ?? searchParams.get('token');
+  const userRaw = fragment.get('user') ?? searchParams.get('user');
+  if (!token || !userRaw) return { kind: 'error', message: 'Risposta di autenticazione non valida.' };
+  try {
+    return { kind: 'login', token, user: JSON.parse(decodeURIComponent(userRaw)) };
+  } catch {
+    return { kind: 'error', message: 'Impossibile elaborare la risposta di autenticazione.' };
+  }
+}
+
 const AuthCallbackPage = ({ mode }: { mode: Mode }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login } = useAuth();
   const { deploymentMode } = useSetupStatus();
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [result] = useState(() => readCallback(mode, searchParams));
+  const error = result.kind === 'error' ? result.message : null;
+  const success = result.kind === 'drive';
+
+  // login() is recreated on every AuthProvider render, so guard against re-running.
+  const handled = useRef(false);
 
   useEffect(() => {
-    const errorParam = searchParams.get('error');
-    if (errorParam) {
-      setError(decodeURIComponent(errorParam));
-      return;
+    if (handled.current) return;
+    handled.current = true;
+    // Drop the token from the address bar and history as soon as it has been read.
+    if (window.location.hash) window.history.replaceState(null, '', window.location.pathname);
+
+    if (result.kind === 'login') {
+      login(result.token, result.user as Parameters<typeof login>[1]);
+      navigate('/', { replace: true });
+    } else if (result.kind === 'drive') {
+      setTimeout(() => navigate('/documents', { replace: true }), 1500);
     }
-
-    if (mode === 'login') {
-      const token = searchParams.get('token');
-      const userRaw = searchParams.get('user');
-
-      if (!token || !userRaw) {
-        setError('Risposta di autenticazione non valida.');
-        return;
-      }
-
-      try {
-        const user = JSON.parse(decodeURIComponent(userRaw));
-        login(token, user);
-        navigate('/', { replace: true });
-      } catch {
-        setError('Impossibile elaborare la risposta di autenticazione.');
-      }
-    }
-
-    if (mode === 'drive') {
-      const success = searchParams.get('success');
-      if (success === '1') {
-        setSuccess(true);
-        setTimeout(() => navigate('/documents', { replace: true }), 1500);
-      } else {
-        setError('Autorizzazione Google Drive non riuscita.');
-      }
-    }
-  }, []);
+  }, [result, login, navigate]);
 
   return (
     <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">

@@ -1,11 +1,12 @@
 import { Hono } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { and, eq, ne, isNotNull, isNull } from 'drizzle-orm';
-import { organizationSetting, user, organizationAddress, convocationModalityOption, userSetting, organizationUser, organization } from '../db/schema';
+import { organizationSetting, user, organizationAddress, convocationModalityOption, userSetting, organizationUser, organization, userMfa } from '../db/schema';
 import { desc } from 'drizzle-orm';
 import { hashPassword, verifyPassword, rejectNewPassword } from '../lib/auth';
 import { rejectGrant, canActOn } from '../lib/roles';
 import { isRateLimited, tooManyRequests, type RateLimiter } from '../lib/rate-limit';
+import { resetMfa } from '../lib/mfa';
 
 type Bindings = {
   DB: D1Database;
@@ -226,9 +227,11 @@ settingsRouter.get('/users', async (c) => {
   const users = await Promise.all(
     orgUsers.map(async (orgUser) => {
       const u = await db.select().from(user).where(eq(user.id, orgUser.userId)).get();
+      const mfa = await db.select().from(userMfa).where(eq(userMfa.userId, orgUser.userId)).get();
       return {
         id: u?.id,
         email: u?.email,
+        mfaEnabled: !!(mfa?.totpConfirmedAt || mfa?.emailOtpEnabled),
         role: orgUser.role,
         isCoreAdmin: orgUser.role === 'core_admin',
         permissions: parsePermissions(orgUser.permissions, orgUser.role),
@@ -431,6 +434,41 @@ settingsRouter.post('/users/:id/reset-password', async (c) => {
     updatedAt: new Date().toISOString(),
   }).where(eq(user.id, id)).run();
 
+  return c.json({ success: true });
+});
+
+// DELETE /api/settings/users/:id/mfa — clear a user's two-step sign-in (lost device).
+// The user enrols again on their next password sign-in if their role requires it.
+settingsRouter.delete('/users/:id/mfa', async (c) => {
+  const denied = await requirePermission(c, 'settings.users.reset_password');
+  if (denied) return denied;
+
+  const payload = c.get('jwtPayload');
+  if (payload.role !== 'core_admin') {
+    return c.json({ error: 'Only core admin can reset two-step sign-in' }, 403);
+  }
+  const { id } = c.req.param();
+  if (id === payload.sub) {
+    return c.json({ error: 'Manage your own two-step sign-in from your security settings' }, 400);
+  }
+
+  const db = drizzle(c.env.DB);
+  const orgUser = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), eq(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (!orgUser) {
+    return c.json({ error: 'User not found in this organization' }, 404);
+  }
+  // Two-step settings are global like the password: resetting them for a user of other
+  // orgs would weaken that account there too.
+  const otherMembership = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), ne(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (otherMembership) {
+    return c.json({ error: 'This user belongs to other organizations; only they can change their two-step sign-in' }, 403);
+  }
+
+  await resetMfa(db, id);
   return c.json({ success: true });
 });
 

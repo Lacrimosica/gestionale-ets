@@ -12,15 +12,19 @@ type Bindings = {
   GOOGLE_REDIRECT_BASE_URL?: string;
   APP_URL?: string;
   AUTH_RATE_LIMITER?: RateLimiter;
-};
+} & MfaEnv;
 
 const authRouter = new Hono<{ Bindings: Bindings }>();
+authRouter.route('/mfa', authMfaRouter);
 
-import { getPermissionsForRole, sessionPermissions } from '../lib/session-permissions';
+import { getPermissionsForRole } from '../lib/session-permissions';
 
-import { hashPassword, verifyPassword } from '../lib/auth';
+import { hashPassword, verifyPassword, rejectNewPassword } from '../lib/auth';
 import { decodeGoogleIdToken, rejectGoogleIdentity } from '../lib/google-identity';
 import { rejectGrant } from '../lib/roles';
+import type { MfaEnv } from '../lib/mfa';
+import { issueSession } from '../lib/session';
+import authMfaRouter, { loginStepBody, nextLoginStep } from './auth-mfa';
 import { clientIp, isRateLimited, rateLimitByIp, tooManyRequests, type RateLimiter } from '../lib/rate-limit';
 
 /** An OAuth callback failure whose message is safe to show the user. */
@@ -93,33 +97,13 @@ authRouter.post('/login', async (c) => {
     return c.json({ error: 'Nessun\'organizzazione trovata per questo account' }, 403);
   }
 
-  const permissions = sessionPermissions(orgUser);
-
-  const payload = {
-    sub: user.id,
-    email: user.email,
-    orgId: org.id,
-    role: orgUser.role,
-    permissions,
-    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 // 24 hours
-  };
-
   if (!c.env.JWT_SECRET) {
     return c.json({ error: 'Server authentication misconfigured' }, 500);
   }
 
-  const token = await sign(payload, c.env.JWT_SECRET);
-
-  return c.json({
-    token,
-    user: {
-      id: user.id,
-      email: user.email,
-      orgId: org.id,
-      role: orgUser.role,
-      permissions,
-    },
-  });
+  // The password is only the first step: email verification and two-step sign-in
+  // may follow before a session is issued (routes/auth-mfa.ts).
+  return c.json(loginStepBody(await nextLoginStep(db, c.env, user, orgUser)));
 });
 
 // ─── Google OAuth — Login ─────────────────────────────────────────────────────
@@ -429,19 +413,7 @@ authRouter.get('/google/callback', async (c) => {
       return c.json({ error: 'Organization not found' }, 500);
     }
 
-    const permissions = sessionPermissions(orgUser);
-
-    const jwtPayload = {
-      sub: existingUser.id,
-      email: existingUser.email,
-      orgId: orgRecord.id,
-      role: orgUser.role,
-      permissions,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
-    };
-
-    const token = await sign(jwtPayload, JWT_SECRET);
-    const userOut = { id: existingUser.id, email: existingUser.email, orgId: orgRecord.id, role: orgUser.role, permissions };
+    const { token, user: userOut } = await issueSession(JWT_SECRET, existingUser, orgUser);
 
     return c.redirect(
       // Fragment, not query: browsers never send it to servers or put it in Referer.
@@ -466,8 +438,9 @@ authRouter.post('/set-password', rateLimitByIp('set-password'), async (c) => {
       return c.json({ error: 'Token e password sono obbligatori.' }, 400);
     }
 
-    if (password.length < 8) {
-      return c.json({ error: 'La password deve essere di almeno 8 caratteri.' }, 400);
+    const passwordError = rejectNewPassword(password);
+    if (passwordError) {
+      return c.json({ error: passwordError }, 400);
     }
 
     // Verify the set-password token
@@ -506,30 +479,17 @@ authRouter.post('/set-password', rateLimitByIp('set-password'), async (c) => {
     }
 
     // Only now, with membership confirmed: a user removed from their org must not set a password.
-    const passwordHash = await hashPassword(password);
+    // The set-password token comes from a Google sign-in with a verified email and an
+    // account that had no password, so whoever sets it owns the address.
+    const now = new Date().toISOString();
     await db
       .update(userSchema)
-      .set({ password: passwordHash, updatedAt: new Date().toISOString() })
+      .set({ password: await hashPassword(password), emailVerifiedAt: user.emailVerifiedAt ?? now, updatedAt: now })
       .where(eq(userSchema.id, user.id))
       .run();
 
-    const permissions = sessionPermissions(orgUser);
-
-    const jwtPayload = {
-      sub: user.id,
-      email: user.email,
-      orgId: orgRecord.id,
-      role: orgUser.role,
-      permissions,
-      exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
-    };
-
-    const jwtToken = await sign(jwtPayload, c.env.JWT_SECRET);
-
-    return c.json({
-      token: jwtToken,
-      user: { id: user.id, email: user.email, orgId: orgRecord.id, role: orgUser.role, permissions }
-    });
+    // Signed in through Google, so no second factor here (password sign-ins get one).
+    return c.json(await issueSession(c.env.JWT_SECRET, user, orgUser));
   } catch (error) {
     console.error('Set password error:', error);
     return c.json({ error: 'Errore durante l\'impostazione della password.' }, 500);

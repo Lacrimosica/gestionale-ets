@@ -20,6 +20,7 @@ import complianceRouter from './routes/compliance';
 import documentsRouter from './routes/documents';
 import exportRouter from './routes/export';
 import importRouter from './routes/import';
+import mfaRouter from './routes/mfa';
 
 type Bindings = {
   DB: D1Database;
@@ -31,6 +32,9 @@ type Bindings = {
   GOOGLE_REDIRECT_BASE_URL?: string; // e.g. http://localhost:8787 (must match Google Cloud Console redirect URI)
   APP_URL?: string;                   // e.g. http://localhost:5173 (frontend origin for post-OAuth redirects)
   AUTH_RATE_LIMITER?: RateLimiter;
+  MFA_ENCRYPTION_KEY?: string;  // secret: base64 of 32 random bytes (encrypts TOTP seeds)
+  MFA_REQUIRED_ROLES?: string;  // comma-separated; default "core_admin,admin"; "" disables enforcement
+  EMAIL_PROVIDER?: string;      // unset = email features off; "log" = print to Worker log (dev)
   TEMPLATE_FOLDER_ID: string;
   OUTPUT_FOLDER_ID: string;
 };
@@ -206,5 +210,6 @@ app.route('/api/compliance', complianceRouter);
 app.route('/api/documents', documentsRouter);
 app.route('/api/export', exportRouter);
 app.route('/api/import', importRouter);
+app.route('/api/mfa', mfaRouter);
 
 export default app;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { KeyRound, Trash2 } from 'lucide-react';
+import { KeyRound, ShieldOff, Trash2 } from 'lucide-react';
 import { getPermissionsForRole, type Permission } from '../../lib/permissions';
 import PermissionChecklist from './PermissionChecklist';
 
@@ -19,9 +19,10 @@ const EditableUserCard = ({
   onEditToggle,
   onSave,
   onResetPassword,
+  onResetTwoStep,
   onDeleteUser,
 }: {
-  user: { id: string; email: string; role: string; permissions: Permission[]; createdAt?: string; isCoreAdmin?: boolean };
+  user: { id: string; email: string; role: string; permissions: Permission[]; createdAt?: string; isCoreAdmin?: boolean; mfaEnabled?: boolean };
   canManage: boolean;
   canResetPasswords: boolean;
   currentUserId?: string;
@@ -29,6 +30,8 @@ const EditableUserCard = ({
   onEditToggle: () => void;
   onSave: (user: { id: string; email: string; role: string; permissions: Permission[] }) => void;
   onResetPassword: (userId: string, newPassword: string) => void;
+  /** Present only for core admins. */
+  onResetTwoStep?: (userId: string) => void;
   onDeleteUser: () => void;
 }) => {
   const { t } = useTranslation();
@@ -54,6 +57,11 @@ const EditableUserCard = ({
             {user.isCoreAdmin ? 'core_admin' : user.role}
           </span>
           <p className="text-neutral-200 text-sm truncate">{user.email}</p>
+          {user.mfaEnabled && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-success-600/15 text-success-400 border border-success-500/30 shrink-0">
+              {t('settings.users.twoStepBadge')}
+            </span>
+          )}
         </div>
         {canManage && (
           <button onClick={onEditToggle} className="text-xs text-neutral-400 hover:text-fg shrink-0">
@@ -157,6 +165,26 @@ const EditableUserCard = ({
                   className="bg-warning-600 hover:bg-warning-500 text-white px-4 py-2 rounded-lg font-semibold"
                 >
                   {t('settings.users.resetPasswordButton')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {onResetTwoStep && user.mfaEnabled && !isCurrentUser && (
+            <div className="border border-neutral-800 rounded-lg p-4 bg-neutral-950/40 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-neutral-200">
+                <ShieldOff size={16} className="text-warning-400" />
+                {t('settings.users.resetTwoStepTitle')}
+              </div>
+              <p className="text-sm text-neutral-500">{t('settings.users.resetTwoStepDescription')}</p>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    if (window.confirm(t('settings.users.resetTwoStepConfirm', { email: user.email }))) onResetTwoStep(user.id);
+                  }}
+                  className="bg-warning-600 hover:bg-warning-500 text-white px-4 py-2 rounded-lg font-semibold"
+                >
+                  {t('settings.users.resetTwoStepButton')}
                 </button>
               </div>
             </div>

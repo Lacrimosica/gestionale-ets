@@ -11,6 +11,7 @@ export interface SettingsUser {
   role: string;
   permissions: Permission[];
   isCoreAdmin?: boolean;
+  mfaEnabled?: boolean;
   createdAt: string;
   updatedAt?: string | null;
 }

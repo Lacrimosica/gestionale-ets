@@ -7,6 +7,8 @@ import { buildPreviewText } from '../components/settings/documentTemplates';
 import { BrandingSection } from '../components/settings/BrandingSection';
 import { UsersManagementSection } from '../components/settings/UsersManagementSection';
 import { PasswordManagementSection } from '../components/settings/PasswordManagementSection';
+import { TwoFactorSection } from '../components/settings/TwoFactorSection';
+import { resetUserTwoStep } from '../lib/two-step';
 import { AddressesSection } from '../components/settings/AddressesSection';
 import { ThemeSection } from '../components/settings/ThemeSection';
 import { ExportSection } from '../components/settings/ExportSection';
@@ -38,6 +40,7 @@ const SettingsPage = () => {
     branding: false,
     users: false,
     password: false,
+    twoStep: false,
     compliance: false,
     addresses: false,
     documents: false,
@@ -129,6 +132,17 @@ const SettingsPage = () => {
       userManagement.setResetMessage(t('settings.messages.userPasswordReset'));
     } catch {
       userManagement.setResetMessage(t('settings.messages.errorResettingPassword'));
+    }
+  };
+
+  const handleResetTwoStep = async (targetUserId: string) => {
+    userManagement.setResetMessage(null);
+    try {
+      await resetUserTwoStep(targetUserId);
+      userManagement.setResetMessage(t('settings.messages.userTwoStepReset'));
+      await userManagement.refreshUsers();
+    } catch {
+      userManagement.setResetMessage(t('settings.messages.errorResettingTwoStep'));
     }
   };
 
@@ -265,7 +279,7 @@ const SettingsPage = () => {
           resetMessage={userManagement.resetMessage}
           onToggle={() => toggleSection('users')}
           onNewUserChange={(field, value) => {
-            if (field === 'role') {
+            if (field === 'role' && typeof value === 'string') {
               userManagement.setNewUser((prev) => ({ ...prev, role: value, permissions: getPermissionsForRole(value) }));
             } else {
               userManagement.setNewUser((prev) => ({ ...prev, [field]: value }));
@@ -287,6 +301,7 @@ const SettingsPage = () => {
           }}
           onConfirmDelete={handleDeleteUser}
           onResetPassword={handleResetPassword}
+          onResetTwoStep={isCoreAdmin ? handleResetTwoStep : undefined}
           onCancelDelete={() => {
             userManagement.setDeleteTarget(null);
             userManagement.setDeleteConfirmValue('');
@@ -306,6 +321,8 @@ const SettingsPage = () => {
           onChangePassword={handleChangePassword}
         />
       )}
+
+      <TwoFactorSection expanded={expandedSections.twoStep} onToggle={() => toggleSection('twoStep')} />
 
       <AddressesSection
         expanded={expandedSections.addresses}

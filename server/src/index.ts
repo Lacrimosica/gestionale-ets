@@ -1,10 +1,12 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { secureHeaders } from 'hono/secure-headers';
 import { jwt } from 'hono/jwt';
 import { drizzle } from 'drizzle-orm/d1';
 import { eq, and } from 'drizzle-orm';
 import { organizationUser } from './db/schema';
 import { sessionPermissions } from './lib/session-permissions';
+import type { RateLimiter } from './lib/rate-limit';
 import { peopleRouter } from './routes/people';
 import periodsRouter from './routes/periods';
 import { assembliesRouter } from './routes/assemblies';
@@ -28,6 +30,7 @@ type Bindings = {
   GOOGLE_CLIENT_SECRET?: string;
   GOOGLE_REDIRECT_BASE_URL?: string; // e.g. http://localhost:8787 (must match Google Cloud Console redirect URI)
   APP_URL?: string;                   // e.g. http://localhost:5173 (frontend origin for post-OAuth redirects)
+  AUTH_RATE_LIMITER?: RateLimiter;
   TEMPLATE_FOLDER_ID: string;
   OUTPUT_FOLDER_ID: string;
 };
@@ -98,10 +101,19 @@ app.get('/health', (c) => {
   });
 });
 
-// Basic CORS setup - Restricted to specific origin in production
+// API responses are JSON; these headers stop them being framed, sniffed or cached
+// by shared caches, and keep tokens out of Referer headers.
+app.use('*', secureHeaders({ referrerPolicy: 'no-referrer' }));
+app.use('/api/*', async (c, next) => {
+  await next();
+  if (!c.res.headers.has('Cache-Control')) c.res.headers.set('Cache-Control', 'no-store');
+});
+
+// CORS is restricted to the configured frontend. Without CORS_ORIGIN (local dev)
+// only the Vite dev server is allowed — never '*', since credentials are enabled.
 app.use('*', async (c, next) => {
   const corsMiddleware = cors({
-    origin: c.env.CORS_ORIGIN || '*', // Fallback to * for dev, but recommend setting CORS_ORIGIN
+    origin: c.env.CORS_ORIGIN || 'http://localhost:5173',
     allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     exposeHeaders: ['Content-Length'],
@@ -113,7 +125,7 @@ app.use('*', async (c, next) => {
 
 // Match whole path segments so e.g. a future /api/settings/publicXyz route is not
 // accidentally exempted from authentication.
-const PUBLIC_API_PREFIXES = ['/api/auth', '/api/setup', '/api/settings/public'];
+const PUBLIC_API_PREFIXES = ['/api/auth', '/api/setup'];
 const isPublicApiPath = (path: string) =>
   PUBLIC_API_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
 

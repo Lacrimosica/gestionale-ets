@@ -167,6 +167,36 @@ Controls how organizations can be created and accessed.
 
 **Development:** Set in `server/.dev.vars` for local testing (default: `"open"`).
 
+### Two-step sign-in: `MFA_ENCRYPTION_KEY`, `MFA_REQUIRED_ROLES`, `EMAIL_PROVIDER`
+
+Password sign-ins can require a second step: a code from an authenticator app
+(TOTP) or an emailed code. Google sign-ins skip it, since Google runs its own 2-step
+verification. Users manage it under **Settings → Security**; a core admin can reset
+another user's two-step sign-in from the users list.
+
+| Variable | Kind | Effect |
+|---|---|---|
+| `MFA_ENCRYPTION_KEY` | secret | Encrypts authenticator secrets. Without it, authenticator apps are off. |
+| `MFA_REQUIRED_ROLES` | var | Roles that must enrol on their next password sign-in. Default `core_admin,admin`; `""` turns enforcement off (demo). |
+| `EMAIL_PROVIDER` | var | Unset: email codes **and email verification** are off. `log`: codes are printed to the Worker log (local dev only). |
+
+Enforcement only applies when at least one method is available, so deploying the
+code before setting the key never locks admins out.
+
+Set the key once per environment (keep a copy: losing it disables every enrolled
+authenticator, and users must be reset):
+
+```bash
+openssl rand -base64 32 | npx wrangler secret put MFA_ENCRYPTION_KEY --env production
+openssl rand -base64 32 | npx wrangler secret put MFA_ENCRYPTION_KEY --env staging
+```
+
+**Email verification.** Once a real email provider is configured, every account
+must confirm its address once, with an emailed code, before it can sign in with a
+password. This is what stops someone who registered another person's email from
+keeping access after the real owner links their Google account. Accounts are not
+backfilled as verified on purpose.
+
 ### Backward Compatibility
 
 If your deployment still uses the old `ALLOW_ORG_CREATION` variable, it will be automatically converted:
@@ -304,6 +334,22 @@ These must be applied before using the new deployment modes:
 ```bash
 npm run db:migrate:production
 ```
+
+- **0067_two_step_sign_in.sql**: `user.email_verified_at`, `user_mfa`, `mfa_recovery_code`, `mfa_challenge`.
+
+> **Check before the first migration after Nov 2026.** `[env.production]` and
+> `[env.staging]` previously pointed `migrations_dir` at `drizzle/migrations`, which
+> holds only the per-environment subfolders; they now point at `drizzle/migrations/prod`
+> and `drizzle/migrations/staging`. Before applying, list what wrangler thinks is
+> pending:
+>
+> ```bash
+> npx wrangler d1 migrations list gestionale-ets-db --remote --env production
+> ```
+>
+> Only `0067_two_step_sign_in.sql` should be pending. If older files show up, the
+> database recorded them under other names: do **not** apply; record them in
+> `d1_migrations` first (or run 0067 by hand with `wrangler d1 execute --file`).
 
 ---
 

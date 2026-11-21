@@ -16,6 +16,9 @@ GOOGLE_REDIRECT_BASE_URL = "https://gestionale-server.m-gdrzi77.workers.dev"
 APP_URL = "https://niki.lacrimosica.com"
 # JWT_SECRET               → comes from .dev.vars locally, never hardcoded here
 # GOOGLE_SERVICE_ACCOUNT_KEY → wrangler secret put GOOGLE_SERVICE_ACCOUNT_KEY
+# MFA_ENCRYPTION_KEY       → wrangler secret put MFA_ENCRYPTION_KEY (openssl rand -base64 32); without it
+#                            authenticator-app sign-in is off and admins are not forced to enrol
+# EMAIL_PROVIDER           → unset: email codes and email verification are off; "log" in .dev.vars for dev
 # TEMPLATE_FOLDER_ID and OUTPUT_FOLDER_ID are now stored in DB settings (Settings → Documents)
 
 [[d1_databases]]
@@ -55,7 +58,7 @@ DEPLOYMENT_MODE = "single_org"
 binding = "DB"
 database_name = "gestionale-ets-db"
 database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
-migrations_dir = "drizzle/migrations"
+migrations_dir = "drizzle/migrations/prod"
 
 # Throttles login, password and setup endpoints (src/lib/rate-limit.ts).
 # namespace_id is any integer unique per environment so counters aren't shared.
@@ -79,7 +82,7 @@ DEPLOYMENT_MODE = "closed" # public demo moving to a separate env; staging close
 binding = "DB"
 database_name = "gestionale-ets-db-staging"
 database_id = "a0aba6f8-f4b9-4260-ae99-c95462590cfc"
-migrations_dir = "drizzle/migrations"
+migrations_dir = "drizzle/migrations/staging"
 
 # Throttles login, password and setup endpoints (src/lib/rate-limit.ts).
 # namespace_id is any integer unique per environment so counters aren't shared.
@@ -99,6 +102,7 @@ CORS_ORIGIN = "https://niki-demo.lacrimosica.com"
 GOOGLE_REDIRECT_BASE_URL = "https://gestionale-server-demo.m-gdrzi77.workers.dev"
 APP_URL = "https://niki-demo.lacrimosica.com"
 DEPLOYMENT_MODE = "open"
+MFA_REQUIRED_ROLES = "" # shared demo login must not be forced into two-step enrolment
 
 [[env.demo.d1_databases]]
 binding = "DB"

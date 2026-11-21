@@ -15,12 +15,17 @@ import {
 
 import { API_BASE_URL } from '../config';
 
+interface ActiveMember {
+  period: { id: string; admissionDate: string };
+  person: { firstName: string; lastName: string };
+}
+
 const ResignationsList = () => {
   const { t } = useTranslation();
-  const [members, setMembers] = useState<any[]>([]);
+  const [members, setMembers] = useState<ActiveMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPerson, setSelectedPerson] = useState<any | null>(null);
+  const [selectedPerson, setSelectedPerson] = useState<ActiveMember | null>(null);
   const [resignationDate, setResignationDate] = useState(new Date().toISOString().split('T')[0]);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,7 +69,7 @@ const ResignationsList = () => {
       setSelectedPerson(null);
       setReason('');
       fetchData();
-    } catch (err) {
+    } catch {
       setMessage({ type: 'error', text: t('resignations.error', { defaultValue: 'Error recording resignation.' }) });
     } finally {
       setIsSubmitting(false);

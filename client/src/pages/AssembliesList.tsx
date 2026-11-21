@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
@@ -11,7 +11,7 @@ import {
   FileText, Plus, Search, Check,
   ArrowUpDown, ArrowUp, ArrowDown
 } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 import { AssemblyTableRow } from '../components/assemblies/AssemblyTableRow';
 import { AssemblyDeleteModal } from '../components/assemblies/AssemblyDeleteModal';
@@ -30,17 +30,20 @@ const AssembliesList = () => {
   const [selectedAssemblyIds, setSelectedAssemblyIds] = useState<string[]>([]);
   const [confirmDeleteSelected, setConfirmDeleteSelected] = useState(false);
   const [memberCandidates, setMemberCandidates] = useState<MemberCandidate[]>([]);
-  const [membersLoading, setMembersLoading] = useState(false);
+  const [membersSettled, setMembersSettled] = useState(false);
+  const membersRequested = useRef(false);
+  // Derived: loading while the modal is open and the first load hasn't settled.
+  const membersLoading = isModalOpen && !membersSettled;
 
-  // Load member candidates when modal opens
+  // Load member candidates the first time the modal opens
   useEffect(() => {
-    if (!isModalOpen || memberCandidates.length > 0 || membersLoading) return;
-    setMembersLoading(true);
+    if (!isModalOpen || membersRequested.current) return;
+    membersRequested.current = true;
     axios.get<MemberCandidate[]>(`${API_BASE_URL}/documents/all-volunteers-with-status`)
       .then(({ data }) => setMemberCandidates(data))
       .catch(() => { })
-      .finally(() => setMembersLoading(false));
-  }, [isModalOpen, memberCandidates.length, membersLoading]);
+      .finally(() => setMembersSettled(true));
+  }, [isModalOpen]);
 
   const { state, setPage, setPageSize, setSearchTerm, setSort, setFilter, setYear, processList } = useListState<Assembly>({
     initialSortBy: 'firstCallDate',

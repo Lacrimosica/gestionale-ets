@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { ExternalLink } from 'lucide-react';
 import ConsentRow from '../ui/ConsentRow';
+import type { CompliancePersonData } from '../../../hooks/useCompliance';
 
 interface PrivacyStatusSectionProps {
-  privacyStatus?: any;
+  privacyStatus?: CompliancePersonData['privacyStatus'];
 }
 
 const PrivacyStatusSection = ({ privacyStatus }: PrivacyStatusSectionProps) => {
@@ -26,7 +27,7 @@ const PrivacyStatusSection = ({ privacyStatus }: PrivacyStatusSectionProps) => {
               <ConsentRow
                 key={type}
                 label={t(`people.consents.${type}`, { defaultValue: type })}
-                value={(entry as any).status === 'granted'}
+                value={entry.status === 'granted'}
               />
             ))
           ) : (

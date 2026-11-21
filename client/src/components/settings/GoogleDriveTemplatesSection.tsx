@@ -11,7 +11,7 @@ interface GoogleDriveTemplatesSectionProps {
     templateConvocationBoardId: string | null;
     templateMinutesBoardId: string | null;
   };
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
 }
 
 const GoogleDriveTemplatesSection = ({ templates, onFormChange }: GoogleDriveTemplatesSectionProps) => {

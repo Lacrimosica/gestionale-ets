@@ -136,7 +136,7 @@ export const AgendaItemsList = ({
         }
       }
 
-      const payload: any = { workflowData: item.workflowData };
+      const payload: { workflowData: AgendaItem['workflowData']; title?: string } = { workflowData: item.workflowData };
       if (newTitle !== item.title) {
         payload.title = newTitle;
       }

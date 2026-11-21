@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import axios from 'axios';
 import { resolveTheme, applyTheme, clearThemeVars, PREDEFINED_THEMES, type ThemeVars } from '../themes';
-import { useAuth } from './useAuth';
+import { useAuth } from './auth-context';
 import { API_BASE_URL } from '../config';
 
 interface ThemeContextType {

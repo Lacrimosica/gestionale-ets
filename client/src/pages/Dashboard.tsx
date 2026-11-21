@@ -1,10 +1,11 @@
+import type { ElementType } from 'react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../lib/date-utils';
 import { Activity, Users, Calendar, AlertTriangle, ChevronRight, FileText, UserPlus, UserMinus } from 'lucide-react';
 import axios from 'axios';
-import { useBranding } from '../hooks/useBranding';
+import { useBranding } from '../hooks/branding-context';
 
 import { API_BASE_URL } from '../config';
 
@@ -81,7 +82,7 @@ const Dashboard = () => {
         // The API returns events sorted by date ASC, we want the most recent ones first
         setRecentEvents([...events].reverse().slice(0, 10));
         setComplianceSummary(complianceRes.data);
-      } catch (err) {
+      } catch {
         setError(t('dashboard.errorLoading', { defaultValue: 'Error loading dashboard data' }));
         setActiveVolunteersCount(0);
         setActiveMembersCount(0);
@@ -161,7 +162,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => {
-          const Wrapper: any = stat.href ? Link : 'div';
+          const Wrapper: ElementType = stat.href ? Link : 'div';
           const wrapperProps = stat.href ? { to: stat.href } : {};
           return (
             <Wrapper

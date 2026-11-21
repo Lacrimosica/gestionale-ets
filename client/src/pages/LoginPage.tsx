@@ -16,9 +16,9 @@ import {
   Landmark,
   ShieldCheck,
 } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { useSetupStatus } from '../hooks/useSetupStatus';
-import { useBranding } from '../hooks/useBranding';
+import { useBranding } from '../hooks/branding-context';
 import { API_BASE_URL } from '../config';
 import { TwoStepSignIn } from '../components/auth/TwoStepSignIn';
 import { isPendingStep, type LoginResponse, type PendingStep } from '../lib/two-step';

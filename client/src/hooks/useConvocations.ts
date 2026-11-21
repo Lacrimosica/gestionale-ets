@@ -30,7 +30,7 @@ export const useConvocations = (assemblyId?: string) => {
       const res = await axios.get<Convocation[]>(url);
       setList(res.data);
       setError(null);
-    } catch (err) {
+    } catch {
       setError('Error loading convocations');
       setList([]);
     } finally {

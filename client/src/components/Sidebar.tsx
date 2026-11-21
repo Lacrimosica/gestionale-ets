@@ -13,8 +13,8 @@ import {
   FileText,
   Trash2,
 } from 'lucide-react';
-import { useAuth } from '../hooks/useAuth';
-import { useBranding } from '../hooks/useBranding';
+import { useAuth } from '../hooks/auth-context';
+import { useBranding } from '../hooks/branding-context';
 import { PERMISSIONS } from '../lib/permissions';
 
 const Sidebar = ({

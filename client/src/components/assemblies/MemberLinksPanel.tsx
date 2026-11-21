@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Loader2, Unlink, Plus, Search, Link2, UserMinus, UserPlus } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/auth-context';
 import { PERMISSIONS } from '../../lib/permissions';
 import { useMemberLinks } from '../../hooks/useMemberLinks';
 import { formatLongDate } from '../../lib/date-utils';

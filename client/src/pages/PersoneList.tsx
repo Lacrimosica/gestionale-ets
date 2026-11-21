@@ -14,7 +14,7 @@ import { usePeriods } from '../hooks/usePeriods';
 import { useState } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 
 const PersoneList = () => {

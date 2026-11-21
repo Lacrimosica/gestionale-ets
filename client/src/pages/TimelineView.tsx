@@ -422,7 +422,8 @@ const TimelineView = () => {
                                 dLabel = getEventLabel(entry);
                               } else {
                                 // Extract name from labelParams (member admission/resignation)
-                                const fullName = entry.labelParams?.name || '';
+                                const rawName = entry.labelParams?.name;
+                                const fullName = typeof rawName === 'string' ? rawName : '';
                                 const nameParts = fullName.split(' ');
                                 const firstName = nameParts[0] || '';
                                 const lastNameInitial = nameParts[1]?.[0] || '';

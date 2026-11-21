@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Loader2, Search, Users, ChevronDown, ChevronUp } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../hooks/auth-context';
 import { PERMISSIONS } from '../../lib/permissions';
 import { useAttendance } from '../../hooks/useAttendance';
 

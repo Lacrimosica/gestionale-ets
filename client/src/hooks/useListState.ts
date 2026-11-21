@@ -16,7 +16,7 @@ interface ListState {
   year: string;
 }
 
-export const useListState = <T extends Record<string, any>>(options: ListStateOptions<T>) => {
+export const useListState = <T extends object>(options: ListStateOptions<T>) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const state: ListState = {
@@ -97,10 +97,10 @@ export const useListState = <T extends Record<string, any>>(options: ListStateOp
     // 3. Sort
     result.sort((a, b) => {
       const { sortBy, sortOrder } = state;
-      const getNestedValue = (obj: any, path: string) => {
+      const getNestedValue = (obj: unknown, path: string): unknown => {
         try {
-          return path.split('.').reduce((acc, part) => acc && acc[part], obj);
-        } catch (e) {
+          return path.split('.').reduce<unknown>((acc, part) => (acc && typeof acc === 'object' ? (acc as Record<string, unknown>)[part] : undefined), obj);
+        } catch {
           return undefined;
         }
       };

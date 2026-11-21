@@ -1,16 +1,17 @@
 import { useTranslation } from 'react-i18next';
 import { Clock, AlertTriangle, ExternalLink } from 'lucide-react';
 import { formatDate } from '../../../lib/date-utils';
+import type { ComplianceDocument, ComplianceFlag, ComplianceRules } from '../../../hooks/useCompliance';
 
 interface ComplianceDocumentsSectionProps {
-  documents?: any[];
-  rules?: any;
+  documents?: ComplianceDocument[];
+  rules?: ComplianceRules;
   canEdit: boolean;
   onAddDocument: () => void;
-  onEditDocument: (document: any) => void;
+  onEditDocument: (document: ComplianceDocument) => void;
   onDeleteDocument: (documentId: string, docType: string) => void;
   onFlagDocument: (documentId: string) => void;
-  onEditFlag: (documentId: string, flag: any) => void;
+  onEditFlag: (documentId: string, flag: ComplianceFlag) => void;
   onDeleteFlag: (flagId: string) => void;
 }
 
@@ -27,7 +28,7 @@ const ComplianceDocumentsSection = ({
 }: ComplianceDocumentsSectionProps) => {
   const { t } = useTranslation();
 
-  const sortedDocuments = documents?.slice().sort((a: any, b: any) => (b.signedAt || b.createdAt).localeCompare(a.signedAt || a.createdAt)) ?? [];
+  const sortedDocuments = documents?.slice().sort((a, b) => (b.signedAt || b.createdAt).localeCompare(a.signedAt || a.createdAt)) ?? [];
 
   return (
     <div className="border border-neutral-800 rounded-xl p-5 bg-neutral-950/40 space-y-4">
@@ -129,7 +130,7 @@ const ComplianceDocumentsSection = ({
 
               {document.flags?.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  {document.flags.map((flag: any) => (
+                  {document.flags.map((flag) => (
                     <div key={flag.id} className="text-sm border border-neutral-800 bg-neutral-900/60 rounded-lg px-3 py-2 text-neutral-300">
                       <div className="flex items-start justify-between gap-3">
                         <div>

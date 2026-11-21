@@ -1,12 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import OverlayModal from '../ui/OverlayModal';
 import ModalField from '../ui/ModalField';
-import type { SuppressionFormState } from './useComplianceTab';
+import type { FormFieldValue, SuppressionFormState } from './useComplianceTab';
 
 interface SuppressAlertModalProps {
   isOpen: boolean;
   form: SuppressionFormState;
-  onFormChange: (field: keyof SuppressionFormState, value: any) => void;
+  onFormChange: (field: keyof SuppressionFormState, value: FormFieldValue) => void;
   onSave: () => Promise<void>;
   onClose: () => void;
 }

@@ -1,3 +1,6 @@
+import type { DeleteRequest } from '../../../types/delete-request';
+import type { MemberPeriod } from '../../../hooks/usePeriods';
+import type { PersonDetails as Person } from '../../../hooks/usePerson';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, History, UserMinus, Edit2, Trash2, PlusCircle } from 'lucide-react';
@@ -5,35 +8,15 @@ import { formatDate } from '../../../lib/date-utils';
 import EditPeriodModal from '../modals/EditPeriodModal';
 import PeriodModal from '../modals/PeriodModal';
 
-interface MemberPeriod {
-  id: string;
-  admissionDate: string;
-  resignationDate?: string;
-  exitReason?: string;
-  notes?: string;
-}
-
-interface VolunteerPeriod {
-  id: string;
-  enrollmentDate: string;
-  exitDate?: string;
-}
-
-interface Person {
-  id: string;
-  memberPeriods?: MemberPeriod[];
-  volunteerPeriods?: VolunteerPeriod[];
-}
-
 interface MemberTabProps {
   person: Person;
   canEdit: boolean;
-  startMembership: (data: any) => Promise<void>;
-  endMembership: (periodId: string, data: any) => Promise<void>;
-  updateMemberPeriod: (periodId: string, data: any) => Promise<void>;
+  startMembership: (data: Partial<MemberPeriod>) => Promise<void>;
+  endMembership: (periodId: string, data: { resignationDate: string; exitReason?: string }) => Promise<void>;
+  updateMemberPeriod: (periodId: string, data: Partial<MemberPeriod>) => Promise<void>;
   refresh: () => Promise<void>;
   refreshCompliance: () => Promise<void>;
-  onRequestDelete: (config: any) => void;
+  onRequestDelete: (config: DeleteRequest) => void;
 }
 
 interface PeriodFormData {

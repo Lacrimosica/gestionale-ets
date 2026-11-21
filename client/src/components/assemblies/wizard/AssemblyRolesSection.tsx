@@ -1,16 +1,14 @@
+import type { Dispatch, SetStateAction } from 'react';
+import type { AssemblyForm } from '../../../hooks/useAssemblyForm';
 import { useTranslation } from 'react-i18next';
 import { Users as UsersIcon } from 'lucide-react';
 import type { MemberCandidate } from '../../SingleMemberPicker';
 import { SingleMemberPicker } from '../../SingleMemberPicker';
 
-interface AssemblyForm {
-  presidentId: string;
-  secretaryId: string;
-}
 
 interface AssemblyRolesSectionProps {
   form: AssemblyForm;
-  setForm: (f: any) => void;
+  setForm: Dispatch<SetStateAction<AssemblyForm>>;
   memberCandidates: MemberCandidate[];
   membersLoading: boolean;
 }

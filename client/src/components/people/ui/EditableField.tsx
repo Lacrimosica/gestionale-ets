@@ -1,4 +1,13 @@
-const EditableField = ({ label, value, onChange, type = 'text', mono = false, uppercase = false }: any) => (
+interface EditableFieldProps {
+  label: string;
+  value?: string | null;
+  onChange: (value: string) => void;
+  type?: string;
+  mono?: boolean;
+  uppercase?: boolean;
+}
+
+const EditableField = ({ label, value, onChange, type = 'text', mono = false, uppercase = false }: EditableFieldProps) => (
   <div className="space-y-1">
     <label className="text-xs text-neutral-500 font-bold uppercase tracking-tighter">{label}</label>
     <input

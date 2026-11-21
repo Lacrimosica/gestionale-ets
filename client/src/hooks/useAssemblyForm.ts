@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AGENDA_TEMPLATES } from '../components/assemblies/assemblyConstants';
 import type { Assembly } from './useAssemblies';
+import type { WorkflowItemData } from '../types/assembly';
 
 interface AgendaItem {
   title: string;
   workflowType: string;
   number: number;
-  workflowData?: any;
+  workflowData?: WorkflowItemData;
 }
 
-interface AssemblyForm {
+export interface AssemblyForm {
   type: Assembly['type'];
   subtype: string;
   firstCallDate: string;
@@ -35,6 +36,13 @@ const computeConvocationDate = (firstCallDate: string) => {
   d.setDate(d.getDate() - 15);
   return d.toISOString().split('T')[0];
 };
+
+function subtypeDefaults(type: AssemblyForm['type']): Partial<AssemblyForm> {
+  if (type === 'board_council') return { subtype: 'ordinary' };
+  if (type === 'extraordinary') return { subtype: 'generic' };
+  if (type === 'constitution') return { subtype: '', firstCallTime: '' };
+  return { subtype: '' };
+}
 
 export const useAssemblyForm = () => {
   const [form, setForm] = useState<AssemblyForm>(() => {
@@ -64,18 +72,13 @@ export const useAssemblyForm = () => {
   const [newAgendaWorkflow, setNewAgendaWorkflow] = useState('');
   const [newAgendaMembers, setNewAgendaMembers] = useState<string[]>([]);
 
-  // Reset subtype and time defaults when type changes
-  useEffect(() => {
-    if (form.type === 'board_council') {
-      setForm(prev => ({ ...prev, subtype: 'ordinary' }));
-    } else if (form.type === 'extraordinary') {
-      setForm(prev => ({ ...prev, subtype: 'generic' }));
-    } else if (form.type === 'constitution') {
-      setForm(prev => ({ ...prev, subtype: '', firstCallTime: '' }));
-    } else {
-      setForm(prev => ({ ...prev, subtype: '' }));
-    }
-  }, [form.type]);
+  // Subtype and time defaults follow the type. Adjusted during render (not in an
+  // effect) so the form never renders with the previous type's defaults.
+  const [trackedType, setTrackedType] = useState(form.type);
+  if (form.type !== trackedType) {
+    setTrackedType(form.type);
+    setForm(prev => ({ ...prev, ...subtypeDefaults(form.type) }));
+  }
 
   const formatItalianList = (items: string[]) => {
     if (items.length === 0) return '';
@@ -85,24 +88,26 @@ export const useAssemblyForm = () => {
     return `${others.join(', ')} e ${last}`;
   };
 
-  // Auto-generate title based on members
-  useEffect(() => {
-    if (!newAgendaWorkflow || newAgendaMembers.length === 0) return;
-
-    const names = formatItalianList(newAgendaMembers);
-    if (newAgendaWorkflow === 'member_admission') {
-      setNewAgendaTitle(`Approvazione dell'ammissione alla qualità di socio di ${names}`);
-    } else if (newAgendaWorkflow === 'member_resignation') {
-      setNewAgendaTitle(`Presa d'atto delle dimissioni dalla qualità di soci di ${names}`);
-    }
-  }, [newAgendaWorkflow, newAgendaMembers]);
-
-  // Reset members when workflow changes
-  useEffect(() => {
+  // Title and member list follow the workflow and the picked members. Both are
+  // adjusted during render, in the order the workflow change needs them.
+  const [trackedWorkflow, setTrackedWorkflow] = useState(newAgendaWorkflow);
+  const [trackedMembers, setTrackedMembers] = useState(newAgendaMembers);
+  if (newAgendaWorkflow !== trackedWorkflow) {
+    setTrackedWorkflow(newAgendaWorkflow);
     setNewAgendaMembers([]);
     if (newAgendaWorkflow === 'member_admission') setNewAgendaTitle('Ammissione soci');
     if (newAgendaWorkflow === 'member_resignation') setNewAgendaTitle("Presa d'atto dimissioni");
-  }, [newAgendaWorkflow]);
+  } else if (newAgendaMembers !== trackedMembers) {
+    setTrackedMembers(newAgendaMembers);
+    if (newAgendaWorkflow && newAgendaMembers.length > 0) {
+      const names = formatItalianList(newAgendaMembers);
+      if (newAgendaWorkflow === 'member_admission') {
+        setNewAgendaTitle(`Approvazione dell'ammissione alla qualità di socio di ${names}`);
+      } else if (newAgendaWorkflow === 'member_resignation') {
+        setNewAgendaTitle(`Presa d'atto delle dimissioni dalla qualità di soci di ${names}`);
+      }
+    }
+  }
 
   const addAgendaItem = (title: string, workflowType: string) => {
     if (!title.trim()) return;

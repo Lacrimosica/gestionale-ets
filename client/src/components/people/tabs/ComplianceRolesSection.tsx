@@ -1,11 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../../lib/date-utils';
+import type { ComplianceRole } from '../../../hooks/useCompliance';
 
 interface ComplianceRolesSectionProps {
-  roles?: any[];
+  roles?: ComplianceRole[];
   canEdit: boolean;
   onAddRole: () => void;
-  onEditRole: (role: any) => void;
+  onEditRole: (role: ComplianceRole) => void;
   onDeleteRole: (roleId: string, label: string) => void;
 }
 

@@ -1,22 +1,14 @@
+import type { Dispatch, SetStateAction } from 'react';
+import type { AssemblyForm } from '../../../hooks/useAssemblyForm';
 import { useTranslation } from 'react-i18next';
 import { FileText, AlertCircle } from 'lucide-react';
 import type { BoardGeneration } from './wizardTypes';
 
 // Local type definition to avoid circular imports
-interface AssemblyForm {
-  type: string;
-  subtype: string;
-  mode: 'in_person' | 'remote' | 'hybrid';
-  location: string;
-  meetLink: string;
-  boardGenerationId: string;
-  hasSecondCall: boolean;
-  secondCallLocation: string;
-}
 
 interface AssemblyTypeSectionProps {
   form: AssemblyForm;
-  setForm: (f: any) => void;
+  setForm: Dispatch<SetStateAction<AssemblyForm>>;
   generations: BoardGeneration[];
   getGenerationLabel?: (genId: string, genName: string) => string;
 }
@@ -41,7 +33,7 @@ export const AssemblyTypeSection = ({
           <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">{t('common.fields.type')}</label>
           <select
             value={form.type}
-            onChange={(e) => setForm({ ...form, type: e.target.value as any })}
+            onChange={(e) => setForm({ ...form, type: e.target.value as AssemblyForm['type'] })}
             className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-neutral-200 focus:ring-2 focus:ring-special-600 outline-none"
           >
             <option value="ordinary">{t('assemblies.types.ordinary')}</option>

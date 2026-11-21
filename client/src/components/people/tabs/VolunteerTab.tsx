@@ -1,3 +1,6 @@
+import type { DeleteRequest } from '../../../types/delete-request';
+import type { VolunteerPeriod } from '../../../hooks/usePeriods';
+import type { PersonDetails as Person } from '../../../hooks/usePerson';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
@@ -7,37 +10,16 @@ import { formatDate } from '../../../lib/date-utils';
 import EditPeriodModal from '../modals/EditPeriodModal';
 import PeriodModal from '../modals/PeriodModal';
 
-interface VolunteerPeriod {
-  id: string;
-  enrollmentDate: string;
-  exitDate?: string;
-  exitReason?: string;
-  notes?: string;
-}
-
-interface Person {
-  id: string;
-  volunteerPeriods?: VolunteerPeriod[];
-  // Phase 5: New English-named fields
-  isInVolunteerRegistryPhysical?: number | boolean;
-  volunteerRegistryStartDate?: string;
-  volunteerRegistryEndDate?: string;
-  // Keep old Italian names for fallback during transition
-  inLibroVolontariCartaceo?: number | boolean;
-  libroVolontariStartDate?: string;
-  libroVolontariEndDate?: string;
-}
-
 interface VolunteerTabProps {
   person: Person;
   canEdit: boolean;
   id: string;
-  startVolunteering: (data: any) => Promise<void>;
-  endVolunteering: (periodId: string, data: any) => Promise<void>;
-  updateVolunteerPeriod: (periodId: string, data: any) => Promise<void>;
+  startVolunteering: (data: Partial<VolunteerPeriod>) => Promise<void>;
+  endVolunteering: (periodId: string, data: { exitDate: string; exitReason: string }) => Promise<void>;
+  updateVolunteerPeriod: (periodId: string, data: Partial<VolunteerPeriod>) => Promise<void>;
   refresh: () => Promise<void>;
   refreshCompliance: () => Promise<void>;
-  onRequestDelete: (config: any) => void;
+  onRequestDelete: (config: DeleteRequest) => void;
 }
 
 interface PeriodFormData {

@@ -3,7 +3,7 @@ import { type DocumentSettings } from '../../hooks/useSettings';
 interface DefaultContentSectionProps {
   // Phase 5: Renamed from varieDefaultText to miscellaneousDefaultText
   miscellaneousDefaultText: string | null;
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
 }
 
 const DefaultContentSection = ({ miscellaneousDefaultText, onFormChange }: DefaultContentSectionProps) => {

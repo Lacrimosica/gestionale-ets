@@ -1,10 +1,10 @@
-import type { WorkflowItemType, WorkflowItemData } from '../../types/assembly';
+import type { Candidate, WorkflowItemType, WorkflowItemData } from '../../types/assembly';
 import { MemberPickerField } from '../MemberPickerField';
 
 interface WorkflowItemConfiguratorProps {
   workflowType: WorkflowItemType;
   workflowData: WorkflowItemData | undefined;
-  candidates: any[];
+  candidates: Candidate[];
   candidatesLoading: boolean;
   onWorkflowDataChange: (workflowData: WorkflowItemData) => void;
 }

@@ -49,7 +49,7 @@ interface DocumentSettingsSectionProps {
   previewTemplate: PreviewTemplate;
   brandingOrganizationName: string;
   onToggleSection: (section: string) => void;
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
   onSave: (form: Partial<DocumentSettings>) => Promise<void>;
   onPreviewTemplateChange: (template: PreviewTemplate) => void;
   onPreviewOpen: (open: boolean) => void;
@@ -97,7 +97,7 @@ const DocumentSettingsSection = ({
         (cleaned as Record<string, unknown>)[field] = extractGoogleId(v);
       }
     }
-    onFormChange('city' as any, cleaned.city);
+    onFormChange('city', cleaned.city ?? null);
     await onSave(cleaned);
   };
 

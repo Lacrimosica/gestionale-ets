@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { readLogoFileAsDataUrl } from './useBranding';
+import { readLogoFileAsDataUrl } from './branding-context';
 
 interface BrandingFormState {
   name: string;
@@ -19,13 +19,7 @@ export const useBrandingForm = (initialBranding: BrandingFormState) => {
     setForm(initialBranding);
   }, [initialBranding]);
 
-  const handleLogoChange = async (file: File): Promise<string | null> => {
-    try {
-      return await readLogoFileAsDataUrl(file);
-    } catch (error) {
-      throw error;
-    }
-  };
+  const handleLogoChange = async (file: File): Promise<string | null> => readLogoFileAsDataUrl(file);
 
   return {
     form,

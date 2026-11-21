@@ -68,7 +68,7 @@ const ModalityOptionsManager = ({
                       />
                       <select
                         value={editingModalityDraft.mode}
-                        onChange={(e) => onEditingModalityChange({ ...editingModalityDraft, mode: e.target.value as any })}
+                        onChange={(e) => onEditingModalityChange({ ...editingModalityDraft, mode: e.target.value as EditingModalityDraft['mode'] })}
                         className="w-full bg-neutral-950 border border-neutral-700 rounded px-2 py-1 text-fg text-xs"
                       >
                         <option value="any">Any modality</option>
@@ -143,7 +143,7 @@ const ModalityOptionsManager = ({
               />
               <select
                 value={modalityDraft.type === type ? modalityDraft.mode : 'any'}
-                onChange={(e) => onModalityDraftChange({ ...modalityDraft, type, mode: e.target.value as any })}
+                onChange={(e) => onModalityDraftChange({ ...modalityDraft, type, mode: e.target.value as ModalityDraft['mode'] })}
                 className="w-full bg-neutral-950 border border-neutral-700 rounded px-2 py-1 text-fg text-xs"
               >
                 <option value="any">Any modality</option>

@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '../lib/api-error';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -6,10 +7,23 @@ import type { VolunteerPeriod, MemberPeriod } from './usePeriods';
 
 import { API_BASE_URL } from '../config';
 
+export interface BoardRole {
+  member: {
+    id: string;
+    role: string;
+    notes?: string;
+  };
+  generation: {
+    name: string;
+    startDate: string;
+    endDate?: string;
+  };
+}
+
 export interface PersonDetails extends Person {
   volunteerPeriods: VolunteerPeriod[];
   memberPeriods: MemberPeriod[];
-  boardRoles?: { member: any; generation: any }[];
+  boardRoles?: BoardRole[];
   // Retention / data-lifecycle (repeated here for certainty after base type update)
   // Phase 5: New English-named fields
   isInVolunteerRegistryPhysical?: number | boolean;
@@ -37,7 +51,7 @@ export const usePerson = (id: string) => {
       const res = await axios.get(`${API_BASE_URL}/people/${id}`);
       setPerson(res.data);
       setError(null);
-    } catch (err: any) {
+    } catch {
       setError(t('people.errorLoadingDetails', { defaultValue: 'Error loading details' }));
     } finally {
       setLoading(false);
@@ -49,8 +63,8 @@ export const usePerson = (id: string) => {
       const res = await axios.patch(`${API_BASE_URL}/people/${id}`, data);
       setPerson((prev) => (prev ? { ...prev, ...res.data } : null));
       return res.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || t('common.errorUpdating', { defaultValue: 'Error updating' }));
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || t('common.errorUpdating', { defaultValue: 'Error updating' }));
     }
   };
 
@@ -58,8 +72,8 @@ export const usePerson = (id: string) => {
     try {
       await axios.delete(`${API_BASE_URL}/people/${id}`);
       return true;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || t('common.errorDeleting', { defaultValue: 'Error deleting' }));
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || t('common.errorDeleting', { defaultValue: 'Error deleting' }));
     }
   };
 

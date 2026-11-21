@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { and, eq, gte } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import { mockTime, advanceTime, resetTime } from '../setup/mocks/time';
@@ -35,7 +36,7 @@ describe('Rate Limiting — Setup Endpoint', () => {
     const result = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === clientIp && t.attemptedAt >= oneHourAgo)
+      .where(and(eq(schema.setupAttempt.ip, clientIp), gte(schema.setupAttempt.attemptedAt, oneHourAgo)))
       .all();
 
     expect(result.length).toBe(5);
@@ -60,7 +61,7 @@ describe('Rate Limiting — Setup Endpoint', () => {
     const result = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === clientIp && t.attemptedAt >= oneHourAgo)
+      .where(and(eq(schema.setupAttempt.ip, clientIp), gte(schema.setupAttempt.attemptedAt, oneHourAgo)))
       .all();
 
     expect(result.length).toBe(6);
@@ -91,7 +92,7 @@ describe('Rate Limiting — Setup Endpoint', () => {
     const result = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === clientIp && t.attemptedAt >= oneHourAgo)
+      .where(and(eq(schema.setupAttempt.ip, clientIp), gte(schema.setupAttempt.attemptedAt, oneHourAgo)))
       .all();
 
     expect(result.length).toBe(0);
@@ -123,7 +124,7 @@ describe('Rate Limiting — Setup Endpoint', () => {
     const ip1Attempts = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === ip1)
+      .where(eq(schema.setupAttempt.ip, ip1))
       .all();
     expect(ip1Attempts.length).toBe(5);
 
@@ -131,7 +132,7 @@ describe('Rate Limiting — Setup Endpoint', () => {
     const ip2Attempts = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === ip2)
+      .where(eq(schema.setupAttempt.ip, ip2))
       .all();
     expect(ip2Attempts.length).toBe(1);
   });
@@ -158,7 +159,7 @@ describe('Rate Limiting — Setup Endpoint', () => {
     const result = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === clientIp && t.attemptedAt >= oneHourAgo)
+      .where(and(eq(schema.setupAttempt.ip, clientIp), gte(schema.setupAttempt.attemptedAt, oneHourAgo)))
       .all();
 
     // The attempt is exactly at the boundary, so it depends on the comparison operator

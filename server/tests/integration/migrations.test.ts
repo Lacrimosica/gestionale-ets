@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
+import { eq } from 'drizzle-orm';
+import { initializeMiniflare, cleanupMiniflare, getMiniflareDB, getMiniflareRawDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
+import { createTestOrganization } from '../setup/fixtures';
 import * as schema from '../../src/db/schema';
 
 describe('Database Migrations', () => {
@@ -16,11 +18,11 @@ describe('Database Migrations', () => {
   it('all required tables should exist after migrations', async () => {
     const db = getMiniflareDB();
 
-    const result = await db.all(`
+    const result = await getMiniflareRawDB().prepare(`
       SELECT name FROM sqlite_master
       WHERE type='table' AND name NOT LIKE 'sqlite_%'
       ORDER BY name;
-    `);
+    `).all();
 
     const tableNames = (result.results || []).map((row) => row.name as string);
 
@@ -58,7 +60,7 @@ describe('Database Migrations', () => {
     const setting = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.id === 'test-setting')
+      .where(eq(schema.organizationSetting.id, 'test-setting'))
       .get();
 
     expect(setting).toBeTruthy();
@@ -80,7 +82,7 @@ describe('Database Migrations', () => {
     const retrieved = await db
       .select()
       .from(schema.organization)
-      .where((t) => t.id === 'test-org')
+      .where(eq(schema.organization.id, 'test-org'))
       .get();
 
     expect(retrieved).toBeTruthy();
@@ -91,11 +93,15 @@ describe('Database Migrations', () => {
   it('volunteer_period should support both old and new status columns', async () => {
     const db = getMiniflareDB();
 
+    // org_id is NOT NULL on every tenant table since migration 0065
+    const org = await createTestOrganization({ slug: 'migrations-org' });
+
     // First create a person
     const person = await db
       .insert(schema.person)
       .values({
         id: 'test-person',
+        orgId: org.id,
         firstName: 'Test',
         lastName: 'Person',
         createdAt: new Date().toISOString(),
@@ -107,6 +113,7 @@ describe('Database Migrations', () => {
       .insert(schema.volunteerPeriod)
       .values({
         id: 'test-period',
+        orgId: org.id,
         personId: 'test-person',
         status: 'active',
         enrollmentDate: new Date().toISOString(),
@@ -116,7 +123,7 @@ describe('Database Migrations', () => {
     const retrieved = await db
       .select()
       .from(schema.volunteerPeriod)
-      .where((t) => t.id === 'test-period')
+      .where(eq(schema.volunteerPeriod.id, 'test-period'))
       .get();
 
     expect(retrieved).toBeTruthy();

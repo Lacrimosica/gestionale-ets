@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import { mockTime, advanceTime, resetTime } from '../setup/mocks/time';
@@ -46,7 +47,7 @@ describe('Invite Token Validation — invite_only Mode', () => {
     const retrieved = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === 'valid-token-123')
+      .where(eq(schema.invite.token, 'valid-token-123'))
       .get();
 
     expect(retrieved).toBeTruthy();
@@ -84,7 +85,7 @@ describe('Invite Token Validation — invite_only Mode', () => {
     const retrieved = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === 'expired-token-123')
+      .where(eq(schema.invite.token, 'expired-token-123'))
       .get();
 
     const now = new Date();
@@ -127,7 +128,7 @@ describe('Invite Token Validation — invite_only Mode', () => {
     const retrieved = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === 'used-token-123')
+      .where(eq(schema.invite.token, 'used-token-123'))
       .get();
 
     expect(retrieved?.usedAt).not.toBeNull();
@@ -139,7 +140,7 @@ describe('Invite Token Validation — invite_only Mode', () => {
     const invites = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === 'non-existent-token')
+      .where(eq(schema.invite.token, 'non-existent-token'))
       .all();
 
     expect(invites.length).toBe(0);
@@ -181,13 +182,13 @@ describe('Invite Token Validation — invite_only Mode', () => {
         usedAt: now,
         usedByUserId: user.id,
       })
-      .where((t) => t.token === 'mark-as-used-token')
+      .where(eq(schema.invite.token, 'mark-as-used-token'))
       .run();
 
     const updated = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === 'mark-as-used-token')
+      .where(eq(schema.invite.token, 'mark-as-used-token'))
       .get();
 
     expect(updated?.usedAt).not.toBeNull();

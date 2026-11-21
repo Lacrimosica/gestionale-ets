@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
-import { createTestOrganization } from '../setup/fixtures';
+import { createTestOrganization, createTestUser } from '../setup/fixtures';
 import * as schema from '../../src/db/schema';
 
 describe('Concurrent Org Creation — Race Conditions', () => {
@@ -128,8 +129,8 @@ describe('Concurrent Org Creation — Race Conditions', () => {
       name: 'Test Organization',
     });
 
-    // Create a user
-    const userId = 'user-' + Date.now();
+    // Create a user (organization_user.user_id references user.id)
+    const userId = (await createTestUser({ email: 'dup-member@example.com' })).id;
     const orgUserId = 'org-user-' + Date.now();
 
     // First membership
@@ -166,6 +167,9 @@ describe('Concurrent Org Creation — Race Conditions', () => {
       name: 'Test Organization',
     });
 
+    // invite.created_by_user_id references user.id
+    const admin = await createTestUser({ email: 'invite-admin@example.com' });
+
     // Create invites with unique tokens
     const invites = await Promise.all(
       Array.from({ length: 5 }, (_, i) =>
@@ -175,7 +179,7 @@ describe('Concurrent Org Creation — Race Conditions', () => {
           email: `user${i}@example.com`,
           token: `token-${Date.now()}-${i}`,
           role: 'member',
-          createdByUserId: 'admin-' + Date.now(),
+          createdByUserId: admin.id,
           expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
           createdAt: new Date().toISOString(),
         })
@@ -212,7 +216,7 @@ describe('Concurrent Org Creation — Race Conditions', () => {
     const recorded = await db
       .select()
       .from(schema.setupAttempt)
-      .where((t) => t.ip === clientIp)
+      .where(eq(schema.setupAttempt.ip, clientIp))
       .all();
 
     expect(recorded.length).toBe(6);
@@ -236,13 +240,13 @@ describe('Concurrent Org Creation — Race Conditions', () => {
     await db
       .update(schema.organization)
       .set({ isSetupComplete: 1 })
-      .where((t) => t.id === org.id)
+      .where(eq(schema.organization.id, org.id))
       .run();
 
     const updated = await db
       .select()
       .from(schema.organization)
-      .where((t) => t.id === org.id)
+      .where(eq(schema.organization.id, org.id))
       .get();
 
     expect(updated?.isSetupComplete).toBe(1);

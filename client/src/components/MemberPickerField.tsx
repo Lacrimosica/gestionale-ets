@@ -14,24 +14,37 @@ interface MemberCandidate {
   label?: string;
 }
 
+/**
+ * Multi-select of people. Works on person ids (what the API links in
+ * agenda_item_person); names are only for display.
+ */
 export const MemberPickerField = ({
   candidates,
   selected,
   onChange,
   loading,
   placeholder = 'Cerca…',
+  extraCandidates = [],
 }: {
   candidates: MemberCandidate[];
+  /** Selected person ids. */
   selected: string[];
-  onChange: (names: string[]) => void;
+  onChange: (ids: string[]) => void;
   loading: boolean;
   placeholder?: string;
+  /**
+   * Already-linked people that may be missing from `candidates` (e.g. no longer
+   * a volunteer); listed so they stay visible and can be unselected.
+   */
+  extraCandidates?: MemberCandidate[];
 }) => {
   const [search, setSearch] = useState('');
-  const filtered = candidates.filter((c) => c.nome.toLowerCase().includes(search.toLowerCase()));
-  
-  const toggle = (nome: string) =>
-    onChange(selected.includes(nome) ? selected.filter((n) => n !== nome) : [...selected, nome]);
+  const knownIds = new Set(candidates.map((c) => c.id));
+  const options = [...extraCandidates.filter((c) => !knownIds.has(c.id)), ...candidates];
+  const filtered = options.filter((c) => c.nome.toLowerCase().includes(search.toLowerCase()));
+
+  const toggle = (id: string) =>
+    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
 
   if (loading) {
     return (
@@ -56,14 +69,14 @@ export const MemberPickerField = ({
       <div className="max-h-48 overflow-y-auto divide-y divide-neutral-800/60">
         {filtered.length === 0 ? (
           <p className="text-neutral-500 text-xs p-3">
-            {candidates.length === 0 ? 'Nessun candidato disponibile.' : 'Nessun risultato.'}
+            {options.length === 0 ? 'Nessun candidato disponibile.' : 'Nessun risultato.'}
           </p>
         ) : filtered.map((c) => (
           <label key={c.id} className="flex items-center gap-3 px-3 py-2.5 hover:bg-neutral-800/40 cursor-pointer">
             <input
               type="checkbox"
-              checked={selected.includes(c.nome)}
-              onChange={() => toggle(c.nome)}
+              checked={selected.includes(c.id)}
+              onChange={() => toggle(c.id)}
               className="accent-special-500 shrink-0"
             />
             <span className="flex-1 text-sm text-neutral-200">{c.nome}</span>

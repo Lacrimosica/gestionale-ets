@@ -6,10 +6,12 @@ import {
 import { useDocuments, type GenerateInput, type WorkflowType, type GenerateResult } from '../../hooks/useDocuments';
 import { useModalityOptions, useDocumentSettings } from '../../hooks/useSettings';
 import type {
+  AgendaItem,
   GenConfig,
   AssemblyDetailData,
   ConvocationDetail,
 } from '../../types/assembly';
+import { agendaMemberNames } from '../../lib/agenda-members';
 
 const DOC_INPUT_CLS = 'w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:outline-none focus:ring-2 focus:ring-success-600 focus:border-transparent transition-all';
 
@@ -71,6 +73,11 @@ export const DocumentGenerationPanel = ({
     const electionItem = convocationDetail.agendaItems.find((i) => i.workflowType === 'board_election');
     const budgetItem = convocationDetail.agendaItems.find((i) => i.workflowType === 'budget_approval');
     const resignationItem = convocationDetail.agendaItems.find((i) => i.workflowType === 'member_resignation');
+    // Linked people's names, or legacy text names; undefined keeps the manual value.
+    const namesOrUndefined = (item?: AgendaItem) => {
+      const names = item ? agendaMemberNames(item) : [];
+      return names.length > 0 ? names : undefined;
+    };
 
     const genericItemIds = convocationDetail.agendaItems
       .filter((item) => {
@@ -97,11 +104,11 @@ export const DocumentGenerationPanel = ({
 
       data: {
         ...genConfig.data,
-        newMembers: admissionItem?.workflowData?.members || genConfig.data.newMembers,
-        excludedMembers: exclusionItem?.workflowData?.members || genConfig.data.excludedMembers,
-        newBoard: electionItem?.workflowData?.members || genConfig.data.newBoard,
+        newMembers: namesOrUndefined(admissionItem) || genConfig.data.newMembers,
+        excludedMembers: namesOrUndefined(exclusionItem) || genConfig.data.excludedMembers,
+        newBoard: namesOrUndefined(electionItem) || genConfig.data.newBoard,
         budgetYear: budgetItem?.workflowData?.budgetYear ? String(budgetItem.workflowData.budgetYear) : genConfig.data.budgetYear,
-        resignations: resignationItem?.workflowData?.members?.map((m: string) => ({ name: m, date: resignationItem?.workflowData?.resignationDate || '' })) || genConfig.data.resignations,
+        resignations: namesOrUndefined(resignationItem)?.map((name) => ({ name, date: resignationItem?.workflowData?.resignationDate || '' })) || genConfig.data.resignations,
       }
     });
   }, [genConfig.isOpen, convocationDetail, docSettings, data?.location]);

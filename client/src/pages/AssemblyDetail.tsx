@@ -490,8 +490,6 @@ const AssemblyDetail = () => {
           onConvocationDetailChange={setConvocationDetail}
           testoVarie={genConfig.testoVarie}
           onTestoVarieChange={setTestoVarie}
-          candidates={candidates}
-          candidatesLoading={candidatesLoading}
         />
 
         {/* Membership Links */}

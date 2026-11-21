@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { X, Check, Loader2, Plus } from 'lucide-react';
 import { useAssemblyForm } from '../../hooks/useAssemblyForm';
-import type { BoardMemberWithDetails } from '../../hooks/useBoardGenerations';
-import { useBoardGenerations } from '../../hooks/useBoardGenerations';
+import { useWorkflowCandidates } from '../../hooks/useWorkflowCandidates';
+import { resolveMemberNames } from '../../lib/agenda-members';
+import { useBoardGenerations, type BoardMemberWithDetails } from '../../hooks/useBoardGenerations';
 import { useAddresses } from '../../hooks/useSettings';
 import { normalizeRole } from '../../lib/board-roles';
 import type { MemberCandidate } from '../SingleMemberPicker';
@@ -42,13 +43,15 @@ export const CreateAssemblyWizard = ({
     setNewAgendaTitle,
     newAgendaWorkflow,
     setNewAgendaWorkflow,
-    newAgendaMembers,
-    setNewAgendaMembers,
+    newAgendaMemberIds,
+    setNewAgendaMemberIds,
     addAgendaItem,
     removeAgendaItem,
     applyCurrentTemplate,
     computeConvocationDate,
   } = useAssemblyForm();
+  const { candidatesFor, loadingFor } = useWorkflowCandidates(isOpen ? [newAgendaWorkflow] : []);
+  const agendaCandidates = candidatesFor(newAgendaWorkflow);
 
   const [creating, setCreating] = useState(false);
   const [boardMembers, setBoardMembers] = useState<Record<string, BoardMemberWithDetails[]>>({});
@@ -157,6 +160,7 @@ export const CreateAssemblyWizard = ({
             number: item.number,
             title: item.title,
             workflowType: item.workflowType || null,
+            memberIds: item.memberIds ?? [],
           });
         }
       }
@@ -234,13 +238,14 @@ export const CreateAssemblyWizard = ({
               setNewAgendaTitle={setNewAgendaTitle}
               newAgendaWorkflow={newAgendaWorkflow}
               setNewAgendaWorkflow={setNewAgendaWorkflow}
-              newAgendaMembers={newAgendaMembers}
-              setNewAgendaMembers={setNewAgendaMembers}
+              newAgendaMemberIds={newAgendaMemberIds}
+              setNewAgendaMemberIds={(ids) =>
+                setNewAgendaMemberIds(ids, resolveMemberNames(ids, [], agendaCandidates).map((m) => m.name))}
               addAgendaItem={addAgendaItem}
               removeAgendaItem={removeAgendaItem}
               applyCurrentTemplate={applyCurrentTemplate}
-              memberCandidates={memberCandidates}
-              membersLoading={membersLoading}
+              memberCandidates={agendaCandidates}
+              membersLoading={loadingFor(newAgendaWorkflow)}
             />
           </div>
         </div>
@@ -269,7 +274,7 @@ export const CreateAssemblyWizard = ({
             <button
               onClick={handleCreate}
               disabled={isButtonDisabled}
-              className="flex items-center space-x-2 bg-special-600 hover:bg-special-500 disabled:opacity-50 text-white px-8 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-special-900/20 text-sm"
+              className="flex items-center space-x-2 bg-special-600 hover:bg-special-500 disabled:opacity-50 text-fg px-8 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-special-900/20 text-sm"
             >
               {creating ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
               <span>{creating ? t('common.status.loading') : t('common.actions.create')}</span>

@@ -9,7 +9,7 @@ const invalidReference = (c: any) => c.json({ error: 'Referenced record not foun
 
 /**
  * Keep only ids of people in the caller's org. Agenda members are best-effort
- * links (the picker can send display names), so unknown values are dropped
+ * links (older clients sent display names), so unknown values are dropped
  * rather than rejected — but another org's person ids must never be linked.
  */
 const ownPersonIds = async (db: Parameters<typeof ownedByOrg>[0], orgId: string, ids: unknown): Promise<string[]> => {
@@ -20,6 +20,96 @@ const ownPersonIds = async (db: Parameters<typeof ownedByOrg>[0], orgId: string,
     .where(and(eq(person.orgId, orgId), inArray(person.id, candidates)))
     .all();
   return rows.map((r) => r.id);
+};
+
+type AgendaMember = { id: string; name: string };
+
+/**
+ * Agenda members (junction rows) with display names, keyed by agenda item id.
+ * Both sides are org-filtered so a stray cross-org junction row can never leak a
+ * name. The junction has no ordinal, so names are sorted for a stable display.
+ */
+const agendaMembersByItem = async (
+  db: Parameters<typeof ownedByOrg>[0],
+  orgId: string,
+  itemIds: string[],
+): Promise<Map<string, AgendaMember[]>> => {
+  const byItem = new Map<string, AgendaMember[]>();
+  if (itemIds.length === 0) return byItem;
+  const rows = await db
+    .select({
+      agendaItemId: agendaItemPerson.agendaItemId,
+      id: person.id,
+      firstName: person.firstName,
+      lastName: person.lastName,
+    })
+    .from(agendaItemPerson)
+    .innerJoin(person, and(eq(person.id, agendaItemPerson.personId), eq(person.orgId, orgId)))
+    .where(and(eq(agendaItemPerson.orgId, orgId), inArray(agendaItemPerson.agendaItemId, itemIds)))
+    .all();
+  for (const row of rows) {
+    const list = byItem.get(row.agendaItemId) ?? [];
+    list.push({ id: row.id, name: `${row.firstName} ${row.lastName}` });
+    byItem.set(row.agendaItemId, list);
+  }
+  for (const list of byItem.values()) list.sort((a, b) => a.name.localeCompare(b.name, 'it'));
+  return byItem;
+};
+
+const isStringArray = (value: unknown): value is string[] =>
+  Array.isArray(value) && value.every((v) => typeof v === 'string');
+
+/**
+ * Split an agenda request into junction person ids and the workflow_data to store.
+ *
+ * - `memberIds` (current client): ids go to the junction; `workflowData.members`,
+ *   if still a string array, is kept verbatim as legacy display names from before
+ *   the junction existed, so saving e.g. voting results doesn't silently erase them.
+ * - no `memberIds` (older clients): `workflowData.members` is read as person ids,
+ *   as before, and stripped from workflow_data.
+ *
+ * `personIds` is undefined when the request doesn't touch members at all.
+ */
+const splitAgendaMembers = async (
+  db: Parameters<typeof ownedByOrg>[0],
+  orgId: string,
+  body: { memberIds?: unknown; workflowData?: unknown },
+): Promise<{ personIds?: string[]; workflowData?: Record<string, unknown> }> => {
+  const rawData = body.workflowData;
+  const workflowData = rawData && typeof rawData === 'object' && !Array.isArray(rawData)
+    ? { ...(rawData as Record<string, unknown>) }
+    : undefined;
+
+  if (Array.isArray(body.memberIds)) {
+    if (workflowData && !isStringArray(workflowData.members)) delete workflowData.members;
+    return { personIds: await ownPersonIds(db, orgId, body.memberIds), workflowData };
+  }
+
+  if (workflowData && 'members' in workflowData) {
+    const personIds = await ownPersonIds(db, orgId, workflowData.members);
+    delete workflowData.members;
+    return { personIds, workflowData };
+  }
+
+  return { workflowData };
+};
+
+const insertAgendaMembers = async (
+  db: Parameters<typeof ownedByOrg>[0],
+  orgId: string,
+  agendaItemId: string,
+  personIds: string[],
+) => {
+  if (personIds.length === 0) return;
+  const createdAt = new Date().toISOString();
+  await db.insert(agendaItemPerson).values(personIds.map((personId) => ({
+    id: crypto.randomUUID(),
+    agendaItemId,
+    orgId,
+    personId,
+    role: null,
+    createdAt,
+  }))).run();
 };
 
 type Bindings = { DB: D1Database };
@@ -110,19 +200,13 @@ convocationsRouter.get('/:id', async (c) => {
       .all(),
   ]);
 
-  // Fetch members for each agenda item from junction table
-  const agendaItemsWithMembers = await Promise.all(
-    agendaItems.map(async (item: any) => {
-      const members = await db.select({ personId: agendaItemPerson.personId })
-        .from(agendaItemPerson)
-        .where(and(eq(agendaItemPerson.agendaItemId, item.id), eq(agendaItemPerson.orgId, orgId)))
-        .all();
-      return {
-        ...item,
-        memberIds: members.map((m: any) => m.personId),
-      };
-    })
-  );
+  // memberIds kept for older clients; members carries ids + display names so the
+  // UI can show people who aren't in its candidate list (e.g. ex-volunteers).
+  const membersByItem = await agendaMembersByItem(db, orgId, agendaItems.map((item) => item.id));
+  const agendaItemsWithMembers = agendaItems.map((item) => {
+    const members = membersByItem.get(item.id) ?? [];
+    return { ...item, memberIds: members.map((m) => m.id), members };
+  });
 
   // Resolve officer names for both assemblies
   const resolveOfficerNames = async (a: typeof assembly.$inferSelect | null | undefined) => {
@@ -252,11 +336,7 @@ convocationsRouter.post('/:id/agenda', async (c) => {
   if (!conv) return c.json({ error: 'Convocation not found' }, 404);
 
   const itemId = crypto.randomUUID();
-
-  // Prepare workflowData without members (they go to junction table now)
-  const workflowData = body.workflowData ? { ...body.workflowData } : {};
-  const memberIds = workflowData.members || body.memberIds || [];
-  delete workflowData.members;
+  const { personIds = [], workflowData = {} } = await splitAgendaMembers(db, orgId, body);
 
   const newItem = {
     id: itemId,
@@ -271,25 +351,10 @@ convocationsRouter.post('/:id/agenda', async (c) => {
     createdAt: new Date().toISOString(),
   };
   await db.insert(agendaItem).values(newItem).run();
+  await insertAgendaMembers(db, orgId, itemId, personIds);
 
-  // Write members to junction table
-  const linkedPersonIds = await ownPersonIds(db, orgId, memberIds);
-  if (linkedPersonIds.length > 0) {
-    const junctionRows = linkedPersonIds
-      .map((personId: string) => ({
-        id: crypto.randomUUID(),
-        agendaItemId: itemId,
-        orgId: orgId,
-        personId,
-        role: null,
-        createdAt: new Date().toISOString(),
-      }));
-    if (junctionRows.length > 0) {
-      await db.insert(agendaItemPerson).values(junctionRows).run();
-    }
-  }
-
-  return c.json(newItem, 201);
+  const members = (await agendaMembersByItem(db, orgId, [itemId])).get(itemId) ?? [];
+  return c.json({ ...newItem, memberIds: members.map((m) => m.id), members }, 201);
 });
 
 // PATCH /api/convocations/:id/agenda/:itemId
@@ -306,44 +371,30 @@ convocationsRouter.patch('/:id/agenda/:itemId', async (c) => {
     .where(and(eq(agendaItem.id, itemId), eq(agendaItem.orgId, orgId))).get();
   if (!item) return c.json({ error: 'Agenda item not found' }, 404);
 
-  const workflowData = body.workflowData ? { ...body.workflowData } : undefined;
-  const memberIds = workflowData?.members || body.memberIds;
-  if (workflowData) {
-    delete workflowData.members;
+  const { personIds, workflowData } = await splitAgendaMembers(db, orgId, body);
+
+  // Only touch fields the client sent: the workflow panel saves just
+  // workflowData/memberIds (+ title), and defaulting the rest to null used to
+  // wipe the item's workflowType and description.
+  const updates: Partial<typeof agendaItem.$inferInsert> = {};
+  if (body.number !== undefined) updates.number = body.number;
+  if (body.title !== undefined) updates.title = body.title;
+  if ('description' in body) updates.description = body.description ?? null;
+  if ('resolution' in body) updates.resolution = body.resolution ?? null;
+  if ('workflowType' in body) updates.workflowType = body.workflowType ?? null;
+  if (workflowData !== undefined) updates.workflowData = JSON.stringify(workflowData);
+  if (Object.keys(updates).length > 0) {
+    await db.update(agendaItem).set(updates)
+      .where(and(eq(agendaItem.id, itemId), eq(agendaItem.orgId, orgId))).run();
   }
 
-  await db.update(agendaItem).set({
-    number: body.number,
-    title: body.title,
-    description: body.description ?? null,
-    workflowType: body.workflowType ?? null,
-    workflowData: workflowData !== undefined ? JSON.stringify(workflowData) : undefined,
-  }).where(and(eq(agendaItem.id, itemId), eq(agendaItem.orgId, orgId))).run();
-
-  // Update junction table if memberIds provided
-  if (Array.isArray(memberIds)) {
-    // Delete existing members for this item
+  if (personIds !== undefined) {
     await db.delete(agendaItemPerson).where(and(eq(agendaItemPerson.agendaItemId, itemId), eq(agendaItemPerson.orgId, orgId))).run();
-
-    // Insert new members
-    const linkedPersonIds = await ownPersonIds(db, orgId, memberIds);
-    if (linkedPersonIds.length > 0) {
-      const junctionRows = linkedPersonIds
-        .map((personId: string) => ({
-          id: crypto.randomUUID(),
-          agendaItemId: itemId,
-          orgId: orgId,
-          personId,
-          role: null,
-          createdAt: new Date().toISOString(),
-        }));
-      if (junctionRows.length > 0) {
-        await db.insert(agendaItemPerson).values(junctionRows).run();
-      }
-    }
+    await insertAgendaMembers(db, orgId, itemId, personIds);
   }
 
-  return c.json({ id: itemId, ...body });
+  const members = (await agendaMembersByItem(db, orgId, [itemId])).get(itemId) ?? [];
+  return c.json({ id: itemId, ...body, memberIds: members.map((m) => m.id), members });
 });
 
 // DELETE /api/convocations/:id/agenda/:itemId

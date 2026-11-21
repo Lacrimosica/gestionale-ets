@@ -5,12 +5,13 @@ import { ListOrdered } from 'lucide-react';
 import { API_BASE_URL } from '../../config';
 import { useAgendaItemForm } from '../../hooks/useAgendaItemForm';
 import { useAgendaItemEditForm } from '../../hooks/useAgendaItemEditForm';
+import { useWorkflowCandidates } from '../../hooks/useWorkflowCandidates';
 import { AgendaItemCard } from './AgendaItemCard';
 import { AddAgendaItemForm } from './AddAgendaItemForm';
+import { agendaMemberNames, formatItalianList, normalizeAgendaItem, resolveMemberNames } from '../../lib/agenda-members';
 import type {
   AgendaItem,
   ConvocationDetail,
-  Candidate,
   WorkflowItemData,
 } from '../../types/assembly';
 
@@ -19,8 +20,6 @@ interface AgendaItemsListProps {
   onConvocationDetailChange: (detail: ConvocationDetail) => void;
   testoVarie: string;
   onTestoVarieChange: (text: string) => void;
-  candidates: Candidate[];
-  candidatesLoading: boolean;
 }
 
 export const AgendaItemsList = ({
@@ -28,14 +27,16 @@ export const AgendaItemsList = ({
   onConvocationDetailChange,
   testoVarie,
   onTestoVarieChange,
-  candidates,
-  candidatesLoading,
 }: AgendaItemsListProps) => {
   const { t } = useTranslation();
 
   // State management via hooks
   const [expandedOdgItems, setExpandedOdgItems] = useState<Record<string, boolean>>({});
   const [savingWorkflowId, setSavingWorkflowId] = useState<string | null>(null);
+
+  const { candidatesFor, loadingFor } = useWorkflowCandidates(
+    (convocationDetail?.agendaItems ?? []).map((i) => i.workflowType),
+  );
 
   const newItemForm = useAgendaItemForm();
   const editForm = useAgendaItemEditForm();
@@ -45,14 +46,6 @@ export const AgendaItemsList = ({
     onConvocationDetailChange(
       convocationDetail ? { ...convocationDetail, agendaItems: updater(convocationDetail.agendaItems) } : convocationDetail!
     );
-  };
-
-  const formatItalianList = (items: string[]) => {
-    if (items.length === 0) return '';
-    if (items.length === 1) return items[0];
-    const last = items[items.length - 1];
-    const others = items.slice(0, -1);
-    return `${others.join(', ')} e ${last}`;
   };
 
   // Handlers
@@ -68,7 +61,7 @@ export const AgendaItemsList = ({
         description: newItemForm.form.description.trim() || undefined,
         workflowType: newItemForm.form.workflowType || null,
       });
-      updateConvocationDetailItems((items) => [...items, res.data]);
+      updateConvocationDetailItems((items) => [...items, normalizeAgendaItem(res.data)]);
       newItemForm.reset();
       newItemForm.setNumber(String((convocationDetail.agendaItems.length ?? 0) + 2));
     } catch {
@@ -121,29 +114,44 @@ export const AgendaItemsList = ({
     );
   };
 
+  const handleUpdateOdgMembers = (itemId: string, memberIds: string[]) => {
+    updateConvocationDetailItems((items) =>
+      items.map((i) => i.id === itemId
+        ? { ...i, memberIds, members: resolveMemberNames(memberIds, i.members, candidatesFor(i.workflowType)) }
+        : i)
+    );
+  };
+
   const handleSaveAgendaWorkflow = async (item: AgendaItem) => {
     if (!convocationDetail?.id) return;
     setSavingWorkflowId(item.id);
     try {
+      const memberIds = item.memberIds ?? [];
+      // Legacy text names stay until real people are picked, then they're replaced.
+      const workflowData = { ...(item.workflowData ?? {}) };
+      if (memberIds.length > 0) delete workflowData.members;
+
       let newTitle = item.title;
-      const data = item.workflowData ?? {};
-      if (data.members && data.members.length > 0) {
-        const names = formatItalianList(data.members);
+      const names = agendaMemberNames({ ...item, workflowData });
+      if (names.length > 0) {
+        const list = formatItalianList(names);
         if (item.workflowType === 'member_admission') {
-          newTitle = `Approvazione dell'ammissione alla qualità di socio di ${names}`;
+          newTitle = `Approvazione dell'ammissione alla qualità di socio di ${list}`;
         } else if (item.workflowType === 'member_resignation') {
-          newTitle = `Presa d'atto delle dimissioni dalla qualità di soci di ${names}`;
+          newTitle = `Presa d'atto delle dimissioni dalla qualità di soci di ${list}`;
         }
       }
 
-      const payload: { workflowData: AgendaItem['workflowData']; title?: string } = { workflowData: item.workflowData };
+      const payload: { workflowData: WorkflowItemData; memberIds: string[]; title?: string } = { workflowData, memberIds };
       if (newTitle !== item.title) {
         payload.title = newTitle;
       }
 
-      await axios.patch(`${API_BASE_URL}/convocations/${convocationDetail.id}/agenda/${item.id}`, payload);
+      const res = await axios.patch(`${API_BASE_URL}/convocations/${convocationDetail.id}/agenda/${item.id}`, payload);
+      // The server drops ids it can't link, so trust its member list over ours.
+      const saved = normalizeAgendaItem({ ...item, ...payload, memberIds: res.data?.memberIds, members: res.data?.members });
       updateConvocationDetailItems((items) =>
-        items.map((i) => i.id === item.id ? { ...i, ...payload } : i)
+        items.map((i) => i.id === item.id ? saved : i)
       );
     } catch {
       // Error handling would be done at parent level
@@ -185,10 +193,11 @@ export const AgendaItemsList = ({
                   onDelete={handleDeleteAgendaItem}
                   onToggleExpand={(id) => setExpandedOdgItems((prev) => ({ ...prev, [id]: !prev[id] }))}
                   onWorkflowDataChange={(data) => handleUpdateOdgWorkflowData(item.id, data)}
+                  onMembersChange={(ids) => handleUpdateOdgMembers(item.id, ids)}
                   onSaveWorkflow={() => handleSaveAgendaWorkflow(item)}
                   savingWorkflow={savingWorkflowId === item.id}
-                  candidates={candidates}
-                  candidatesLoading={candidatesLoading}
+                  candidates={candidatesFor(item.workflowType)}
+                  candidatesLoading={loadingFor(item.workflowType)}
                 />
               ))}
 

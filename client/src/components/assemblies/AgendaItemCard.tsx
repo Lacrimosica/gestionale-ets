@@ -25,6 +25,7 @@ interface AgendaItemCardProps {
   onDelete: (itemId: string) => void;
   onToggleExpand: (itemId: string) => void;
   onWorkflowDataChange: (workflowData: WorkflowItemData) => void;
+  onMembersChange: (memberIds: string[]) => void;
   onSaveWorkflow: () => void;
   savingWorkflow: boolean;
   candidates: Candidate[];
@@ -55,6 +56,7 @@ export const AgendaItemCard = ({
   onDelete,
   onToggleExpand,
   onWorkflowDataChange,
+  onMembersChange,
   onSaveWorkflow,
   savingWorkflow,
   candidates,
@@ -104,7 +106,7 @@ export const AgendaItemCard = ({
             <button
               onClick={onSave}
               disabled={saving || !editForm.title.trim()}
-              className="flex items-center gap-1.5 bg-warning-600 hover:bg-warning-500 disabled:opacity-50 text-white px-3 py-1.5 rounded-lg text-xs font-medium"
+              className="flex items-center gap-1.5 bg-warning-600 hover:bg-warning-500 disabled:opacity-50 text-fg px-3 py-1.5 rounded-lg text-xs font-medium"
             >
               <Check size={13} />
               {saving ? t('common.status.saving') : t('common.actions.save')}
@@ -166,9 +168,12 @@ export const AgendaItemCard = ({
               <WorkflowItemConfigurator
                 workflowType={item.workflowType}
                 workflowData={item.workflowData ?? undefined}
+                memberIds={item.memberIds ?? []}
+                members={item.members ?? []}
                 candidates={candidates}
                 candidatesLoading={candidatesLoading}
                 onWorkflowDataChange={onWorkflowDataChange}
+                onMembersChange={onMembersChange}
               />
 
               {item.workflowType !== 'member_resignation' && (
@@ -183,7 +188,7 @@ export const AgendaItemCard = ({
                   type="button"
                   onClick={onSaveWorkflow}
                   disabled={savingWorkflow}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-success-600 hover:bg-success-500 disabled:opacity-50 text-white rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 hover:shadow-success-900/20"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-success-600 hover:bg-success-500 disabled:opacity-50 text-fg rounded-lg text-xs font-bold transition-all shadow-md active:scale-95 hover:shadow-success-900/20"
                 >
                   {savingWorkflow ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
                   {savingWorkflow ? t('common.status.saving') : 'Salva Configurazione'}

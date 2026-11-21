@@ -24,6 +24,13 @@ database_name = "gestionale-ets-db"
 database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
 migrations_dir = "drizzle/migrations/dev"
 
+# Throttles login, password and setup endpoints (src/lib/rate-limit.ts).
+# namespace_id is any integer unique per environment so counters aren't shared.
+# period must be 10 or 60 seconds.
+[[ratelimits]]
+name = "AUTH_RATE_LIMITER"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
 
 [observability]
 enabled = true
@@ -50,6 +57,13 @@ database_name = "gestionale-ets-db"
 database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
 migrations_dir = "drizzle/migrations"
 
+# Throttles login, password and setup endpoints (src/lib/rate-limit.ts).
+# namespace_id is any integer unique per environment so counters aren't shared.
+# period must be 10 or 60 seconds.
+[[env.production.ratelimits]]
+name = "AUTH_RATE_LIMITER"
+namespace_id = "1002"
+simple = { limit = 10, period = 60 }
 
 # ─── STAGING (ENVIRONMENT-SPECIFIC) ───────────────────────────────────────
 # This file contains environment-specific overrides for staging.
@@ -67,6 +81,13 @@ database_name = "gestionale-ets-db-staging"
 database_id = "a0aba6f8-f4b9-4260-ae99-c95462590cfc"
 migrations_dir = "drizzle/migrations"
 
+# Throttles login, password and setup endpoints (src/lib/rate-limit.ts).
+# namespace_id is any integer unique per environment so counters aren't shared.
+# period must be 10 or 60 seconds.
+[[env.staging.ratelimits]]
+name = "AUTH_RATE_LIMITER"
+namespace_id = "1003"
+simple = { limit = 10, period = 60 }
 
 # ─── DEMO (PUBLIC) ────────────────────────────────────────────────────────
 # Public sandbox linked from the README. Fake data only; wiped and reseeded

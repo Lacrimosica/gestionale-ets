@@ -18,23 +18,6 @@ export interface RoleForm {
   inherits: string[]; // role keys
 }
 
-export const emptyDocTypeForm = (): DocTypeForm => ({
-  key: '',
-  label: '',
-  description: '',
-  consentTypes: '',
-  versions: '',
-  currentVersion: '',
-});
-
-export const emptyRoleForm = (): RoleForm => ({
-  key: '',
-  label: '',
-  description: '',
-  requiredDocuments: [],
-  inherits: [],
-});
-
 // ── Sub-components ─────────────────────────────────────────────────────────
 
 export const SectionHeader = ({

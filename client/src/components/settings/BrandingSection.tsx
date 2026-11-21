@@ -17,7 +17,7 @@ interface BrandingSectionProps {
   message: string | null;
   saving: boolean;
   onToggle: () => void;
-  onFormChange: (field: keyof BrandingFormState, value: any) => void;
+  onFormChange: (field: keyof BrandingFormState, value: BrandingFormState[keyof BrandingFormState]) => void;
   onLogoChange: (event: ChangeEvent<HTMLInputElement>) => void;
   onSave: () => void;
 }

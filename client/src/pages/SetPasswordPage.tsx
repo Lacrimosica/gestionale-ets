@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { API_BASE_URL } from '../config';
 
 export default function SetPasswordPage() {

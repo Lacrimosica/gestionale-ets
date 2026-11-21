@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '../lib/api-error';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -15,7 +16,6 @@ export interface Assembly {
   referenceYear?: number;
   convocationDate?: string;
   firstCallDate: string;
-  oraFirstCall?: string;
   secondCallDate?: string;
   oraSecondCall?: string;
   location: string;
@@ -47,7 +47,7 @@ export const useAssemblies = () => {
       const response = await axios.get(`${API_BASE_URL}/assemblies`);
       setAssemblies(response.data);
       setError(null);
-    } catch (err: any) {
+    } catch {
       setError('Error loading assemblies');
     } finally {
       setLoading(false);
@@ -64,8 +64,8 @@ export const useAssemblies = () => {
       const response = await axios.post(`${API_BASE_URL}/assemblies`, data);
       await fetchAssemblies();
       return response.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -76,8 +76,8 @@ export const useAssemblies = () => {
       setLoading(true);
       await axios.delete(`${API_BASE_URL}/assemblies/${id}`);
       await fetchAssemblies();
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error deleting assembly');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error deleting assembly');
     } finally {
       setLoading(false);
     }
@@ -88,8 +88,8 @@ export const useAssemblies = () => {
       setLoading(true);
       await Promise.all(ids.map((assemblyId) => axios.delete(`${API_BASE_URL}/assemblies/${assemblyId}`)));
       await fetchAssemblies();
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error deleting assemblies');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error deleting assemblies');
     } finally {
       setLoading(false);
     }

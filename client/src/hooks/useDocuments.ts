@@ -1,3 +1,4 @@
+import { apiErrorMessage, errorMessage } from '../lib/api-error';
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
@@ -130,8 +131,8 @@ export function useDocuments() {
         `${API_BASE_URL}/documents/history?limit=100`,
       );
       setHistory(data);
-    } catch (err: any) {
-      setHistoryError(err?.response?.data?.error ?? err.message ?? 'Errore nel caricamento');
+    } catch (err: unknown) {
+      setHistoryError(apiErrorMessage(err) ?? errorMessage(err) ?? 'Errore nel caricamento');
     } finally {
       setHistoryLoading(false);
     }

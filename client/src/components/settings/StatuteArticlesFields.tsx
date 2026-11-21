@@ -8,7 +8,7 @@ interface StatuteArticlesFieldsProps {
     statuteArticleBoardVote: string | null;
     statuteArticleBoardElection: string | null;
   };
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
 }
 
 const StatuteArticlesFields = ({ articles, onFormChange }: StatuteArticlesFieldsProps) => {

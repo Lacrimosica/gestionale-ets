@@ -14,7 +14,7 @@ export interface TimelineEntry {
   type: 'assembly' | 'member_admission' | 'member_resignation' | 'pending_verbal' | 'compliance_error';
   label?: string;
   labelKey?: string;
-  labelParams?: Record<string, any>;
+  labelParams?: Record<string, unknown>;
   start: string;
   end: string;
   subType?: string;
@@ -41,7 +41,7 @@ export interface TimelineEntry {
   linkedAssemblyId?: string;
   description?: string;
   descriptionKey?: string;
-  descriptionParams?: Record<string, any>;
+  descriptionParams?: Record<string, unknown>;
 }
 
 export interface MembershipHistory {
@@ -66,7 +66,7 @@ export const useTimeline = () => {
       const response = await axios.get(`${API_BASE_URL}/timeline`);
       setData(response.data);
       setError(null);
-    } catch (err: any) {
+    } catch {
       setError('Error loading timeline');
     } finally {
       setLoading(false);

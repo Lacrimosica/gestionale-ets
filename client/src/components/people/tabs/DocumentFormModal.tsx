@@ -2,14 +2,15 @@ import { useTranslation } from 'react-i18next';
 import OverlayModal from '../ui/OverlayModal';
 import ModalField from '../ui/ModalField';
 import CheckboxField from '../ui/CheckboxField';
-import type { DocumentFormState } from './useComplianceTab';
+import type { DocumentFormState, FormFieldValue } from './useComplianceTab';
+import type { ComplianceRules } from '../../../hooks/useCompliance';
 
 interface DocumentFormModalProps {
   isOpen: boolean;
   isEditing: boolean;
   form: DocumentFormState;
-  rules?: any;
-  onFormChange: (field: keyof DocumentFormState, value: any) => void;
+  rules?: ComplianceRules;
+  onFormChange: (field: keyof DocumentFormState, value: FormFieldValue) => void;
   onConsentChange: (consentType: string, status: 'granted' | 'withdrawn' | 'pending') => void;
   onSave: () => Promise<void>;
   onClose: () => void;
@@ -64,7 +65,7 @@ const DocumentFormModal = ({
           className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
           disabled={!rules}
         >
-          {rules && Object.entries(rules.documentTypes).map(([value, doc]: [string, any]) => (
+          {rules && Object.entries(rules.documentTypes).map(([value, doc]) => (
             <option key={value} value={value}>{t(doc.label)}</option>
           ))}
         </select>

@@ -54,7 +54,7 @@ export const AssemblyPairingManager = ({
             <Unlink size={13} /> {t('assemblies.noSecondAssembly', { defaultValue: 'No second assembly' })}
           </button>
           {candidates.filter((a) => a.id !== currentId).map((a) => {
-            const alreadyPaired = (a as any).pairedAssemblyId && (a as any).pairedAssemblyId !== currentId;
+            const alreadyPaired = !!a.pairedAssemblyId && a.pairedAssemblyId !== currentId;
             return (
               <button
                 key={a.id}

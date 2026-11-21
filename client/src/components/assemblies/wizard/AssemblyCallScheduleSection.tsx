@@ -1,25 +1,13 @@
+import type { Dispatch, SetStateAction } from 'react';
+import type { AssemblyForm } from '../../../hooks/useAssemblyForm';
 import { useTranslation } from 'react-i18next';
 import { CalendarIcon } from 'lucide-react';
 import type { Address } from './wizardTypes';
 
-interface AssemblyForm {
-  type: string;
-  mode: 'in_person' | 'remote' | 'hybrid';
-  firstCallDate: string;
-  firstCallTime: string;
-  convocationDate: string;
-  location: string;
-  meetLink: string;
-  hasSecondCall: boolean;
-  secondCallDate: string;
-  secondCallTime: string;
-  secondCallMode: 'in_person' | 'remote' | 'hybrid';
-  secondCallLocation: string;
-}
 
 interface AssemblyCallScheduleSectionProps {
   form: AssemblyForm;
-  setForm: (f: any) => void;
+  setForm: Dispatch<SetStateAction<AssemblyForm>>;
   computeConvocationDate: (firstCallDate: string) => string;
   addresses: Address[];
 }
@@ -54,7 +42,7 @@ export const AssemblyCallScheduleSection = ({
             </div>
             <div className="space-y-1">
               <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.mode')}</label>
-              <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as any })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
+              <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as AssemblyForm['mode'] })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
                 <option value="in_person">{t('assemblies.modes.in_person')}</option>
                 <option value="remote">{t('assemblies.modes.remote')}</option>
                 <option value="hybrid">{t('assemblies.modes.hybrid')}</option>
@@ -100,7 +88,7 @@ export const AssemblyCallScheduleSection = ({
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.mode')}</label>
-                  <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as any })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
+                  <select value={form.mode} onChange={e => setForm({ ...form, mode: e.target.value as AssemblyForm['mode'] })} className="w-full bg-neutral-950 border border-neutral-800 rounded px-2 py-1.5 text-xs text-fg">
                     <option value="in_person">{t('assemblies.modes.in_person')}</option>
                     <option value="remote">{t('assemblies.modes.remote')}</option>
                     <option value="hybrid">{t('assemblies.modes.hybrid')}</option>
@@ -152,7 +140,7 @@ export const AssemblyCallScheduleSection = ({
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] text-neutral-500 uppercase">{t('common.fields.mode')}</label>
-                    <select value={form.secondCallMode} onChange={e => setForm({ ...form, secondCallMode: e.target.value as any })} className="w-full bg-neutral-950 border border-success-900/10 rounded px-2 py-1.5 text-xs text-fg">
+                    <select value={form.secondCallMode} onChange={e => setForm({ ...form, secondCallMode: e.target.value as AssemblyForm['mode'] })} className="w-full bg-neutral-950 border border-success-900/10 rounded px-2 py-1.5 text-xs text-fg">
                       <option value="in_person">{t('assemblies.modes.in_person')}</option>
                       <option value="remote">{t('assemblies.modes.remote')}</option>
                       <option value="hybrid">{t('assemblies.modes.hybrid')}</option>

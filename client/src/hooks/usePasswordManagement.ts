@@ -24,7 +24,7 @@ export const usePasswordManagement = () => {
       setMessage('Password updated successfully');
       onSuccess?.();
       return true;
-    } catch (error) {
+    } catch {
       setMessage('Error updating password');
       return false;
     } finally {

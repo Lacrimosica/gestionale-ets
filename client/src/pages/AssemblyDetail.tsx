@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { formatLongDate } from '../lib/date-utils';
 import { useModalityOptions } from '../hooks/useSettings';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 import { useAddresses } from '../hooks/useSettings';
 import { useAssemblyDetail } from '../hooks/useAssemblyDetail';
@@ -166,23 +166,23 @@ const AssemblyDetail = () => {
         setPartnerForm({
           id: a2.id,
           type: a2.type ?? '',
-          subtype: (a2 as any).subtype ?? '',
+          subtype: a2.subtype ?? '',
           referenceNumber: a2.referenceNumber ?? 0,
           referenceYear: a2.referenceYear ?? new Date().getFullYear(),
           firstCallDate: a2.firstCallDate ?? '',
-          firstCallTime: (a2 as any).firstCallTime ?? '',
+          firstCallTime: a2.firstCallTime ?? '',
           endTime: a2.endTime ?? '',
-          convocationDate: (a2 as any).convocationDate ?? '',
+          convocationDate: a2.convocationDate ?? '',
           location: a2.location ?? '',
           mode: a2.mode ?? 'in_person',
-          meetLink: (a2 as any).meetLink ?? '',
+          meetLink: a2.meetLink ?? '',
           presidentId: a2.presidentId ?? '',
           secretaryId: a2.secretaryId ?? '',
           modalityFormulaPrima: a2.modalityFormulaPrima ?? '',
           modalityFormulaApertura: a2.modalityFormulaApertura ?? '',
-          assemblyStatus: (a2 as any).assemblyStatus ?? '',
-          secondCallDate: (a2 as any).secondCallDate ?? '',
-          secondCallTime: (a2 as any).secondCallTime ?? '',
+          assemblyStatus: a2.assemblyStatus ?? '',
+          secondCallDate: a2.secondCallDate ?? '',
+          secondCallTime: a2.secondCallTime ?? '',
           googleDocsLink: a2.googleDocsLink ?? '',
           pdfLink: a2.pdfLink ?? '',
           notes: a2.notes ?? '',

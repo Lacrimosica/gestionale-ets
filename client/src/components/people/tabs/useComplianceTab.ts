@@ -1,4 +1,10 @@
 import { useState } from 'react';
+import type { ComplianceDocument, ComplianceFlag, ComplianceRole, ComplianceRules } from '../../../hooks/useCompliance';
+
+export type ConsentStatus = 'granted' | 'withdrawn' | 'pending';
+
+/** Value a form field can hold; the modals' generic change handler passes one of these. */
+export type FormFieldValue = string | boolean | Record<string, ConsentStatus>;
 
 type ModalType = 'role' | 'document' | 'flag' | 'suppress' | null;
 
@@ -20,13 +26,13 @@ export interface DocumentFormState {
   isDated: boolean;
   isComplete: boolean;
   isDigital: boolean;
-  consentStatuses: Record<string, 'granted' | 'withdrawn' | 'pending'>;
+  consentStatuses: Record<string, ConsentStatus>;
   notes: string;
 }
 
 export interface FlagFormState {
   label: string;
-  severity: 'info' | 'warning' | 'error';
+  severity: 'critical' | 'warning' | 'info';
   note: string;
 }
 
@@ -52,14 +58,14 @@ interface ComplianceTabHookActions {
   setDocumentForm: React.Dispatch<React.SetStateAction<DocumentFormState>>;
   setFlagForm: React.Dispatch<React.SetStateAction<FlagFormState>>;
   setSuppressionForm: React.Dispatch<React.SetStateAction<SuppressionFormState>>;
-  openRoleModal: (role?: any) => void;
-  openDocumentModal: (document?: any) => void;
-  openFlagModal: (documentId: string, flag?: any) => void;
+  openRoleModal: (role?: ComplianceRole) => void;
+  openDocumentModal: (document?: ComplianceDocument) => void;
+  openFlagModal: (documentId: string, flag?: ComplianceFlag) => void;
   openSuppressModal: (alertKey: string) => void;
   closeComplianceModal: () => void;
 }
 
-export function useComplianceTab(rules?: any): ComplianceTabHookState & ComplianceTabHookActions {
+export function useComplianceTab(rules?: ComplianceRules): ComplianceTabHookState & ComplianceTabHookActions {
   const [complianceModal, setComplianceModal] = useState<ModalType>(null);
   const [selectedRoleId, setSelectedRoleId] = useState<string | null>(null);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
@@ -91,7 +97,7 @@ export function useComplianceTab(rules?: any): ComplianceTabHookState & Complian
   const [flagForm, setFlagForm] = useState<FlagFormState>({ label: '', severity: 'warning', note: '' });
   const [suppressionForm, setSuppressionForm] = useState<SuppressionFormState>({ reason: '', note: '' });
 
-  const openRoleModal = (role?: any) => {
+  const openRoleModal = (role?: ComplianceRole) => {
     setSelectedRoleId(role?.id ?? null);
     setRoleForm({
       roleType: role?.roleType ?? (rules ? Object.keys(rules.roles)[0] : ''),
@@ -102,14 +108,14 @@ export function useComplianceTab(rules?: any): ComplianceTabHookState & Complian
     setComplianceModal('role');
   };
 
-  const openDocumentModal = (document?: any) => {
+  const openDocumentModal = (document?: ComplianceDocument) => {
     setSelectedDocumentId(document?.id ?? null);
     const defaultDocType = document?.documentType ?? (rules ? Object.keys(rules.documentTypes)[0] : '');
     const defaultVersion = document?.version ?? (rules?.documentTypes[defaultDocType]?.currentVersion ?? '');
-    const existingConsents: Record<string, 'granted' | 'withdrawn' | 'pending'> = {};
+    const existingConsents: Record<string, ConsentStatus> = {};
     if (document?.consentsByType) {
       for (const [type, entry] of Object.entries(document.consentsByType)) {
-        existingConsents[type] = (entry as any).status;
+        existingConsents[type] = entry.status;
       }
     }
     setDocumentForm({
@@ -128,7 +134,7 @@ export function useComplianceTab(rules?: any): ComplianceTabHookState & Complian
     setComplianceModal('document');
   };
 
-  const openFlagModal = (documentId: string, flag?: any) => {
+  const openFlagModal = (documentId: string, flag?: ComplianceFlag) => {
     setSelectedDocumentId(documentId);
     setSelectedFlagId(flag?.id ?? null);
     setFlagForm({ label: flag?.label ?? '', severity: flag?.severity ?? 'warning', note: flag?.note ?? '' });

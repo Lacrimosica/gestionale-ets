@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '../lib/api-error';
 import { useState } from 'react';
 import axios from 'axios';
 
@@ -36,8 +37,8 @@ export const usePeriods = (personId?: string) => {
       setLoading(true);
       const response = await axios.post(`${API_BASE_URL}/periods/volunteers`, { ...data, personId });
       return response.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -50,8 +51,8 @@ export const usePeriods = (personId?: string) => {
         ...data,
         status: 'resigned'
       });
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -61,8 +62,8 @@ export const usePeriods = (personId?: string) => {
     try {
       setLoading(true);
       await axios.patch(`${API_BASE_URL}/periods/volunteers/${periodId}`, data);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -72,8 +73,8 @@ export const usePeriods = (personId?: string) => {
     try {
       setLoading(true);
       await axios.delete(`${API_BASE_URL}/periods/volunteers/${periodId}`);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -84,8 +85,8 @@ export const usePeriods = (personId?: string) => {
       setLoading(true);
       const response = await axios.post(`${API_BASE_URL}/periods/members`, { ...data, personId });
       return response.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -95,8 +96,8 @@ export const usePeriods = (personId?: string) => {
     try {
       setLoading(true);
       await axios.patch(`${API_BASE_URL}/periods/members/${periodId}`, data);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -106,8 +107,8 @@ export const usePeriods = (personId?: string) => {
     try {
       setLoading(true);
       await axios.patch(`${API_BASE_URL}/periods/members/${periodId}`, data);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -117,8 +118,8 @@ export const usePeriods = (personId?: string) => {
     try {
       setLoading(true);
       await axios.delete(`${API_BASE_URL}/periods/members/${periodId}`);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || 'Error');
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || 'Error');
     } finally {
       setLoading(false);
     }
@@ -129,7 +130,7 @@ export const usePeriods = (personId?: string) => {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/periods/volunteers/active`);
       return response.data;
-    } catch (err: any) {
+    } catch {
       setError('Error loading volunteers');
       return [];
     } finally {
@@ -142,7 +143,7 @@ export const usePeriods = (personId?: string) => {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/periods/members/active`);
       return response.data;
-    } catch (err: any) {
+    } catch {
       setError('Error loading members');
       return [];
     } finally {
@@ -155,7 +156,7 @@ export const usePeriods = (personId?: string) => {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/periods/members`);
       return response.data;
-    } catch (err: any) {
+    } catch {
       setError('Error loading members');
       return [];
     } finally {

@@ -1,3 +1,5 @@
+import type { Candidate } from '../../types/assembly';
+import type { organizationAddress } from '../../hooks/useSettings';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Pencil, Loader2, X, Check, Calendar, MapPin, User, ExternalLink } from 'lucide-react';
@@ -13,9 +15,9 @@ interface SecondaryAssemblyEditorProps {
   loading: boolean;
   onSave: () => Promise<void>;
   onToggleEdit: (editing: boolean) => void;
-  candidates: any[];
+  candidates: Candidate[];
   candidatesLoading: boolean;
-  addresses: any[];
+  addresses: organizationAddress[];
   modalityOptions: ModalityOption[];
 }
 

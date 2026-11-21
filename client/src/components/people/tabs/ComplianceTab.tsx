@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { useComplianceTab } from './useComplianceTab';
+import type { ConsentStatus, DocumentFormState, FlagFormState, FormFieldValue, RoleFormState, SuppressionFormState } from './useComplianceTab';
+import type { ComplianceAlert, ComplianceDocument, ComplianceRole, ComplianceRules, CompliancePersonData } from '../../../hooks/useCompliance';
+import type { DeleteRequest } from '../../../types/delete-request';
 import ComplianceRolesSection from './ComplianceRolesSection';
 import PrivacyStatusSection from './PrivacyStatusSection';
 import ComplianceDocumentsSection from './ComplianceDocumentsSection';
@@ -10,33 +13,46 @@ import FlagFormModal from './FlagFormModal';
 import SuppressAlertModal from './SuppressAlertModal';
 
 interface ComplianceData {
-  roles?: any[];
-  documents?: any[];
-  alerts?: any[];
-  suppressedAlerts?: any[];
-  privacyStatus?: any;
+  roles?: ComplianceRole[];
+  documents?: ComplianceDocument[];
+  alerts?: ComplianceAlert[];
+  suppressedAlerts?: ComplianceAlert[];
+  privacyStatus?: CompliancePersonData['privacyStatus'];
 }
 
-interface Rules {
-  roles?: Record<string, any>;
-  documentTypes?: Record<string, any>;
+/** Request body for a compliance create/update call; the API validates the shape. */
+type CompliancePayload = Record<string, unknown>;
+
+export interface FlagPayload {
+  documentId: string;
+  label: string;
+  severity: FlagFormState['severity'];
+  note: string | null;
+}
+
+export interface SuppressAlertPayload {
+  personId: string;
+  alertKey: string;
+  reason: string;
+  note: string | null;
+  untilDate?: string | null;
 }
 
 interface ComplianceTabProps {
   compliance?: ComplianceData;
-  rules?: Rules;
+  rules?: ComplianceRules;
   id: string;
   canEdit: boolean;
-  createRole: (data: any) => Promise<void>;
-  updateRole: (id: string, data: any) => Promise<void>;
-  createDocument: (data: any) => Promise<void>;
-  updateDocument: (id: string, data: any) => Promise<void>;
-  createFlag: (data: any) => Promise<void>;
-  updateFlag: (id: string, data: any) => Promise<void>;
-  suppressAlert: (data: any) => Promise<void>;
+  createRole: (data: CompliancePayload) => Promise<void>;
+  updateRole: (id: string, data: CompliancePayload) => Promise<void>;
+  createDocument: (data: CompliancePayload) => Promise<void>;
+  updateDocument: (id: string, data: CompliancePayload) => Promise<void>;
+  createFlag: (data: FlagPayload) => Promise<void>;
+  updateFlag: (id: string, data: CompliancePayload) => Promise<void>;
+  suppressAlert: (data: SuppressAlertPayload) => Promise<void>;
   releaseSuppression: (id: string) => Promise<void>;
   refreshCompliance: () => Promise<void>;
-  onRequestDelete: (config: any) => void;
+  onRequestDelete: (config: DeleteRequest) => void;
 }
 
 const ComplianceTab = ({
@@ -77,26 +93,26 @@ const ComplianceTab = ({
     closeComplianceModal,
   } = useComplianceTab(rules);
 
-  const handleRoleFormChange = (field: string, value: any) => {
+  const handleRoleFormChange = (field: keyof RoleFormState, value: FormFieldValue) => {
     setRoleForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDocumentFormChange = (field: string, value: any) => {
+  const handleDocumentFormChange = (field: keyof DocumentFormState, value: FormFieldValue) => {
     setDocumentForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleDocumentConsentChange = (consentType: string, status: 'granted' | 'withdrawn' | 'pending') => {
+  const handleDocumentConsentChange = (consentType: string, status: ConsentStatus) => {
     setDocumentForm((prev) => ({
       ...prev,
       consentStatuses: { ...prev.consentStatuses, [consentType]: status },
     }));
   };
 
-  const handleFlagFormChange = (field: string, value: any) => {
+  const handleFlagFormChange = (field: keyof FlagFormState, value: FormFieldValue) => {
     setFlagForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSuppressionFormChange = (field: string, value: any) => {
+  const handleSuppressionFormChange = (field: keyof SuppressionFormState, value: FormFieldValue) => {
     setSuppressionForm((prev) => ({ ...prev, [field]: value }));
   };
 

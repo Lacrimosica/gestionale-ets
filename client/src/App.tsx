@@ -18,7 +18,7 @@ import AuthCallbackPage from './pages/AuthCallbackPage';
 import SetPasswordPage from './pages/SetPasswordPage';
 import JoinInvitePage from './pages/JoinInvitePage';
 
-import { useAuth } from './hooks/useAuth';
+import { useAuth } from './hooks/auth-context';
 import { useSetupStatus } from './hooks/useSetupStatus';
 import LoginPage from './pages/LoginPage';
 import SetupWizardPage from './pages/SetupWizardPage';

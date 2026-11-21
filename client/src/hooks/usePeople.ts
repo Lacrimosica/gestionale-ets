@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '../lib/api-error';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -72,8 +73,8 @@ export const usePeople = (filter?: string) => {
       const response = await axios.post(`${API_BASE_URL}/people`, data);
       setPeople(prev => [...prev, response.data]);
       return response.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.error || t('common.errorAdding', { defaultValue: 'Error adding entry' }));
+    } catch (err: unknown) {
+      throw new Error(apiErrorMessage(err) || t('common.errorAdding', { defaultValue: 'Error adding entry' }));
     }
   };
 

@@ -6,9 +6,10 @@ import {
 import { Tag } from 'lucide-react';
 import type { ComplianceRules } from '../../hooks/useCompliance';
 import {
-  SectionHeader, Chip, FieldInput, emptyRoleForm,
+  SectionHeader, Chip, FieldInput,
   type RoleForm,
 } from './ComplianceEditorShared';
+import { emptyRoleForm } from './compliance-forms';
 
 interface RolesSectionProps {
   rules: ComplianceRules;

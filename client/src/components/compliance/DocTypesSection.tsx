@@ -6,9 +6,10 @@ import {
 import { FileText } from 'lucide-react';
 import type { ComplianceRules } from '../../hooks/useCompliance';
 import {
-  SectionHeader, Chip, FieldInput, emptyDocTypeForm,
+  SectionHeader, Chip, FieldInput,
   type DocTypeForm,
 } from './ComplianceEditorShared';
+import { emptyDocTypeForm } from './compliance-forms';
 
 interface DocTypesSectionProps {
   rules: ComplianceRules;

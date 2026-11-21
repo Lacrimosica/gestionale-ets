@@ -3,7 +3,7 @@ import { type DocumentSettings } from '../../hooks/useSettings';
 interface OrgInfoFieldsProps {
   city: string | null;
   maxProxies: number | null;
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
 }
 
 const OrgInfoFields = ({ city, maxProxies, onFormChange }: OrgInfoFieldsProps) => {

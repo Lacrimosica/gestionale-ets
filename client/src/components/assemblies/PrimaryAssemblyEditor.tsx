@@ -1,3 +1,5 @@
+import type { Candidate } from '../../types/assembly';
+import type { organizationAddress } from '../../hooks/useSettings';
 import { useTranslation } from 'react-i18next';
 import { Save, Pencil, Loader2, X, Calendar, MapPin, User, ExternalLink, HardDriveUpload } from 'lucide-react';
 import { formatDate } from '../../lib/date-utils';
@@ -12,9 +14,9 @@ interface PrimaryAssemblyEditorProps {
   loading: boolean;
   onSave: () => Promise<void>;
   onToggleEdit: (editing: boolean) => void;
-  candidates: any[];
+  candidates: Candidate[];
   candidatesLoading: boolean;
-  addresses: any[];
+  addresses: organizationAddress[];
   modalityOptions: ModalityOption[];
 }
 
@@ -41,7 +43,7 @@ export const PrimaryAssemblyEditor = ({
             <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-1">{t('common.fields.type')}</label>
             <select
               value={form.type}
-              onChange={e => setForm({ ...form, type: e.target.value as any, subtype: '' })}
+              onChange={e => setForm({ ...form, type: e.target.value, subtype: '' })}
               className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:ring-2 focus:ring-special-600 outline-none transition-all"
             >
               <option value="ordinary">{t('assemblies.types.ordinary')}</option>

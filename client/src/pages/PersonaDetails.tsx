@@ -1,14 +1,19 @@
+import type { DeleteRequest } from '../types/delete-request';
+import type { ComplianceRole } from '../hooks/useCompliance';
+
+type TabId = 'profile' | 'volunteer' | 'member' | 'board' | 'compliance';
+import { errorMessage } from '../lib/api-error';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 import { usePerson } from '../hooks/usePerson';
 import { usePeriods } from '../hooks/usePeriods';
 import { useCompliance } from '../hooks/useCompliance';
-import { useBranding } from '../hooks/useBranding';
+import { useBranding } from '../hooks/branding-context';
 import {
   ArrowLeft, User, History, ShieldCheck, Briefcase, FileCheck,
   AlertCircle, Edit2, Check, Trash2, UserPlus
@@ -44,9 +49,9 @@ const PersonaDetails = () => {
   } = useCompliance(id);
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = (searchParams.get('tab') as 'profile' | 'volunteer' | 'member' | 'board' | 'compliance') || 'profile';
+  const activeTab = (searchParams.get('tab') as TabId) || 'profile';
 
-  const setActiveTab = (tab: string) => {
+  const setActiveTab = (tab: TabId) => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.set('tab', tab);
     setSearchParams(nextParams, { replace: true });
@@ -54,16 +59,7 @@ const PersonaDetails = () => {
 
   const [isProfileEditing, setIsProfileEditing] = useState(false);
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
-  const [deleteModal, setDeleteModal] = useState<{
-    isOpen: boolean;
-    type: 'person' | 'role' | 'document' | 'flag' | 'suppression' | 'volunteer_period' | 'member_period' | null;
-    id: string | null;
-    title: string;
-    message: string;
-    confirmPhrase: string;
-    confirmValue: string;
-    isLoading: boolean;
-  }>({
+  const [deleteModal, setDeleteModal] = useState<DeleteRequest>({
     isOpen: false,
     type: null,
     id: null,
@@ -114,8 +110,8 @@ const PersonaDetails = () => {
         await refreshCompliance();
       }
       setDeleteModal(prev => ({ ...prev, isOpen: false }));
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(errorMessage(err) ?? 'Error');
       console.error('Delete failed', err);
     } finally {
       setDeleteModal(prev => ({ ...prev, isLoading: false }));
@@ -222,7 +218,7 @@ const PersonaDetails = () => {
         ].map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id as TabId)}
             className={`flex items-center space-x-2 px-6 py-2 rounded-lg font-medium transition-all ${activeTab === tab.id ? 'bg-neutral-800 text-fg shadow-lg' : 'text-neutral-400 hover:text-neutral-200'
               }`}
           >
@@ -236,7 +232,7 @@ const PersonaDetails = () => {
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl min-h-[400px]">
         {activeTab === 'profile' && person && (
           <ProfileTab
-            person={person as any}
+            person={person}
             compliance={compliance ?? undefined}
             canEdit={canEdit}
             refresh={refresh}
@@ -250,7 +246,7 @@ const PersonaDetails = () => {
               confirmValue: '',
               isLoading: false
             })}
-            onRequestEditRole={(role?: any) => setDeleteModal({
+            onRequestEditRole={(role?: ComplianceRole) => setDeleteModal({
               isOpen: true,
               type: 'role',
               id: role?.id || null,
@@ -266,7 +262,7 @@ const PersonaDetails = () => {
         {activeTab === 'volunteer' && person && (
           <VolunteerTab
             id={id!}
-            person={person as any}
+            person={person}
             canEdit={canEdit}
             startVolunteering={startVolunteering}
             endVolunteering={endVolunteering}
@@ -279,7 +275,7 @@ const PersonaDetails = () => {
 
         {activeTab === 'member' && person && (
           <MemberTab
-            person={person as any}
+            person={person}
             canEdit={canEdit}
             startMembership={startMembership}
             endMembership={endMembership}
@@ -291,7 +287,7 @@ const PersonaDetails = () => {
         )}
 
         {activeTab === 'board' && person && (
-          <BoardTab person={person as any} />
+          <BoardTab person={person} />
         )}
 
         {activeTab === 'compliance' && (
@@ -304,15 +300,12 @@ const PersonaDetails = () => {
             updateRole={updateRole}
             createDocument={createDocument}
             updateDocument={updateDocument}
-            createFlag={async (data: any) => {
-              const { documentId, ...flagData } = data;
-              if (documentId) {
-                await createFlag(documentId, flagData);
-              }
+            createFlag={async ({ documentId, ...flagData }) => {
+              await createFlag(documentId, flagData);
             }}
             updateFlag={updateFlag}
-            suppressAlert={async (data: any) => {
-              await suppressAlert(data.alertKey, data.reason, data.note, data.untilDate, data.personId || id);
+            suppressAlert={async (data) => {
+              await suppressAlert(data.alertKey, data.reason, data.note ?? undefined, data.untilDate ?? undefined, data.personId || id);
             }}
             releaseSuppression={releaseSuppression}
             refreshCompliance={refreshCompliance}

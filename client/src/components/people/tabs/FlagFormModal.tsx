@@ -1,13 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import OverlayModal from '../ui/OverlayModal';
 import ModalField from '../ui/ModalField';
-import type { FlagFormState } from './useComplianceTab';
+import type { FlagFormState, FormFieldValue } from './useComplianceTab';
 
 interface FlagFormModalProps {
   isOpen: boolean;
   isEditing: boolean;
   form: FlagFormState;
-  onFormChange: (field: keyof FlagFormState, value: any) => void;
+  onFormChange: (field: keyof FlagFormState, value: FormFieldValue) => void;
   onSave: () => Promise<void>;
   onClose: () => void;
 }
@@ -35,12 +35,12 @@ const FlagFormModal = ({ isOpen, isEditing, form, onFormChange, onSave, onClose 
       <ModalField label={t('compliance.flagSeverity', { defaultValue: 'Severity' })}>
         <select
           value={form.severity}
-          onChange={e => onFormChange('severity', e.target.value as any)}
+          onChange={e => onFormChange('severity', e.target.value as FlagFormState['severity'])}
           className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         >
           <option value="info">Info</option>
           <option value="warning">Warning</option>
-          <option value="error">Error</option>
+          <option value="critical">Critical</option>
         </select>
       </ModalField>
       <ModalField label={t('common.fields.notes')}>

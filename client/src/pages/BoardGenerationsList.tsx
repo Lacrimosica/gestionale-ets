@@ -295,7 +295,7 @@ const BoardGenerationsList = () => {
                            className="flex-1 bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-neutral-200"
                          >
                            <option value="">{t('people.selectPerson', { defaultValue: 'Select Person...' })}</option>
-                           {people.map((p: any) => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
+                           {people.map((p) => <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>)}
                          </select>
                          <select 
                            value={memForm.role}

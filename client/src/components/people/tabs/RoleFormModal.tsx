@@ -1,14 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import OverlayModal from '../ui/OverlayModal';
 import ModalField from '../ui/ModalField';
-import type { RoleFormState } from './useComplianceTab';
+import type { FormFieldValue, RoleFormState } from './useComplianceTab';
+import type { ComplianceRules } from '../../../hooks/useCompliance';
 
 interface RoleFormModalProps {
   isOpen: boolean;
   isEditing: boolean;
   form: RoleFormState;
-  rules?: any;
-  onFormChange: (field: keyof RoleFormState, value: any) => void;
+  rules?: ComplianceRules;
+  onFormChange: (field: keyof RoleFormState, value: FormFieldValue) => void;
   onSave: () => Promise<void>;
   onClose: () => void;
 }
@@ -45,7 +46,7 @@ const RoleFormModal = ({ isOpen, isEditing, form, rules, onFormChange, onSave, o
           className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
           disabled={!rules}
         >
-          {rules && Object.entries(rules.roles).map(([value, role]: [string, any]) => (
+          {rules && Object.entries(rules.roles).map(([value, role]) => (
             <option key={value} value={value}>
               {t(role.label)} {role.description ? `(${role.description})` : ''}
             </option>

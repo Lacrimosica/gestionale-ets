@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Trash2, AlertTriangle, Lock, RefreshCw, Loader2, BookOpen, FileCheck, User } from 'lucide-react';
 import { API_BASE_URL } from '../config';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 
 interface RetentionPerson {

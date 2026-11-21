@@ -1,5 +1,5 @@
 import { IS_DEMO } from '../config';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import DemoBanner from './DemoBanner';
 
 /** The demo banner is for visitors deciding whether to try the demo; hide it once signed in. */

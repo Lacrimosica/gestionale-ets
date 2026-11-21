@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 import { X, Check, Loader2, Plus } from 'lucide-react';
 import { useAssemblyForm } from '../../hooks/useAssemblyForm';
+import type { BoardMemberWithDetails } from '../../hooks/useBoardGenerations';
 import { useBoardGenerations } from '../../hooks/useBoardGenerations';
 import { useAddresses } from '../../hooks/useSettings';
 import { normalizeRole } from '../../lib/board-roles';
@@ -50,14 +51,14 @@ export const CreateAssemblyWizard = ({
   } = useAssemblyForm();
 
   const [creating, setCreating] = useState(false);
-  const [boardMembers, setBoardMembers] = useState<Record<string, any[]>>({});
+  const [boardMembers, setBoardMembers] = useState<Record<string, BoardMemberWithDetails[]>>({});
   const fetchedRef = useRef(false);
 
   useEffect(() => {
     if (!isOpen || generations.length === 0 || fetchedRef.current) return;
 
     const fetchBoardMembers = async () => {
-      const membersByGen: Record<string, any[]> = {};
+      const membersByGen: Record<string, BoardMemberWithDetails[]> = {};
       for (const gen of generations) {
         try {
           const members = await getMembers(gen.id);

@@ -5,30 +5,11 @@ import ComuneCombobox from '../../ComuneCombobox';
 import EditableField from '../ui/EditableField';
 import InfoField from '../ui/InfoField';
 import { formatDate } from '../../../lib/date-utils';
-
-interface Person {
-  id: string;
-  firstName: string;
-  lastName: string;
-  taxId?: string;
-  birthDate?: string;
-  birthPlace?: string;
-  birthCountry?: string;
-  gender?: string;
-  profession?: string;
-  isStudent?: boolean;
-  isEmployee?: boolean;
-  memberNumber?: string;
-  isPresumedNonExistent?: boolean;
-  email?: string;
-  phone?: string;
-  notes?: string;
-  cfValidation?: string;
-  boardRoles?: any[];
-}
+import type { ComplianceRole } from '../../../hooks/useCompliance';
+import type { PersonDetails as Person } from '../../../hooks/usePerson';
 
 interface ComplianceData {
-  roles?: any[];
+  roles?: ComplianceRole[];
 }
 
 interface ProfileTabProps {
@@ -36,7 +17,7 @@ interface ProfileTabProps {
   compliance?: ComplianceData;
   canEdit: boolean;
   refresh: () => Promise<void>;
-  onRequestEditRole?: (role?: any) => void;
+  onRequestEditRole?: (role?: ComplianceRole) => void;
   onRequestDeleteRole?: (roleId: string) => void;
 }
 
@@ -50,11 +31,11 @@ const ProfileTab = ({
 }: ProfileTabProps) => {
   const { t } = useTranslation();
   const [isEditing] = useState(false);
-  const [editForm, setEditForm] = useState<any>({});
+  const [editForm, setEditForm] = useState<Partial<Person>>({});
   const [cfVerifying, setCfVerifying] = useState(false);
 
-  const handleEditChange = (field: string, value: string | boolean) => {
-    setEditForm((prev: any) => ({ ...prev, [field]: value }));
+  const handleEditChange = (field: keyof Person, value: string | boolean) => {
+    setEditForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleVerifyCf = async () => {

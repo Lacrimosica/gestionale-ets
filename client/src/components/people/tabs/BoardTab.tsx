@@ -1,18 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Briefcase } from 'lucide-react';
-
-interface BoardRole {
-  member: {
-    id: string;
-    role: string;
-    notes?: string;
-  };
-  generation: {
-    name: string;
-    startDate: string;
-    endDate?: string;
-  };
-}
+import type { BoardRole } from '../../../hooks/usePerson';
 
 interface Person {
   id: string;

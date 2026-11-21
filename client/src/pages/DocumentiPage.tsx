@@ -16,7 +16,7 @@ import {
   WORKFLOW_LABELS,
   type GenerationLogRecord,
 } from '../hooks/useDocuments';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 import PaginationControls from '../components/PaginationControls';
 

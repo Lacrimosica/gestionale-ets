@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-import type { AuthUser } from '../hooks/useAuth';
+import type { AuthUser } from '../hooks/auth-context';
 
 /** Second-factor methods, as the server names them. */
 export type MfaMethod = 'totp' | 'email';

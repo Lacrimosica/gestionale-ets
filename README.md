@@ -12,7 +12,7 @@
 
 A full-stack web application for managing volunteer-based organizations and non-profits, designed to track member/volunteer tenure, board governance, assemblies, and compliance documentation in alignment with Italian law (Codice del Terzo Settore, D.Lgs. 117/2017).
 
-**Live Demo:** [demo.gestionale-ets.pages.dev](https://demo.gestionale-ets.pages.dev) — sign in with `demo@example.org` / `demo-gestionale`, or create your own organization. All data is fictional and is wiped and recreated every night at 03:00 UTC; please don't enter real personal data.
+**Live Demo:** [niki-demo.lacrimosica.com](https://niki-demo.lacrimosica.com) — sign in with `demo@example.org` / `demo-gestionale`, or create your own organization. All data is fictional and is wiped and recreated every night at 03:00 UTC; please don't enter real personal data.
 
 ---
 

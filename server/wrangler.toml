@@ -1,4 +1,5 @@
 name = "gestionale-server"
+account_id = "dd5f7a5f9a0457863a93fc5cc9bc1cd2"
 compatibility_date = "2024-03-01"
 compatibility_flags = ["nodejs_compat"]
 
@@ -9,7 +10,10 @@ compatibility_flags = ["nodejs_compat"]
 
 [vars]
 # CORS_ORIGIN = "http://localhost:5173"
-# DEPLOYMENT_MODE = "open"
+DEPLOYMENT_MODE = "single_org" # top-level config is what production deploys; local dev overrides via .dev.vars
+CORS_ORIGIN = "https://niki.lacrimosica.com"
+GOOGLE_REDIRECT_BASE_URL = "https://gestionale-server.m-gdrzi77.workers.dev"
+APP_URL = "https://niki.lacrimosica.com"
 # JWT_SECRET               → comes from .dev.vars locally, never hardcoded here
 # GOOGLE_SERVICE_ACCOUNT_KEY → wrangler secret put GOOGLE_SERVICE_ACCOUNT_KEY
 # TEMPLATE_FOLDER_ID and OUTPUT_FOLDER_ID are now stored in DB settings (Settings → Documents)
@@ -20,6 +24,7 @@ database_name = "gestionale-ets-db"
 database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
 migrations_dir = "drizzle/migrations/dev"
 
+
 [observability]
 enabled = true
 
@@ -28,3 +33,63 @@ enabled = true
 #   - wrangler.staging.toml
 #   - wrangler.prod.toml
 # These files are NOT committed to git (.gitignore)
+
+# ─── PRODUCTION (ENVIRONMENT-SPECIFIC) ────────────────────────────────────
+# This file contains environment-specific overrides for production.
+# Should NOT be committed to git (add to .gitignore).
+
+[env.production.vars]
+CORS_ORIGIN = "https://niki.lacrimosica.com"
+GOOGLE_REDIRECT_BASE_URL = "https://gestionale-server.m-gdrzi77.workers.dev"
+APP_URL = "https://niki.lacrimosica.com"
+DEPLOYMENT_MODE = "single_org"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db"
+database_id = "4df11d70-8eea-4f4f-bca4-63a26c8dfc59"
+migrations_dir = "drizzle/migrations"
+
+
+# ─── STAGING (ENVIRONMENT-SPECIFIC) ───────────────────────────────────────
+# This file contains environment-specific overrides for staging.
+# Should NOT be committed to git (add to .gitignore).
+
+[env.staging.vars]
+CORS_ORIGIN = "https://niki-staging.lacrimosica.com"
+GOOGLE_REDIRECT_BASE_URL = "https://gestionale-server-staging.m-gdrzi77.workers.dev"
+APP_URL = "https://niki-staging.lacrimosica.com"
+DEPLOYMENT_MODE = "closed" # public demo moving to a separate env; staging closed after real data was found here
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db-staging"
+database_id = "a0aba6f8-f4b9-4260-ae99-c95462590cfc"
+migrations_dir = "drizzle/migrations"
+
+
+# ─── DEMO (PUBLIC) ────────────────────────────────────────────────────────
+# Public sandbox linked from the README. Fake data only; wiped and reseeded
+# nightly by the gestionale-demo-reset worker (wrangler.demo-reset.toml).
+# Should NOT be committed to git (add to .gitignore).
+
+[env.demo.vars]
+CORS_ORIGIN = "https://niki-demo.lacrimosica.com"
+GOOGLE_REDIRECT_BASE_URL = "https://gestionale-server-demo.m-gdrzi77.workers.dev"
+APP_URL = "https://niki-demo.lacrimosica.com"
+DEPLOYMENT_MODE = "open"
+
+[[env.demo.d1_databases]]
+binding = "DB"
+database_name = "gestionale-ets-db-demo"
+database_id = "c9a6ad93-3f55-473e-a6c7-362f77879d4f"
+migrations_dir = "drizzle/migrations/dev"
+
+
+# Throttles login, password and setup endpoints (src/lib/rate-limit.ts).
+# namespace_id is any integer unique per environment so counters aren't shared.
+# period must be 10 or 60 seconds.
+[[env.demo.ratelimits]]
+name = "AUTH_RATE_LIMITER"
+namespace_id = "1004"
+simple = { limit = 10, period = 60 }

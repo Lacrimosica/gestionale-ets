@@ -6,6 +6,40 @@
 |---|---|---|---|
 | Production | `gestionale-server` | top-level `wrangler.toml` | Automatically on every push to `main` (Cloudflare Workers Builds). `npm run deploy` does the same by hand. |
 | Staging | `gestionale-server-staging` | `[env.staging]` | `npm run deploy:staging` |
+| Demo | `gestionale-server-demo` | `[env.demo]` | `npm run deploy:demo` |
+
+## Custom domains
+
+The Pages project `gestionale-ets` serves these frontend environments:
+
+| Environment | URL | Pages deployment |
+|---|---|---|
+| Production | `https://niki.lacrimosica.com` | Production branch |
+| Staging | `https://niki-staging.lacrimosica.com` | `staging` branch |
+| Demo | `https://niki-demo.lacrimosica.com` | `demo` branch |
+
+The `lacrimosica.com` zone is managed in the same Cloudflare account as Pages.
+In **Workers & Pages → gestionale-ets → Custom domains**, add all three hostnames.
+Cloudflare creates the DNS records; make sure they are **Proxied**. For staging
+and demo, edit the CNAME targets to the Pages branch aliases so each hostname
+serves the intended branch:
+
+| DNS name | CNAME target |
+|---|---|
+| `niki` | `gestionale-ets.pages.dev` |
+| `niki-staging` | `staging.gestionale-ets.pages.dev` |
+| `niki-demo` | `demo.gestionale-ets.pages.dev` |
+
+Add the domain in the Pages dashboard before creating or editing these records.
+Branch aliases require Cloudflare-proxied DNS records.
+
+The API remains on its existing `*.workers.dev` hostnames. The frontend build
+files already target those API URLs; the worker's `CORS_ORIGIN` and `APP_URL`
+must match the corresponding custom frontend domain. `GOOGLE_REDIRECT_BASE_URL`
+remains on `workers.dev`, so Google OAuth callback URLs do not change.
+
+After adding the Pages custom domains, redeploy the API environments so their
+updated allowed origins and post-login redirect URLs take effect.
 
 `wrangler deploy --env production` does **not** update production: it creates a separate
 `gestionale-server-production` worker with no secrets. Don't use it.

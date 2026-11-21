@@ -9,7 +9,13 @@ export default function SetPasswordPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
 
-  const token = searchParams.get('token') || '';
+  // Token arrives in the URL fragment (kept out of logs and Referer); query is the legacy form.
+  const [token] = useState(
+    () => new URLSearchParams(window.location.hash.slice(1)).get('token') || searchParams.get('token') || '',
+  );
+  useEffect(() => {
+    if (window.location.hash) window.history.replaceState(null, '', window.location.pathname + window.location.search);
+  }, []);
   const isFirst = searchParams.get('first') === '1';
 
   const [passwordSetComplete, setPasswordSetComplete] = useState(false);

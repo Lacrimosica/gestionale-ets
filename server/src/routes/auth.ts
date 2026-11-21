@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import { drizzle } from 'drizzle-orm/d1';
 import { user as userSchema, organizationSetting as organizationSettingSchema, organization, organizationUser, invite } from '../db/schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 
 type Bindings = {
   DB: D1Database;
@@ -11,6 +11,7 @@ type Bindings = {
   GOOGLE_CLIENT_SECRET?: string;
   GOOGLE_REDIRECT_BASE_URL?: string;
   APP_URL?: string;
+  AUTH_RATE_LIMITER?: RateLimiter;
 };
 
 const authRouter = new Hono<{ Bindings: Bindings }>();
@@ -20,12 +21,24 @@ import { getPermissionsForRole, sessionPermissions } from '../lib/session-permis
 import { hashPassword, verifyPassword } from '../lib/auth';
 import { decodeGoogleIdToken, rejectGoogleIdentity } from '../lib/google-identity';
 import { rejectGrant } from '../lib/roles';
+import { clientIp, isRateLimited, rateLimitByIp, tooManyRequests, type RateLimiter } from '../lib/rate-limit';
+
+/** An OAuth callback failure whose message is safe to show the user. */
+class OAuthUserError extends Error {}
 
 // A valid "salt:hash" that no password matches; verified against when the user is unknown.
 const DUMMY_PASSWORD_HASH = 'AAAAAAAAAAAAAAAAAAAAAA==:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
 
 authRouter.post('/login', async (c) => {
   const { email, password, slug } = await c.req.json() as { email: string; password: string; slug?: string };
+
+  // Per IP stops one client guessing many accounts; per email stops a botnet
+  // spreading guesses for one account across many IPs.
+  const emailKey = typeof email === 'string' ? email.trim().toLowerCase() : '';
+  if (await isRateLimited(c.env.AUTH_RATE_LIMITER, [`login:ip:${clientIp(c)}`, `login:email:${emailKey}`])) {
+    return tooManyRequests(c);
+  }
+
   const db = drizzle(c.env.DB);
   const user = await db.select().from(userSchema).where(eq(userSchema.email, email)).get();
 
@@ -155,7 +168,7 @@ authRouter.get('/google/callback', async (c) => {
     // Verify state is a valid signed JWT we issued
     const statePayload = await verify(state, JWT_SECRET, 'HS256') as { type?: string; inviteToken?: string };
     // Every token type shares JWT_SECRET, so reject anything that isn't a login state.
-    if (statePayload.type !== 'login') throw new Error('Invalid state');
+    if (statePayload.type !== 'login') throw new OAuthUserError('Invalid sign-in request. Please try again.');
     const inviteToken = statePayload.inviteToken;
 
     // Exchange authorization code for tokens
@@ -172,8 +185,8 @@ authRouter.get('/google/callback', async (c) => {
     });
 
     if (!tokenRes.ok) {
-      const text = await tokenRes.text();
-      throw new Error(`Token exchange failed: ${text}`);
+      console.error('Google login token exchange failed:', tokenRes.status, await tokenRes.text());
+      throw new OAuthUserError('Google sign-in failed. Please try again.');
     }
 
     const { id_token } = await tokenRes.json<{ id_token: string }>();
@@ -220,6 +233,17 @@ authRouter.get('/google/callback', async (c) => {
           );
         }
 
+        // Claim the invite before writing anything: the conditional update succeeds
+        // for exactly one request, so two concurrent callbacks cannot both redeem it.
+        const claimed = await db
+          .update(invite)
+          .set({ usedAt: new Date().toISOString(), usedByUserId: existingUser?.id ?? null })
+          .where(and(eq(invite.id, inviteRecord.id), isNull(invite.usedAt)))
+          .returning({ id: invite.id });
+        if (claimed.length !== 1) {
+          return c.redirect(`${appUrl}/auth/callback?error=${encodeURIComponent('Invite already used')}`);
+        }
+
         targetOrgId = inviteRecord.orgId;
         targetRole = inviteRecord.role;
         targetPermissions = inviteRecord.permissionsOverride;
@@ -233,22 +257,21 @@ authRouter.get('/google/callback', async (c) => {
     if (!existingUser) {
       // If no invite and user not found, check if we can auto-create
       if (!inviteToken) {
-        const orgs = await db.select().from(organization).limit(1);
-        const firstOrg = orgs?.[0];
-        const authDomain = firstOrg?.authDomain;
-        const emailDomain = email.split('@')[1];
+        // Self-signup by email domain: only into the org that owns this domain, and
+        // only when that org chose 'open'. 'invite_only' (the default) and 'disabled'
+        // mean domain users still need an invite.
+        const emailDomain = email.split('@')[1]?.toLowerCase() ?? '';
+        const domainOrg = emailDomain
+          ? await db.select().from(organization).where(eq(organization.authDomain, emailDomain)).get()
+          : undefined;
 
-        // Auto-create user if email domain matches configured auth domain
-        const canAutoCreate = authDomain && emailDomain === authDomain;
-
-        if (!canAutoCreate) {
+        if (!domainOrg || domainOrg.domainSignupMode !== 'open') {
           return c.redirect(
             `${appUrl}/auth/callback?error=${encodeURIComponent('Account non trovato. Contattare l\'amministratore per creare il tuo account.')}`,
           );
         }
 
-        // Set target org for auto-created user
-        targetOrgId = firstOrg?.id || 'default';
+        targetOrgId = domainOrg.id;
       }
 
       // Create user
@@ -288,10 +311,10 @@ authRouter.get('/google/callback', async (c) => {
     } else if (inviteToken) {
       // Existing user redeeming an invite — add to org if not already member
       const existingMembership = await db.select().from(organizationUser)
-        .where(eq(organizationUser.userId, existingUser.id))
+        .where(and(eq(organizationUser.userId, existingUser.id), eq(organizationUser.orgId, targetOrgId!)))
         .get();
 
-      if (!existingMembership || existingMembership.orgId !== targetOrgId) {
+      if (!existingMembership) {
         const permissions = targetPermissions
           ? JSON.parse(targetPermissions)
           : getPermissionsForRole(targetRole);
@@ -312,16 +335,9 @@ authRouter.get('/google/callback', async (c) => {
       }
     }
 
-    // Mark invite as used
-    if (inviteRecord) {
-      await db
-        .update(invite)
-        .set({
-          usedAt: new Date().toISOString(),
-          usedByUserId: existingUser!.id,
-        })
-        .where(eq(invite.id, inviteRecord.id))
-        .run();
+    // The invite was claimed above, before the user existed for new sign-ups.
+    if (inviteRecord && existingUser) {
+      await db.update(invite).set({ usedByUserId: existingUser.id }).where(eq(invite.id, inviteRecord.id)).run();
     }
 
     if (!existingUser) {
@@ -349,7 +365,7 @@ authRouter.get('/google/callback', async (c) => {
         JWT_SECRET,
       );
       return c.redirect(
-        `${appUrl}/set-password?token=${encodeURIComponent(setPasswordToken)}`,
+        `${appUrl}/set-password#token=${encodeURIComponent(setPasswordToken)}`,
       );
     }
 
@@ -358,35 +374,15 @@ authRouter.get('/google/callback', async (c) => {
       .where(eq(organizationUser.userId, existingUser.id))
       .get();
 
-    // If user exists but has no organization_user record (migrated from old schema),
-    // auto-create membership in the default organization
+    // A user with no membership has been removed from their organization (or never
+    // had one). Re-adding them anywhere would undo that removal, so refuse sign-in.
     if (!orgUser) {
-      const defaultOrg = await db.select().from(organization)
-        .where(eq(organization.id, 'default'))
-        .get();
+      return c.redirect(
+        `${appUrl}/auth/callback?error=${encodeURIComponent('Nessun\'organizzazione trovata per questo account')}`,
+      );
+    }
 
-      if (!defaultOrg) {
-        return c.json({ error: 'Organization not found' }, 500);
-      }
-
-      const newOrgUserId = crypto.randomUUID();
-      await db
-        .insert(organizationUser)
-        .values({
-          id: newOrgUserId,
-          userId: existingUser.id,
-          orgId: defaultOrg.id,
-          role: 'viewer',
-          permissions: JSON.stringify(getPermissionsForRole('viewer')),
-          isOwner: 0,
-          joinedAt: new Date().toISOString()
-        })
-        .run();
-
-      orgUser = await db.select().from(organizationUser)
-        .where(eq(organizationUser.userId, existingUser.id))
-        .get();
-    } else if (orgUser && orgUser.isOwner && orgUser.role !== 'core_admin') {
+    if (orgUser.isOwner && orgUser.role !== 'core_admin') {
       // If user is marked as owner but doesn't have core_admin role, upgrade them
       // This handles migration cases where owners were reset to viewer
       const coreAdminPermissions = [
@@ -448,16 +444,20 @@ authRouter.get('/google/callback', async (c) => {
     const userOut = { id: existingUser.id, email: existingUser.email, orgId: orgRecord.id, role: orgUser.role, permissions };
 
     return c.redirect(
-      `${appUrl}/auth/callback?token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(userOut))}`,
+      // Fragment, not query: browsers never send it to servers or put it in Referer.
+      `${appUrl}/auth/callback#token=${encodeURIComponent(token)}&user=${encodeURIComponent(JSON.stringify(userOut))}`,
     );
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Authentication failed';
+    // Only messages written for users go back in the URL; anything else may carry
+    // internals (Google responses, SQL errors), so it is logged and replaced.
+    if (!(err instanceof OAuthUserError)) console.error('Google login callback failed:', err);
+    const msg = err instanceof OAuthUserError ? err.message : 'Authentication failed';
     return c.redirect(`${appUrl}/auth/callback?error=${encodeURIComponent(msg)}`);
   }
 });
 
 // POST /api/auth/set-password — Set password after Google login (first login password gate)
-authRouter.post('/set-password', async (c) => {
+authRouter.post('/set-password', rateLimitByIp('set-password'), async (c) => {
   try {
     const { token, password } = await c.req.json() as { token: string; password: string };
     const db = drizzle(c.env.DB);
@@ -488,21 +488,13 @@ authRouter.post('/set-password', async (c) => {
       return c.json({ error: 'Utente non trovato.' }, 404);
     }
 
-    // Hash and update password
-    const passwordHash = await hashPassword(password);
-    await db
-      .update(userSchema)
-      .set({ password: passwordHash, updatedAt: new Date().toISOString() })
-      .where(eq(userSchema.id, user.id))
-      .run();
-
     // Fetch organization_user to get role and org
     const orgUser = await db.select().from(organizationUser)
       .where(eq(organizationUser.userId, user.id))
       .get();
 
     if (!orgUser) {
-      return c.json({ error: 'Appartenenza organizzativa non trovata.' }, 500);
+      return c.json({ error: 'Appartenenza organizzativa non trovata.' }, 403);
     }
 
     const orgRecord = await db.select().from(organization)
@@ -512,6 +504,14 @@ authRouter.post('/set-password', async (c) => {
     if (!orgRecord) {
       return c.json({ error: 'Organizzazione non trovata.' }, 500);
     }
+
+    // Only now, with membership confirmed: a user removed from their org must not set a password.
+    const passwordHash = await hashPassword(password);
+    await db
+      .update(userSchema)
+      .set({ password: passwordHash, updatedAt: new Date().toISOString() })
+      .where(eq(userSchema.id, user.id))
+      .run();
 
     const permissions = sessionPermissions(orgUser);
 
@@ -552,7 +552,7 @@ authRouter.get('/google/drive/callback', async (c) => {
 
   try {
     const statePayload = await verify(state, JWT_SECRET, 'HS256') as { type: string; userId: string };
-    if (statePayload.type !== 'drive' || !statePayload.userId) throw new Error('Invalid state');
+    if (statePayload.type !== 'drive' || !statePayload.userId) throw new OAuthUserError('Invalid authorization request. Please try again.');
 
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
@@ -567,8 +567,8 @@ authRouter.get('/google/drive/callback', async (c) => {
     });
 
     if (!tokenRes.ok) {
-      const text = await tokenRes.text();
-      throw new Error(`Token exchange failed: ${text}`);
+      console.error('Google Drive token exchange failed:', tokenRes.status, await tokenRes.text());
+      throw new OAuthUserError('Google Drive authorization failed. Please try again.');
     }
 
     const { refresh_token, access_token, expires_in } = await tokenRes.json<{
@@ -580,7 +580,7 @@ authRouter.get('/google/drive/callback', async (c) => {
     if (!refresh_token) {
       // This can happen if the user already granted consent before — revoke at
       // https://myaccount.google.com/permissions and try again, or re-authorize.
-      throw new Error('No refresh token returned. Please revoke app access in your Google account and try again.');
+      throw new OAuthUserError('No refresh token returned. Please revoke app access in your Google account and try again.');
     }
 
     const db = drizzle(c.env.DB);
@@ -599,7 +599,8 @@ authRouter.get('/google/drive/callback', async (c) => {
 
     return c.redirect(`${appUrl}/auth/drive-callback?success=1`);
   } catch (err) {
-    const msg = err instanceof Error ? err.message : 'Drive authorization failed';
+    if (!(err instanceof OAuthUserError)) console.error('Google Drive callback failed:', err);
+    const msg = err instanceof OAuthUserError ? err.message : 'Drive authorization failed';
     return c.redirect(`${appUrl}/auth/drive-callback?error=${encodeURIComponent(msg)}`);
   }
 });
@@ -719,7 +720,7 @@ authRouter.post('/invites', async (c) => {
 });
 
 // GET /api/auth/invites/:token — Validate and get invite details (public)
-authRouter.get('/invites/:token', async (c) => {
+authRouter.get('/invites/:token', rateLimitByIp('invite-lookup'), async (c) => {
   try {
     const token = c.req.param('token');
     if (!token) {

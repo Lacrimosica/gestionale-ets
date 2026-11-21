@@ -49,11 +49,11 @@ const PermissionChecklist = ({
   return (
     <div className="grid grid-cols-1 gap-4">
       {groupedPermissions.map((group) => (
-        <div key={group.titleKey} className="bg-slate-950/40 border border-slate-800 rounded-lg p-4">
-          <p className="text-sm font-semibold text-slate-300 mb-3">{t(`settings.permissions.groups.${group.titleKey}`)}</p>
+        <div key={group.titleKey} className="bg-neutral-950/40 border border-neutral-800 rounded-lg p-4">
+          <p className="text-sm font-semibold text-neutral-300 mb-3">{t(`settings.permissions.groups.${group.titleKey}`)}</p>
           <div className="grid grid-cols-2 gap-2">
             {group.items.map((permission) => (
-              <label key={permission} className="flex items-center gap-2 text-sm text-slate-400">
+              <label key={permission} className="flex items-center gap-2 text-sm text-neutral-400">
                 <input
                   type="checkbox"
                   checked={permissions.includes(permission)}

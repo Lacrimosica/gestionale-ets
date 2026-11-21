@@ -1,5 +1,7 @@
 {
   "common": {
+    "collapseSidebar": "Riduci barra laterale",
+    "expandSidebar": "Espandi barra laterale",
     "actions": {
       "save": "Salva",
       "saveChanges": "Salva modifiche",
@@ -92,6 +94,19 @@
     "addMember": "Aggiungi Membro",
     "noGenerations": "Nessun mandato registrato.",
     "noMembers": "Nessun membro assegnato a questo mandato.",
+    "namePlaceholder": "es. 2026–2027 (8°)",
+    "generationName": "Nome del mandato",
+    "noLeadership": "Nessun incarico direttivo assegnato",
+    "errors": {
+      "missingFields": "Inserisci il nome del mandato e la data di inizio.",
+      "completeMember": "Seleziona una persona e un ruolo."
+    },
+    "actions": {
+      "saveGeneration": "Salva mandato",
+      "cancelGeneration": "Annulla mandato",
+      "saveMember": "Salva membro",
+      "cancelMember": "Annulla aggiunta membro"
+    },
     "roles": {
       "president": "Presidente",
       "vice_president": "Vice Presidente",
@@ -171,7 +186,69 @@
     "gdprDataProcessingNote": "Il consenso al trattamento dati non è più richiesto — base giuridica: contratto associativo (Art. 6(1)(b) GDPR)"
   },
   "people": {
+    "person": "Persona",
+    "selectPerson": "Seleziona una persona...",
     "personalDetails": "Dettagli personali",
+    "form": {
+      "title": "Aggiungi una nuova persona",
+      "description": "Inserisci i dati anagrafici di base.",
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "birthDetails": "Luogo e data di nascita",
+      "birthDate": "Data di nascita",
+      "birthPlace": "Luogo di nascita",
+      "country": "Paese",
+      "countryPlaceholder": "Seleziona o digita un paese...",
+      "noCountriesFound": "Nessun paese trovato",
+      "cityPlaceholder": "Comune o città",
+      "foreignBirthPlaceHint": "Il luogo di nascita viene impostato automaticamente sul paese selezionato. Il codice catastale estero (Z...) verrà calcolato automaticamente.",
+      "contactAndWork": "Contatti e lavoro",
+      "email": "Email",
+      "internalIdPlaceholder": "ID interno",
+      "internalNotes": "Note interne",
+      "notesPlaceholder": "Aggiungi note o osservazioni interne su questa persona...",
+      "notesHint": "Le note sono visibili solo agli amministratori.",
+      "nextStep": "Prossimo passo",
+      "nextStepDescription": "Dopo aver salvato la persona, potrai creare un account utente per consentirle di accedere al sistema.",
+      "savePerson": "Salva persona",
+      "invalidEmail": "Inserisci un indirizzo email valido.",
+      "duplicateEmail": "Questa email è già utilizzata da {{name}}.",
+      "invalidTaxId": "Formato non valido. Il codice fiscale deve contenere 16 caratteri.",
+      "duplicateTaxId": "Questo codice fiscale è già utilizzato da {{name}}.",
+      "taxIdValidationTitle": "Validazione componenti del codice fiscale:",
+      "birthYear": "Anno di nascita",
+      "birthMonth": "Mese di nascita",
+      "birthDayGender": "Giorno/genere",
+      "checkCharacter": "Carattere di controllo",
+      "taxIdInformation": "Informazioni sul codice fiscale",
+      "format": "Formato",
+      "taxIdFormat": "16 caratteri (es. RSSMRA85D13F205F)",
+      "birthInItaly": "Nati in Italia",
+      "italianTaxIdInfo": "Il codice fiscale usa il codice catastale del comune (es. F205 = Milano).",
+      "birthAbroad": "Nati all'estero",
+      "foreignTaxIdInfo": "Il codice fiscale usa il codice del paese estero (inizia con Z seguito da un numero, es. Z336 = Iran).",
+      "taxIdLocationHint": "Inserisci il comune o la città nel campo Luogo e seleziona il paese nel campo Paese.",
+      "genderOptions": {
+        "male": "Maschio",
+        "female": "Femmina",
+        "other": "Altro"
+      },
+      "genericError": "Si è verificato un errore."
+    },
+    "createUser": {
+      "title": "Crea account utente",
+      "password": "Password",
+      "role": "Ruolo",
+      "suggestEmail": "Suggerisci: {{email}}",
+      "createAccount": "Crea account",
+      "success": "Account creato con successo.",
+      "errors": {
+        "createFailed": "Errore durante la creazione dell'account utente.",
+        "serverError": "Errore del server (HTTP {{status}}).",
+        "network": "Errore di rete. Controlla la connessione e riprova.",
+        "generic": "Si è verificato un errore."
+      }
+    },
     "taxId": "Codice Fiscale",
     "gender": "Genere",
     "profession": "Professione",
@@ -278,6 +355,47 @@
     "agenda": "Ordine del giorno",
     "subtitle": "Registro storico delle adunanze e delle deliberazioni.",
     "newAssembly": "Nuova Assemblea",
+    "creation": {
+      "guidedSetup": "Configurazione guidata di una nuova assemblea",
+      "generalInfo": "Informazioni generali",
+      "extraordinaryType": "Tipologia di assemblea straordinaria",
+      "generic": "Generica",
+      "statuteModification": "Modifica dello statuto",
+      "dissolution": "Scioglimento",
+      "mergerSplit": "Fusione / scissione",
+      "boardMeetingType": "Tipologia di riunione del direttivo",
+      "ordinary": "Ordinaria",
+      "extraordinaryUrgent": "Straordinaria (urgente)",
+      "statuteInfo": "Le modifiche statutarie devono essere registrate presso l'Agenzia delle Entrate entro 30 giorni dalla delibera. Potrebbe essere richiesto un quorum più elevato: verificare lo statuto.",
+      "dissolutionInfo": "La delibera di scioglimento deve essere registrata presso il RUNTS e l'Agenzia delle Entrate entro 30 giorni. Prevedere la nomina di un liquidatore e la devoluzione del patrimonio residuo.",
+      "mergerSplitInfo": "La delibera di fusione o scissione deve essere comunicata al RUNTS entro 30 giorni. Verificare i requisiti di quorum rafforzato nello statuto.",
+      "constituentDate": "Data dell'assemblea costitutiva",
+      "convocationPlanning": "Pianificazione delle convocazioni",
+      "addSecondConvocation": "Aggiungi seconda convocazione",
+      "firstConvocation": "Prima convocazione",
+      "secondConvocation": "Seconda convocazione",
+      "noSecondConvocation": "Nessuna seconda convocazione pianificata",
+      "selectHeadquarters": "— seleziona una sede —",
+      "platformLink": "Piattaforma / Link",
+      "convocationSendDate": "Data di invio della convocazione",
+      "convocationTooLate": "La convocazione deve essere inviata almeno 15 giorni prima ({{days}} giorni).",
+      "agendaEmpty": "Nessun punto all'ordine del giorno aggiunto",
+      "template": "Modello",
+      "agendaTitlePlaceholder": "Titolo del punto all'ordine del giorno...",
+      "selectMembers": "Seleziona soci",
+      "findMembers": "Cerca soci...",
+      "genericAgendaItem": "— Punto generico —",
+      "memberAdmission": "Ammissione soci",
+      "memberResignation": "Presa d'atto delle dimissioni",
+      "budgetApproval": "Bilancio",
+      "boardElection": "Elezione del direttivo",
+      "removeAgendaItem": "Rimuovi punto all'ordine del giorno",
+      "institutionalRoles": "Figure istituzionali",
+      "findPresident": "Cerca presidente...",
+      "findSecretary": "Cerca segretario...",
+      "firstCall": "1ª convocazione",
+      "secondCallShort": "2ª convocazione"
+    },
     "types": {
       "ordinary": "Assemblea Ordinaria",
       "extraordinary": "Assemblea Straordinaria",
@@ -308,6 +426,31 @@
   "settings": {
     "title": "Impostazioni",
     "subtitle": "Backoffice per amministratori, ruoli, permessi e sicurezza account.",
+    "language": {
+      "title": "Lingua",
+      "description": "Scegli la lingua utilizzata nell'applicazione.",
+      "options": {
+        "en": "English",
+        "it": "Italiano"
+      }
+    },
+    "customization": {
+      "title": "Personalizzazione",
+      "description": "Personalizza l'area di lavoro con temi e identità dell'organizzazione."
+    },
+    "theme": {
+      "title": "Tema",
+      "description": "Scegli un tema predefinito o crea una combinazione di colori personalizzata.",
+      "hideCustom": "Nascondi tema personalizzato",
+      "createCustom": "Crea tema personalizzato",
+      "customDescription": "Definisci colori personalizzati (valori CSS validi).",
+      "bgPrimary": "Sfondo principale",
+      "bgSecondary": "Sfondo secondario",
+      "textPrimary": "Testo principale",
+      "accentPrimary": "Colore principale",
+      "sidebarBg": "Sfondo della barra laterale",
+      "applyCustom": "Applica tema personalizzato"
+    },
     "branding": {
       "title": "Identità dell'organizzazione",
       "description": "Configura logo, nome e testi base per rendere il progetto riutilizzabile per altre organizzazioni.",
@@ -350,7 +493,12 @@
       "resetPasswordErrorMismatch": "Le password non coincidono.",
       "resetPasswordButton": "Reimposta password",
       "deleteUserSectionTitle": "Elimina utente",
-      "deleteUserButton": "Elimina utente"
+      "deleteUserButton": "Elimina utente",
+      "twoStepBadge": "2 passaggi",
+      "resetTwoStepTitle": "Reimposta la verifica in due passaggi",
+      "resetTwoStepDescription": "Per un telefono o un'email persi. L'utente la riattiva al prossimo accesso con password.",
+      "resetTwoStepButton": "Reimposta 2 passaggi",
+      "resetTwoStepConfirm": "Reimpostare la verifica in due passaggi per {{email}}?"
     },
     "password": {
       "title": "Sicurezza account",
@@ -498,7 +646,9 @@
       "errorUpdatingUser": "Errore durante l'aggiornamento dell'utente.",
       "errorUploadingLogo": "Errore durante il caricamento del logo.",
       "customizationSaved": "Personalizzazione aggiornata con successo.",
-      "errorSavingCustomization": "Errore durante il salvataggio della personalizzazione."
+      "errorSavingCustomization": "Errore durante il salvataggio della personalizzazione.",
+      "userTwoStepReset": "Verifica in due passaggi reimpostata.",
+      "errorResettingTwoStep": "Impossibile reimpostare la verifica in due passaggi."
     },
     "export": {
       "title": "Esporta / Backup",
@@ -544,6 +694,25 @@
         "compliance_documents": "Documenti Conformità",
         "compliance_roles": "Ruoli Conformità"
       }
+    },
+    "twoStep": {
+      "title": "Verifica in due passaggi",
+      "description": "Chiedi un codice dopo la password",
+      "requiredNote": "Il tuo ruolo richiede la verifica in due passaggi. Puoi cambiare metodo ma devi tenerne almeno uno.",
+      "passwordOnlyNote": "Vale per l'accesso con password. L'accesso con Google usa la verifica del tuo account Google.",
+      "on": "Attiva",
+      "off": "Disattiva",
+      "unavailable": "Non configurata su questo server",
+      "turnOn": "Attiva",
+      "turnOff": "Disattiva",
+      "recoveryCodes": "Codici di recupero",
+      "recoveryLeft": "{{count}} non usati",
+      "regenerate": "Genera nuovi codici",
+      "confirmChange": "Conferma con un codice attuale.",
+      "emailSent": "Ti abbiamo inviato un codice di 6 cifre via email.",
+      "enabled": "Metodo di verifica attivato.",
+      "disabled": "Metodo di verifica disattivato.",
+      "done": "Fatto"
     }
   },
   "auth": {
@@ -553,6 +722,18 @@
     "password": "Password",
     "invalidCredentials": "Email o password non validi.",
     "loginPage": {
+      "brandTagline": "Nonprofit Intelligence, Kindly Implemented",
+      "brandHeadline": "Una buona governance comincia dalle persone.",
+      "brandDescription": "Persone, assemblee e documenti importanti: tutto in uno spazio di lavoro chiaro e sereno.",
+      "featurePeople": "Persone e soci",
+      "featureGovernance": "Assemblee e governance",
+      "featureCompliance": "Conformità senza complicazioni",
+      "welcomeEyebrow": "Il tuo spazio di lavoro Niki",
+      "welcomeTitle": "Bentornato",
+      "welcomeDescription": "Accedi per continuare con la tua organizzazione.",
+      "backToEmail": "Torna all'email",
+      "showPassword": "Mostra password",
+      "hidePassword": "Nascondi password",
       "signInWithGoogle": "Accedi con Google",
       "or": "oppure",
       "emailPlaceholder": "email@dominio",
@@ -564,6 +745,43 @@
       "createOrganization": "Crea un'organizzazione",
       "emailInvalid": "Inserisci un indirizzo email valido.",
       "authError": "Errore durante l'autenticazione"
+    },
+    "twoStep": {
+      "titleVerifyEmail": "Conferma la tua email",
+      "titleMfa": "Verifica in due passaggi",
+      "titleEnroll": "Attiva la verifica in due passaggi",
+      "titleEnrollTotp": "Collega un'app di autenticazione",
+      "titleEnrollEmail": "Conferma i codici via email",
+      "titleRecovery": "Salva i codici di recupero",
+      "verifyEmailBody": "Per proteggere il tuo account, conferma una volta il tuo indirizzo. Abbiamo inviato un codice di 6 cifre a {{email}}.",
+      "mfaTotpBody": "Inserisci il codice di 6 cifre mostrato dall'app di autenticazione.",
+      "mfaEmailBody": "Inserisci il codice di 6 cifre inviato a {{email}}.",
+      "mfaRecoveryBody": "Inserisci uno dei codici di recupero. Ogni codice vale una sola volta.",
+      "enrollBody": "Il tuo ruolo richiede un secondo passaggio quando accedi con la password. Scegli come ricevere i codici.",
+      "enrollTotp": "App di autenticazione",
+      "enrollTotpDesc": "Google Authenticator, 1Password, Authy… Funziona anche offline.",
+      "enrollEmail": "Codici via email",
+      "enrollEmailDesc": "A ogni accesso ricevi un codice su {{email}}.",
+      "scanQr": "Inquadra il codice QR con l'app di autenticazione, poi inserisci il codice di 6 cifre che mostra.",
+      "manualKey": "Non riesci a inquadrarlo? Inserisci la chiave a mano",
+      "codeLabel": "Codice",
+      "recoveryLabel": "Codice di recupero",
+      "verify": "Verifica",
+      "confirm": "Conferma",
+      "continue": "Continua",
+      "resend": "Invia un nuovo codice",
+      "codeSent": "Codice inviato a {{email}}.",
+      "useApp": "Usa l'app di autenticazione",
+      "useEmail": "Inviami un codice via email",
+      "useRecovery": "Usa un codice di recupero",
+      "startOver": "Ricomincia",
+      "recoveryBody": "Se perdi l'accesso ai codici, ognuno di questi ti permette di accedere una volta. Conservali in un posto sicuro: non verranno mostrati di nuovo.",
+      "copy": "Copia",
+      "copied": "Copiati",
+      "download": "Scarica",
+      "savedConfirm": "Ho salvato questi codici",
+      "expired": "Questo accesso è scaduto. Ricomincia.",
+      "genericError": "Qualcosa è andato storto. Riprova."
     }
   },
   "setup": {

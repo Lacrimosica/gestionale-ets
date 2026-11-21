@@ -165,10 +165,10 @@ export const AgendaItemsList = ({
   }
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+    <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-          <ListOrdered size={18} className="text-purple-400" />
+        <h2 className="text-lg font-semibold text-fg mb-4 flex items-center gap-2">
+          <ListOrdered size={18} className="text-special-400" />
           {t('assemblies.agenda')}
         </h2>
 
@@ -201,20 +201,20 @@ export const AgendaItemsList = ({
                 />
               ))}
 
-              <li className="bg-slate-950/20 rounded-lg border border-slate-800/40 border-dashed transition-colors opacity-60">
+              <li className="bg-neutral-950/20 rounded-lg border border-neutral-800/40 border-dashed transition-colors opacity-60">
                 <div className="p-4 flex items-start gap-4">
-                  <div className="w-8 h-8 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-sm font-bold text-slate-500 shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-neutral-900 border border-neutral-800 flex items-center justify-center text-sm font-bold text-neutral-500 shrink-0">
                     {convocationDetail.agendaItems.length + 1}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="text-sm font-semibold text-slate-400">Varie ed eventuali</h3>
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-slate-800 text-slate-500">Auto-aggiunto</span>
+                      <h3 className="text-sm font-semibold text-neutral-400">Varie ed eventuali</h3>
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-500">Auto-aggiunto</span>
                     </div>
                     <textarea
                       value={testoVarie}
                       onChange={(e) => onTestoVarieChange(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700/50 rounded-lg px-3 py-2 text-white text-xs min-h-[60px] focus:ring-1 focus:ring-purple-500/30"
+                      className="w-full bg-neutral-950 border border-neutral-700/50 rounded-lg px-3 py-2 text-fg text-xs min-h-[60px] focus:ring-1 focus:ring-special-500/30"
                       placeholder="Testo specifico per questo punto (lascia vuoto per usare il predefinito)..."
                     />
                   </div>
@@ -223,7 +223,7 @@ export const AgendaItemsList = ({
             </ol>
           </>
         ) : (
-          <p className="text-slate-500 text-sm mb-4">{t('assemblies.noAgendaItems')}</p>
+          <p className="text-neutral-500 text-sm mb-4">{t('assemblies.noAgendaItems')}</p>
         )}
 
         <AddAgendaItemForm

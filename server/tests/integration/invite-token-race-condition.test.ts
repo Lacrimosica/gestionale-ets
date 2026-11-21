@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import { createTestOrganization, createTestUser, createTestInvite } from '../setup/fixtures';
@@ -39,13 +40,13 @@ describe('Invite Token Race Conditions', () => {
         usedAt: new Date().toISOString(),
         usedByUserId: user1.id,
       })
-      .where((t) => t.token === invite.token)
+      .where(eq(schema.invite.token, invite.token))
       .run();
 
     const usedInvite = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === invite.token)
+      .where(eq(schema.invite.token, invite.token))
       .get();
 
     expect(usedInvite?.usedAt).not.toBeNull();
@@ -89,14 +90,14 @@ describe('Invite Token Race Conditions', () => {
           usedAt: new Date().toISOString(),
           usedByUserId: user1.id,
         })
-        .where((t) => t.token === invite.token)
+        .where(eq(schema.invite.token, invite.token))
         .run();
 
       // User 2 tries to mark as used (should see it's already used)
       const inviteNow = await db
         .select()
         .from(schema.invite)
-        .where((t) => t.token === invite.token)
+        .where(eq(schema.invite.token, invite.token))
         .get();
 
       expect(inviteNow?.usedByUserId).toBe(user1.id); // User1 won the race
@@ -119,13 +120,15 @@ describe('Invite Token Race Conditions', () => {
     });
 
     // Create expired invite (24+ hours ago)
+    // Computed once: building it twice with Date.now() gives two different tokens.
+    const expiredToken = 'expired-token-' + Date.now();
     const expiredInvite = await db
       .insert(schema.invite)
       .values({
         id: 'expired-' + Date.now(),
         orgId: org.id,
         email: 'expired@example.com',
-        token: 'expired-token-' + Date.now(),
+        token: expiredToken,
         role: 'member',
         createdByUserId: issuer.id,
         expiresAt: new Date(Date.now() - 1000).toISOString(), // 1 second ago
@@ -140,7 +143,7 @@ describe('Invite Token Race Conditions', () => {
     const invite = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === 'expired-token-' + Date.now())
+      .where(eq(schema.invite.token, expiredToken))
       .get();
 
     const isExpired = new Date(invite!.expiresAt) < new Date();
@@ -215,7 +218,7 @@ describe('Invite Token Race Conditions', () => {
     const tokenExists = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === invite.token)
+      .where(eq(schema.invite.token, invite.token))
       .get();
 
     expect(tokenExists).toBeTruthy();
@@ -235,13 +238,13 @@ describe('Invite Token Race Conditions', () => {
         usedAt: new Date().toISOString(),
         usedByUserId: user.id,
       })
-      .where((t) => t.token === invite.token)
+      .where(eq(schema.invite.token, invite.token))
       .run();
 
     const updated = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.token === invite.token)
+      .where(eq(schema.invite.token, invite.token))
       .get();
 
     expect(updated?.usedAt).not.toBeNull();

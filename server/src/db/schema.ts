@@ -204,9 +204,48 @@ export const user = sqliteTable('user', {
   googleRefreshToken: text('google_refresh_token'),
   googleAccessToken: text('google_access_token'),
   googleTokenExpiry: text('google_token_expiry'),
+  // Set once the user proves they receive mail at `email` (an emailed code).
+  // Password sign-in requires it whenever an email sender is configured.
+  emailVerifiedAt: text('email_verified_at'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at'),
 });
+
+/** Two-step sign-in methods for a user. One row per user, created on first enrolment. */
+export const userMfa = sqliteTable('user_mfa', {
+  userId: text('user_id').primaryKey().references(() => user.id, { onDelete: 'cascade' }),
+  totpSecretEnc: text('totp_secret_enc'), // AES-GCM ciphertext (lib/secret-box)
+  totpConfirmedAt: text('totp_confirmed_at'), // null while setup is pending
+  totpLastStep: integer('totp_last_step'), // last accepted time step; blocks code replay
+  emailOtpEnabled: integer('email_otp_enabled').notNull().default(0),
+  createdAt: text('created_at').notNull(),
+  updatedAt: text('updated_at').notNull(),
+});
+
+/** Single-use recovery codes, stored as SHA-256 hashes. */
+export const mfaRecoveryCode = sqliteTable('mfa_recovery_code', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  codeHash: text('code_hash').notNull(),
+  usedAt: text('used_at'),
+  createdAt: text('created_at').notNull(),
+}, (t) => ({
+  userIdx: index('idx_mfa_recovery_code_user_id').on(t.userId),
+}));
+
+/** Emailed one-time codes: login second step, email verification, enabling email codes. */
+export const mfaChallenge = sqliteTable('mfa_challenge', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  purpose: text('purpose').notNull(), // 'login' | 'verify_email' | 'enable_email'
+  codeHash: text('code_hash').notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  expiresAt: text('expires_at').notNull(),
+  consumedAt: text('consumed_at'),
+  createdAt: text('created_at').notNull(),
+}, (t) => ({
+  userPurposeIdx: index('idx_mfa_challenge_user_purpose').on(t.userId, t.purpose),
+}));
 
 export const organization = sqliteTable('organization', {
   id: text('id').primaryKey(),

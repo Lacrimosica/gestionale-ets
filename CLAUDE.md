@@ -1,10 +1,16 @@
-# Gestionale ETS — Project Context for Claude Agents
+# Niki (formerly Gestionale ETS) — Project Context for Claude Agents
 
 This document provides essential context for Claude and other agents working on this project. It complements language model training and helps maintain consistency across sessions.
 
 ## What Is This Project?
 
-**Gestionale ETS** is a full-stack web application for managing volunteer-based organizations (ETS = Ente del Terzo Settore, Italian non-profit legal classification).
+**Niki** (formerly *Gestionale ETS*) is a full-stack web application for managing volunteer-based organizations (ETS = Ente del Terzo Settore, Italian non-profit legal classification).
+
+**Brand:** product name **Niki**, tagline *Nonprofit Intelligence, Kindly Implemented*.
+Name, logo, palette and voice live in [docs/brand/README.md](docs/brand/README.md) — read it
+before touching user-facing branding. The rename is incremental: code identifiers, package
+names, Cloudflare resources and URLs still say `gestionale` / `gestionale-ets` until migrated.
+An organization's own branding (Settings → Branding) is separate from the Niki product brand.
 
 Key features:
 - Member and volunteer management (onboarding, roles, periods)
@@ -457,3 +463,19 @@ If you encounter unclear code, conflicting instructions, or missing documentatio
 **Last updated:** April 22, 2026  
 **Maintained by:** Claude Code agents  
 **Next review:** When major architectural changes are made
+
+---
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues for this repo (via the `gh` CLI); external PRs are not a triage surface. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Canonical defaults: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.

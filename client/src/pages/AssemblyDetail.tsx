@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { formatLongDate } from '../lib/date-utils';
 import { useModalityOptions } from '../hooks/useSettings';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../hooks/auth-context';
 import { PERMISSIONS } from '../lib/permissions';
 import { useAddresses } from '../hooks/useSettings';
 import { useAssemblyDetail } from '../hooks/useAssemblyDetail';
@@ -233,8 +233,8 @@ const AssemblyDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-slate-500">
-        <div className="w-10 h-10 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mb-4" />
+      <div className="flex flex-col items-center justify-center h-64 text-neutral-500">
+        <div className="w-10 h-10 border-4 border-special-600 border-t-transparent rounded-full animate-spin mb-4" />
         <p>{t('assemblies.loadingDetails', { defaultValue: 'Loading assembly details...' })}</p>
       </div>
     );
@@ -242,12 +242,12 @@ const AssemblyDetail = () => {
 
   if (error || !data) {
     return (
-      <div className="bg-red-900/20 border border-red-800 text-red-400 p-6 rounded-xl flex items-center space-x-4">
+      <div className="bg-danger-900/20 border border-danger-800 text-danger-400 p-6 rounded-xl flex items-center space-x-4">
         <AlertCircle size={28} />
         <div>
           <h3 className="font-bold text-lg">{t('common.status.error')}</h3>
           <p>{error ?? t('assemblies.notFound')}</p>
-          <button onClick={() => navigate('/assemblies')} className="mt-2 text-sm underline hover:text-red-300">{t('assemblies.backToList', { defaultValue: 'Back to list' })}</button>
+          <button onClick={() => navigate('/assemblies')} className="mt-2 text-sm underline hover:text-danger-300">{t('assemblies.backToList', { defaultValue: 'Back to list' })}</button>
         </div>
       </div>
     );
@@ -259,38 +259,38 @@ const AssemblyDetail = () => {
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="flex items-start space-x-4">
             <div className="flex items-center gap-1 mt-1 shrink-0">
-              <button onClick={() => navigate('/assemblies')} className="p-2 hover:bg-slate-800 rounded-full transition-colors" title={t('assemblies.backToList', { defaultValue: 'Back to list' })}>
-                <ArrowLeft size={20} className="text-slate-400" />
+              <button onClick={() => navigate('/assemblies')} className="p-2 hover:bg-neutral-800 rounded-full transition-colors" title={t('assemblies.backToList', { defaultValue: 'Back to list' })}>
+                <ArrowLeft size={20} className="text-neutral-400" />
               </button>
-              <div className="flex items-center bg-slate-800/40 rounded-lg p-0.5 border border-slate-700/50">
+              <div className="flex items-center bg-neutral-800/40 rounded-lg p-0.5 border border-neutral-700/50">
                 <button
                   onClick={() => prevAssembly && navigate(`/assemblies/${prevAssembly.id}`)}
                   disabled={!prevAssembly}
-                  className="p-1.5 hover:bg-slate-700 rounded-md transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                  className="p-1.5 hover:bg-neutral-700 rounded-md transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
                   title={prevAssembly ? getAssemblyLabel(prevAssembly.id) : undefined}
                 >
-                  <ChevronLeft size={16} className="text-slate-300" />
+                  <ChevronLeft size={16} className="text-neutral-300" />
                 </button>
                 <button
                   onClick={() => nextAssembly && navigate(`/assemblies/${nextAssembly.id}`)}
                   disabled={!nextAssembly}
-                  className="p-1.5 hover:bg-slate-700 rounded-md transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
+                  className="p-1.5 hover:bg-neutral-700 rounded-md transition-colors disabled:opacity-25 disabled:cursor-not-allowed"
                   title={nextAssembly ? getAssemblyLabel(nextAssembly.id) : undefined}
                 >
-                  <ChevronRight size={16} className="text-slate-300" />
+                  <ChevronRight size={16} className="text-neutral-300" />
                 </button>
               </div>
             </div>
             <div className={isEditingPrimary ? 'flex-1' : ''}>
               <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                <FileText className="text-purple-400 shrink-0" size={20} />
+                <FileText className="text-special-400 shrink-0" size={20} />
                 {convocationDetail && (
                   convocationDetail.assemblyId === id
-                    ? <span className="text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 text-purple-400 border-purple-700">1a conv.</span>
-                    : <span className="text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 text-teal-400 border-teal-700">2a conv.</span>
+                    ? <span className="text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 text-special-400 border-special-700">1a conv.</span>
+                    : <span className="text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 text-success-400 border-success-700">2a conv.</span>
                 )}
               </div>
-              <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-3xl font-black text-fg tracking-tight leading-tight">
                 {data.type === 'board_council'
                   ? `${t('assemblies.types.board_council')} n.${data.referenceNumber}${data.subtype === 'extraordinary' ? ' — Straordinaria' : ''}`
                   : data.type === 'constitution'
@@ -300,19 +300,19 @@ const AssemblyDetail = () => {
               </h1>
               {/* Filing reminder banners for extraordinary subtypes */}
               {data.type === 'extraordinary' && data.subtype === 'statute_modification' && (
-                <div className="flex items-start gap-2 bg-amber-900/10 border border-amber-800/30 rounded-lg px-3 py-2 mt-2 text-xs text-amber-300">
+                <div className="flex items-start gap-2 bg-warning-900/10 border border-warning-800/30 rounded-lg px-3 py-2 mt-2 text-xs text-warning-300">
                   <AlertTriangle size={13} className="shrink-0 mt-0.5" />
                   <span><strong>Adempimento:</strong> Registrare le modifiche statutarie presso l'Agenzia delle Entrate entro 30 giorni dalla delibera.</span>
                 </div>
               )}
               {data.type === 'extraordinary' && data.subtype === 'dissolution' && (
-                <div className="flex items-start gap-2 bg-red-900/10 border border-red-800/30 rounded-lg px-3 py-2 mt-2 text-xs text-red-300">
+                <div className="flex items-start gap-2 bg-danger-900/10 border border-danger-800/30 rounded-lg px-3 py-2 mt-2 text-xs text-danger-300">
                   <AlertTriangle size={13} className="shrink-0 mt-0.5" />
                   <span><strong>Adempimento:</strong> Comunicare la delibera di scioglimento al RUNTS e all'Agenzia delle Entrate entro 30 giorni.</span>
                 </div>
               )}
               {data.type === 'extraordinary' && data.subtype === 'merger_split' && (
-                <div className="flex items-start gap-2 bg-amber-900/10 border border-amber-800/30 rounded-lg px-3 py-2 mt-2 text-xs text-amber-300">
+                <div className="flex items-start gap-2 bg-warning-900/10 border border-warning-800/30 rounded-lg px-3 py-2 mt-2 text-xs text-warning-300">
                   <AlertTriangle size={13} className="shrink-0 mt-0.5" />
                   <span><strong>Adempimento:</strong> Comunicare la delibera di fusione/scissione al RUNTS entro 30 giorni dalla delibera.</span>
                 </div>
@@ -325,48 +325,48 @@ const AssemblyDetail = () => {
 
                 const AssemblyCard = ({ assembly, label, color }: { assembly: AssemblyDetailData; label: string; color: 'purple' | 'teal' | 'slate' }) => {
                   const isCurrent = assembly.id === id;
-                  const borderCls = color === 'purple' ? 'border-purple-800/50' : color === 'teal' ? 'border-teal-800/50' : 'border-slate-700/50';
+                  const borderCls = color === 'purple' ? 'border-special-800/50' : color === 'teal' ? 'border-success-800/50' : 'border-neutral-700/50';
                   const highlightCls = isCurrent
-                    ? color === 'purple' ? 'ring-2 ring-purple-600/60 bg-purple-950/20' : color === 'teal' ? 'ring-2 ring-teal-600/60 bg-teal-950/20' : ''
-                    : 'hover:border-slate-500 cursor-pointer hover:bg-slate-800/80 transition-colors';
-                  const badgeCls = color === 'purple' ? 'bg-purple-700 text-purple-100' : color === 'teal' ? 'bg-teal-700 text-teal-100' : 'bg-slate-700 text-slate-300';
+                    ? color === 'purple' ? 'ring-2 ring-special-600/60 bg-special-950/20' : color === 'teal' ? 'ring-2 ring-success-600/60 bg-success-950/20' : ''
+                    : 'hover:border-neutral-500 cursor-pointer hover:bg-neutral-800/80 transition-colors';
+                  const badgeCls = color === 'purple' ? 'bg-special-700 text-special-100' : color === 'teal' ? 'bg-success-700 text-success-100' : 'bg-neutral-700 text-neutral-300';
                   const callDate = assembly.firstCallDate ?? assembly.convocationDate;
                   const inner = (
                     <>
                       {isPaired && (
                         <div className="flex items-center gap-2 mb-2">
                           <span className={`${badgeCls} text-[10px] font-black uppercase px-2 py-0.5 rounded-full tracking-wider`}>{label}</span>
-                          <span className="text-slate-500 text-xs">n.{assembly.referenceNumber}{assembly.referenceYear ? `/${assembly.referenceYear}` : ''}</span>
-                          {isCurrent && <span className="ml-auto text-[9px] font-bold uppercase tracking-widest text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">pagina corrente</span>}
+                          <span className="text-neutral-500 text-xs">n.{assembly.referenceNumber}{assembly.referenceYear ? `/${assembly.referenceYear}` : ''}</span>
+                          {isCurrent && <span className="ml-auto text-[9px] font-bold uppercase tracking-widest text-neutral-500 bg-neutral-800 px-1.5 py-0.5 rounded">pagina corrente</span>}
                         </div>
                       )}
-                      <div className="flex items-center gap-1.5 text-slate-300 text-sm">
-                        <Calendar size={13} className="text-blue-400 shrink-0" />
-                        <span><span className="text-white font-semibold">{callDate ? formatLongDate(callDate) : t('common.dateNotSet')}</span>{assembly.firstCallTime ? ` · ${assembly.firstCallTime}` : ''}</span>
+                      <div className="flex items-center gap-1.5 text-neutral-300 text-sm">
+                        <Calendar size={13} className="text-accent-400 shrink-0" />
+                        <span><span className="text-fg font-semibold">{callDate ? formatLongDate(callDate) : t('common.dateNotSet')}</span>{assembly.firstCallTime ? ` · ${assembly.firstCallTime}` : ''}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 text-slate-400 text-xs mt-1">
+                      <div className="flex items-center gap-1.5 text-neutral-400 text-xs mt-1">
                         <MapPin size={12} className="shrink-0" />
                         <span>{assembly.location}</span>
                       </div>
-                      <div className="flex items-center gap-4 text-slate-400 text-xs mt-1 flex-wrap">
-                        <span className="flex items-center gap-1"><User size={12} className="shrink-0" />{t('common.fields.president')}: <span className="text-slate-200 font-semibold ml-1">{assembly.presidentName}</span></span>
-                        <span className="flex items-center gap-1"><User size={12} className="shrink-0" />{t('common.fields.secretary')}: <span className="text-slate-200 font-semibold ml-1">{assembly.secretaryName}</span></span>
+                      <div className="flex items-center gap-4 text-neutral-400 text-xs mt-1 flex-wrap">
+                        <span className="flex items-center gap-1"><User size={12} className="shrink-0" />{t('common.fields.president')}: <span className="text-neutral-200 font-semibold ml-1">{assembly.presidentName}</span></span>
+                        <span className="flex items-center gap-1"><User size={12} className="shrink-0" />{t('common.fields.secretary')}: <span className="text-neutral-200 font-semibold ml-1">{assembly.secretaryName}</span></span>
                       </div>
                       <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <ModeBadge assembly={assembly} modalityOptions={modalityOptions} />
                         {assembly.meetLink && (
-                          <a href={assembly.meetLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-cyan-400 hover:text-cyan-300 transition-colors text-[10px]">
+                          <a href={assembly.meetLink} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="flex items-center gap-1 text-info-400 hover:text-info-300 transition-colors text-[10px]">
                             <Video size={11} className="shrink-0" /> {t('common.fields.meetLink', { defaultValue: 'Link riunione' })}
                           </a>
                         )}
-                        {!isCurrent && <span className="ml-auto text-[10px] text-slate-500 flex items-center gap-1"><ArrowLeft size={10} className="rotate-180" /> Vai alla pagina</span>}
+                        {!isCurrent && <span className="ml-auto text-[10px] text-neutral-500 flex items-center gap-1"><ArrowLeft size={10} className="rotate-180" /> Vai alla pagina</span>}
                       </div>
                     </>
                   );
                   return isCurrent ? (
-                    <div className={`bg-slate-800/50 border ${borderCls} ${highlightCls} rounded-lg px-4 py-3`}>{inner}</div>
+                    <div className={`bg-neutral-800/50 border ${borderCls} ${highlightCls} rounded-lg px-4 py-3`}>{inner}</div>
                   ) : (
-                    <div role="button" onClick={() => navigate(`/assemblies/${assembly.id}`)} className={`bg-slate-800/50 border ${borderCls} ${highlightCls} rounded-lg px-4 py-3`}>{inner}</div>
+                    <div role="button" onClick={() => navigate(`/assemblies/${assembly.id}`)} className={`bg-neutral-800/50 border ${borderCls} ${highlightCls} rounded-lg px-4 py-3`}>{inner}</div>
                   );
                 };
 
@@ -385,7 +385,7 @@ const AssemblyDetail = () => {
                 {hasPermission(PERMISSIONS.assembliesEdit) && (
                   <button
                     onClick={() => setConfirmDelete(true)}
-                    className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-red-400 hover:text-white hover:bg-red-900/40 border border-red-900/50 hover:border-red-700 rounded-lg transition-colors"
+                    className="inline-flex items-center gap-2 px-3 py-1.5 text-sm text-danger-400 hover:text-fg hover:bg-danger-900/40 border border-danger-900/50 hover:border-danger-700 rounded-lg transition-colors"
                   >
                     <Trash2 size={14} />
                     {t('common.actions.delete')}
@@ -399,7 +399,7 @@ const AssemblyDetail = () => {
 
         {/* PAIRED ASSEMBLY PANEL */}
         {convocationDetail && (
-          <div id="convocazioni-panel" className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden scroll-mt-24">
+          <div id="convocazioni-panel" className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden scroll-mt-24">
             <ConvocationMetaPanel
               convocationDetail={convocationDetail}
               onConvocationDetailChange={setConvocationDetail}
@@ -408,7 +408,7 @@ const AssemblyDetail = () => {
             />
 
             {/* Two-column assembly editor */}
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-neutral-800">
               {(() => {
                 const isCurrentPrimary = convocationDetail.assemblyId === id;
                 const otherAssembly = isCurrentPrimary ? convocationDetail.assembly2 : convocationDetail.assembly1;
@@ -416,13 +416,13 @@ const AssemblyDetail = () => {
                 return (
                   <>
                     {/* LEFT COLUMN: The assembly we are currently viewing */}
-                    <div className={`p-6 rounded-l-xl ${isCurrentPrimary ? 'bg-purple-950/10 ring-1 ring-inset ring-purple-900/30' : 'bg-teal-950/10 ring-1 ring-inset ring-teal-900/30'}`}>
+                    <div className={`p-6 rounded-l-xl ${isCurrentPrimary ? 'bg-special-950/10 ring-1 ring-inset ring-special-900/30' : 'bg-success-950/10 ring-1 ring-inset ring-success-900/30'}`}>
                       <div className="flex items-center gap-2 mb-4">
-                        <span className={`text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 ${isCurrentPrimary ? 'text-purple-400 border-purple-700' : 'text-teal-400 border-teal-700'}`}>
+                        <span className={`text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 ${isCurrentPrimary ? 'text-special-400 border-special-700' : 'text-success-400 border-success-700'}`}>
                           {isCurrentPrimary ? '1a conv.' : '2a conv.'}
                         </span>
-                        <span className="text-sm font-semibold text-slate-200">{getAssemblyLabel(id)}</span>
-                        <span className="ml-auto text-[9px] font-bold uppercase tracking-widest text-slate-500 bg-slate-800 px-1.5 py-0.5 rounded">pagina corrente</span>
+                        <span className="text-sm font-semibold text-neutral-200">{getAssemblyLabel(id)}</span>
+                        <span className="ml-auto text-[9px] font-bold uppercase tracking-widest text-neutral-500 bg-neutral-800 px-1.5 py-0.5 rounded">pagina corrente</span>
                       </div>
 
                       <PrimaryAssemblyEditor
@@ -443,7 +443,7 @@ const AssemblyDetail = () => {
                     {/* RIGHT COLUMN: The other assembly if linked */}
                     <div className="p-6">
                       <div className="flex items-center gap-2 mb-4">
-                        <span className={`text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 ${!isCurrentPrimary ? 'text-purple-400 border-purple-700' : 'text-teal-400 border-teal-700'}`}>
+                        <span className={`text-xs font-black uppercase tracking-widest border rounded px-1.5 py-0.5 ${!isCurrentPrimary ? 'text-special-400 border-special-700' : 'text-success-400 border-success-700'}`}>
                           {!isCurrentPrimary ? '1a conv.' : '2a conv.'}
                         </span>
 

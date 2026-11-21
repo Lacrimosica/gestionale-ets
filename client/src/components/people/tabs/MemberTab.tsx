@@ -1,3 +1,6 @@
+import type { DeleteRequest } from '../../../types/delete-request';
+import type { MemberPeriod } from '../../../hooks/usePeriods';
+import type { PersonDetails as Person } from '../../../hooks/usePerson';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShieldCheck, History, UserMinus, Edit2, Trash2, PlusCircle } from 'lucide-react';
@@ -5,35 +8,15 @@ import { formatDate } from '../../../lib/date-utils';
 import EditPeriodModal from '../modals/EditPeriodModal';
 import PeriodModal from '../modals/PeriodModal';
 
-interface MemberPeriod {
-  id: string;
-  admissionDate: string;
-  resignationDate?: string;
-  exitReason?: string;
-  notes?: string;
-}
-
-interface VolunteerPeriod {
-  id: string;
-  enrollmentDate: string;
-  exitDate?: string;
-}
-
-interface Person {
-  id: string;
-  memberPeriods?: MemberPeriod[];
-  volunteerPeriods?: VolunteerPeriod[];
-}
-
 interface MemberTabProps {
   person: Person;
   canEdit: boolean;
-  startMembership: (data: any) => Promise<void>;
-  endMembership: (periodId: string, data: any) => Promise<void>;
-  updateMemberPeriod: (periodId: string, data: any) => Promise<void>;
+  startMembership: (data: Partial<MemberPeriod>) => Promise<void>;
+  endMembership: (periodId: string, data: { resignationDate: string; exitReason?: string }) => Promise<void>;
+  updateMemberPeriod: (periodId: string, data: Partial<MemberPeriod>) => Promise<void>;
   refresh: () => Promise<void>;
   refreshCompliance: () => Promise<void>;
-  onRequestDelete: (config: any) => void;
+  onRequestDelete: (config: DeleteRequest) => void;
 }
 
 interface PeriodFormData {
@@ -104,8 +87,8 @@ const MemberTab = ({
   return (
     <div className="p-8 space-y-8">
       <div className="flex items-center justify-between">
-        <h3 className="text-xl font-bold text-white flex items-center space-x-2">
-          <ShieldCheck className="text-blue-400" />
+        <h3 className="text-xl font-bold text-fg flex items-center space-x-2">
+          <ShieldCheck className="text-accent-400" />
           <span>{t('people.membershipHistory', { defaultValue: 'Membership History' })}</span>
         </h3>
         {canEdit && (!activeSocioPeriod ? (
@@ -118,7 +101,7 @@ const MemberTab = ({
               setModalDate(new Date().toISOString().split('T')[0]);
               setModalType('soc_start');
             }}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-accent-600 hover:bg-accent-500 text-white px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             title={!activeVolPeriod ? t('people.alerts.needActiveVolunteer') : undefined}
             disabled={!activeVolPeriod}
           >
@@ -131,7 +114,7 @@ const MemberTab = ({
               setModalDate(new Date().toISOString().split('T')[0]);
               setModalType('soc_end');
             }}
-            className="bg-red-600/20 hover:bg-red-600/30 text-red-500 border border-red-900/50 px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
+            className="bg-danger-600/20 hover:bg-danger-600/30 text-danger-500 border border-danger-900/50 px-4 py-2 rounded-lg flex items-center space-x-2 font-bold transition-all"
           >
             <UserMinus size={18} />
             <span>{t('people.registerResignation', { defaultValue: 'Register Resignation' })}</span>
@@ -141,14 +124,14 @@ const MemberTab = ({
 
       <div className="space-y-4 mt-6">
         {person.memberPeriods?.map(p => (
-          <div key={p.id} className="border border-slate-800 bg-slate-950/50 p-4 rounded-xl flex items-center justify-between group">
+          <div key={p.id} className="border border-neutral-800 bg-neutral-950/50 p-4 rounded-xl flex items-center justify-between group">
             <div className="flex items-center space-x-4">
-              <div className={`p-2 rounded-lg ${!p.resignationDate ? 'bg-blue-900/30 text-blue-400' : 'bg-slate-800 text-slate-500'}`}>
+              <div className={`p-2 rounded-lg ${!p.resignationDate ? 'bg-accent-900/30 text-accent-400' : 'bg-neutral-800 text-neutral-500'}`}>
                 {!p.resignationDate ? <ShieldCheck size={20} /> : <History size={20} />}
               </div>
               <div>
-                <div className="font-bold text-white">{!p.resignationDate ? t('people.activeMember', { defaultValue: 'Active Member' }) : t('people.resignedMember', { defaultValue: 'Resigned Member' })}</div>
-                <div className="text-sm text-slate-400">
+                <div className="font-bold text-fg">{!p.resignationDate ? t('people.activeMember', { defaultValue: 'Active Member' }) : t('people.resignedMember', { defaultValue: 'Resigned Member' })}</div>
+                <div className="text-sm text-neutral-400">
                   {formatDate(p.admissionDate)}
                   {p.resignationDate ? ` → ${formatDate(p.resignationDate)}` : ` → ${t('common.status.today')}`}
                 </div>
@@ -157,7 +140,7 @@ const MemberTab = ({
             <div className="flex items-center space-x-2">
               {canEdit && (
                 <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity mr-4">
-                  <button onClick={() => openEditMemberModal(p)} className="p-1.5 text-slate-400 hover:text-blue-400">
+                  <button onClick={() => openEditMemberModal(p)} className="p-1.5 text-neutral-400 hover:text-accent-400">
                     <Edit2 size={14} />
                   </button>
                   <button
@@ -171,20 +154,20 @@ const MemberTab = ({
                       confirmValue: '',
                       isLoading: false
                     })}
-                    className="p-1.5 text-slate-600 hover:text-red-400"
+                    className="p-1.5 text-neutral-600 hover:text-danger-400"
                   >
                     <Trash2 size={14} />
                   </button>
                 </div>
               )}
               {p.exitReason && (
-                <div className="text-xs text-slate-500 italic">{t('people.reason')}: {p.exitReason}</div>
+                <div className="text-xs text-neutral-500 italic">{t('people.reason')}: {p.exitReason}</div>
               )}
             </div>
           </div>
         ))}
         {(!person.memberPeriods || person.memberPeriods.length === 0) && (
-          <div className="text-center py-12 text-slate-500 italic">
+          <div className="text-center py-12 text-neutral-500 italic">
             {t('people.noMemberRecords', { defaultValue: 'No member records for this person.' })}
           </div>
         )}

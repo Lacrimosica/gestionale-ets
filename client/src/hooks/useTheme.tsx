@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react';
 import axios from 'axios';
-import { resolveTheme, applyThemeVars, clearThemeVars, PREDEFINED_THEMES, type ThemeVars } from '../themes';
-import { useAuth } from './useAuth';
+import { resolveTheme, applyTheme, clearThemeVars, PREDEFINED_THEMES, type ThemeVars } from '../themes';
+import { useAuth } from './auth-context';
 import { API_BASE_URL } from '../config';
 
 interface ThemeContextType {
@@ -14,7 +14,7 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
-const DEFAULT_THEME_KEY = 'dark-slate';
+const DEFAULT_THEME_KEY = 'niki-light';
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -38,11 +38,11 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         const vars = resolveTheme(stored);
         setThemeKey(stored);
         setThemeVars(vars);
-        if (vars) applyThemeVars(vars);
+        if (vars) applyTheme(stored, vars);
       } catch {
         const fallback = resolveTheme(DEFAULT_THEME_KEY)!;
         setThemeVars(fallback);
-        applyThemeVars(fallback);
+        applyTheme(DEFAULT_THEME_KEY, fallback);
       } finally {
         setLoading(false);
       }
@@ -56,7 +56,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     if (vars) {
       setThemeKey(value);
       setThemeVars(vars);
-      applyThemeVars(vars);
+      applyTheme(value, vars);
     }
 
     await axios.put(`${API_BASE_URL}/settings/user-preferences`, { theme: value });
@@ -71,6 +71,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- the provider and its hook belong together
 export const useTheme = () => {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used within a ThemeProvider');

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import { createTestOrganization, createTestUser } from '../setup/fixtures';
@@ -74,7 +75,7 @@ describe('Invite-Only Mode — Token-Gated Org Creation', () => {
     const retrieved = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.id === invite.id)
+      .where(eq(schema.invite.id, invite.id))
       .get();
 
     expect(retrieved?.expiresAt).toBe(expiresAt);

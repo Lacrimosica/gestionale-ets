@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "deploy": "npm run build && npx wrangler pages deploy dist --project-name=gestionale-ets",
     "deploy:staging": "npm run build:staging && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=staging",
-    "deploy:demo": "npm run build:demo && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=demo"
+    "deploy:demo": "npm run build:demo && npx wrangler pages deploy dist --project-name=gestionale-ets --branch=demo",
+    "lint:colors": "node scripts/check-theme-colors.mjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.1",
@@ -26,6 +27,7 @@
     "jspdf-autotable": "^5.0.7",
     "lightningcss": "^1.31.1",
     "lucide-react": "^0.577.0",
+    "qrcode.react": "4.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-i18next": "^16.5.8",

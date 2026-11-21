@@ -46,9 +46,9 @@ const PeriodModal = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-      <div className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
+      <div className="bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl w-full max-w-md p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white">
+          <h3 className="text-lg font-bold text-fg">
             {modalType === 'vol_start' && t('people.newVolunteerPeriod', { defaultValue: 'New Volunteer Period' })}
             {modalType === 'vol_end' && t('people.closeVolunteerPeriod', { defaultValue: 'Close Volunteer Period' })}
             {modalType === 'soc_start' && t('people.newMemberAdmission', { defaultValue: 'New Member Admission' })}
@@ -56,7 +56,7 @@ const PeriodModal = ({
           </h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-full hover:bg-slate-800 text-slate-400"
+            className="p-1 rounded-full hover:bg-neutral-800 text-neutral-400"
           >
             <X size={18} />
           </button>
@@ -64,14 +64,14 @@ const PeriodModal = ({
 
         <div className="space-y-3">
           <div className="space-y-1">
-            <label className="text-xs text-slate-400 font-semibold uppercase tracking-wide">
+            <label className="text-xs text-neutral-400 font-semibold uppercase tracking-wide">
               {t('common.fields.date')}
             </label>
             <input
               type="date"
               value={modalDate}
               onChange={(e) => setModalDate(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:border-accent-500 focus:ring-1 focus:ring-accent-500 outline-none"
             />
           </div>
         </div>
@@ -79,7 +79,7 @@ const PeriodModal = ({
         <div className="flex justify-end space-x-3 pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-sm font-medium hover:bg-slate-700"
+            className="px-4 py-2 rounded-lg bg-neutral-800 text-neutral-300 text-sm font-medium hover:bg-neutral-700"
           >
             {t('common.actions.cancel')}
           </button>
@@ -87,7 +87,7 @@ const PeriodModal = ({
             onClick={async () => {
               await onConfirm(modalType, modalDate);
             }}
-            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-semibold shadow-lg shadow-blue-900/30"
+            className="px-4 py-2 rounded-lg bg-accent-600 hover:bg-accent-500 text-white text-sm font-semibold shadow-lg shadow-accent-900/30"
           >
             {t('common.actions.confirm')}
           </button>

@@ -8,7 +8,7 @@ interface StatuteArticlesFieldsProps {
     statuteArticleBoardVote: string | null;
     statuteArticleBoardElection: string | null;
   };
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
 }
 
 const StatuteArticlesFields = ({ articles, onFormChange }: StatuteArticlesFieldsProps) => {
@@ -21,20 +21,20 @@ const StatuteArticlesFields = ({ articles, onFormChange }: StatuteArticlesFields
   ] as [keyof DocumentSettings, string, string][];
 
   return (
-    <div className="border border-slate-800 rounded-xl p-5 bg-slate-950/40 space-y-4">
-      <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Statute Articles</h3>
+    <div className="border border-neutral-800 rounded-xl p-5 bg-neutral-950/40 space-y-4">
+      <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider">Statute Articles</h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {articleFields.map(([field, label, placeholder]) => (
           <label key={field} className="block">
-            <span className="block text-xs text-slate-500 mb-1">{label}</span>
+            <span className="block text-xs text-neutral-500 mb-1">{label}</span>
             <input
               value={(articles[field as keyof typeof articles] as string) ?? ''}
               onChange={(e) => onFormChange(field, e.target.value)}
               placeholder={placeholder}
-              className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+              className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
             />
             {(articles[field as keyof typeof articles] as string) && (
-              <p className="text-xs text-slate-500 mt-1 italic">→ "ai sensi dell'{articles[field as keyof typeof articles] as string} dello statuto..."</p>
+              <p className="text-xs text-neutral-500 mt-1 italic">→ "ai sensi dell'{articles[field as keyof typeof articles] as string} dello statuto..."</p>
             )}
           </label>
         ))}

@@ -11,7 +11,7 @@ interface GoogleDriveTemplatesSectionProps {
     templateConvocationBoardId: string | null;
     templateMinutesBoardId: string | null;
   };
-  onFormChange: (field: keyof DocumentSettings, value: any) => void;
+  onFormChange: (field: keyof DocumentSettings, value: DocumentSettings[keyof DocumentSettings]) => void;
 }
 
 const GoogleDriveTemplatesSection = ({ templates, onFormChange }: GoogleDriveTemplatesSectionProps) => {
@@ -29,44 +29,44 @@ const GoogleDriveTemplatesSection = ({ templates, onFormChange }: GoogleDriveTem
   ] as [keyof DocumentSettings, string][];
 
   return (
-    <div className="border border-slate-800 rounded-xl p-5 bg-slate-950/40 space-y-4">
-      <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Google Drive</h3>
-      <p className="text-xs text-slate-500">Paste the Google Doc file IDs (from the URL) for each template, and the output folder ID.</p>
+    <div className="border border-neutral-800 rounded-xl p-5 bg-neutral-950/40 space-y-4">
+      <h3 className="text-sm font-semibold text-neutral-300 uppercase tracking-wider">Google Drive</h3>
+      <p className="text-xs text-neutral-500">Paste the Google Doc file IDs (from the URL) for each template, and the output folder ID.</p>
 
-      <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pt-1">Assemblee dei Soci</p>
+      <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest pt-1">Assemblee dei Soci</p>
       {assemblyFields.map(([field, label]) => (
         <label key={field} className="block">
-          <span className="block text-xs text-slate-500 mb-1">{label}</span>
+          <span className="block text-xs text-neutral-500 mb-1">{label}</span>
           <input
             value={(templates[field as keyof typeof templates] as string) ?? ''}
             onChange={(e) => onFormChange(field, e.target.value)}
             placeholder="1BxiMV..."
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm font-mono"
+            className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm font-mono"
           />
         </label>
       ))}
 
-      <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pt-2">Consiglio Direttivo</p>
+      <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest pt-2">Consiglio Direttivo</p>
       {boardFields.map(([field, label]) => (
         <label key={field} className="block">
-          <span className="block text-xs text-slate-500 mb-1">{label}</span>
+          <span className="block text-xs text-neutral-500 mb-1">{label}</span>
           <input
             value={(templates[field as keyof typeof templates] as string) ?? ''}
             onChange={(e) => onFormChange(field, e.target.value)}
             placeholder="1BxiMV..."
-            className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm font-mono"
+            className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm font-mono"
           />
         </label>
       ))}
 
-      <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pt-2">Cartella di output</p>
+      <p className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest pt-2">Cartella di output</p>
       <label className="block">
-        <span className="block text-xs text-slate-500 mb-1">Output folder ID</span>
+        <span className="block text-xs text-neutral-500 mb-1">Output folder ID</span>
         <input
           value={(templates.outputFolderId as string) ?? ''}
           onChange={(e) => onFormChange('outputFolderId', e.target.value)}
           placeholder="1BxiMV..."
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm font-mono"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm font-mono"
         />
       </label>
     </div>

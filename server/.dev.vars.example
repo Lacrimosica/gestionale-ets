@@ -32,3 +32,13 @@ GOOGLE_SERVICE_ACCOUNT_KEY={"type":"service_account","project_id":"..."}
 # Get from the URL of the Google Drive folder: https://drive.google.com/drive/folders/{ID}
 TEMPLATE_FOLDER_ID=your-google-drive-folder-id
 OUTPUT_FOLDER_ID=your-google-drive-folder-id
+
+# ─── TWO-STEP SIGN-IN ────────────────────────────────────────────────────────
+# Encrypts authenticator-app secrets. Generate with: openssl rand -base64 32
+# Without it, authenticator apps are off and admins are not forced to enrol.
+MFA_ENCRYPTION_KEY=
+# Roles that must use two-step sign-in (comma-separated). Empty disables enforcement.
+MFA_REQUIRED_ROLES=core_admin,admin
+# "log" prints emailed codes to the wrangler dev console. Unset turns email codes
+# and email verification off.
+EMAIL_PROVIDER=log

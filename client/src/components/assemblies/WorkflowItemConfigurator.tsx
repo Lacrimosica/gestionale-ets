@@ -39,7 +39,7 @@ export const WorkflowItemConfigurator = ({
     const legacyNames = legacyMemberNames(currentData);
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">{memberLabel}</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">{memberLabel}</label>
         {legacyNames.length > 0 && (
           // Saved as plain text by an older version: shown read-only because the
           // names can't be mapped to people reliably. Still used for documents
@@ -66,14 +66,14 @@ export const WorkflowItemConfigurator = ({
   if (workflowType === 'budget_approval') {
     return (
       <div>
-        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block mb-2">Anno di riferimento</label>
+        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide block mb-2">Anno di riferimento</label>
         <input
           type="number"
           min={2000}
           max={2100}
           value={currentData.budgetYear ?? new Date().getFullYear() - 1}
           onChange={(e) => onWorkflowDataChange({ ...currentData, budgetYear: Number(e.target.value) })}
-          className="w-32 bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-white text-sm"
+          className="w-32 bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-1.5 text-fg text-sm"
         />
       </div>
     );

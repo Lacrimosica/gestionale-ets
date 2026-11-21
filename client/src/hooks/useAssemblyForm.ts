@@ -13,7 +13,7 @@ interface AgendaItem {
   memberNames?: string[];
 }
 
-interface AssemblyForm {
+export interface AssemblyForm {
   type: Assembly['type'];
   subtype: string;
   firstCallDate: string;

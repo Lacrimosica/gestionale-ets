@@ -51,41 +51,41 @@ export const AgendaCell = ({ convocationId, notes }: AgendaCellProps) => {
     >
       {/* preview line */}
       {items && items.length > 0 ? (
-        <p className="text-xs text-slate-400 truncate">
+        <p className="text-xs text-neutral-400 truncate">
           {items.length} {items.length === 1 ? 'punto' : 'punti'} odg
         </p>
       ) : notes ? (
-        <p className="text-xs text-slate-400 truncate max-w-[180px]">{notes}</p>
+        <p className="text-xs text-neutral-400 truncate max-w-[180px]">{notes}</p>
       ) : (
-        <span className="text-slate-700">—</span>
+        <span className="text-neutral-700">—</span>
       )}
 
       {/* tooltip rendered via fixed positioning to escape overflow clipping */}
       {tooltipPos && hasContent && (
         <div
-          className="fixed z-[9999] w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-3 space-y-1.5 pointer-events-none"
+          className="fixed z-[9999] w-72 bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl p-3 space-y-1.5 pointer-events-none"
           style={{ top: tooltipPos.top, left: tooltipPos.left }}
         >
           {loading ? (
-            <div className="flex items-center gap-2 text-slate-400 text-xs">
+            <div className="flex items-center gap-2 text-neutral-400 text-xs">
               <Loader2 size={12} className="animate-spin" /> Caricamento…
             </div>
           ) : items && items.length > 0 ? (
             <>
-              <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ordine del giorno</p>
+              <p className="text-[10px] font-black text-neutral-500 uppercase tracking-widest mb-2">Ordine del giorno</p>
               {items.map((item) => (
                 <div key={item.id} className="flex items-start gap-2">
-                  <span className="text-[10px] font-bold text-purple-500 shrink-0 mt-0.5">{item.number}.</span>
-                  <span className="text-xs text-slate-300 leading-snug">{item.title}</span>
+                  <span className="text-[10px] font-bold text-special-500 shrink-0 mt-0.5">{item.number}.</span>
+                  <span className="text-xs text-neutral-300 leading-snug">{item.title}</span>
                 </div>
               ))}
             </>
           ) : items && items.length === 0 && notes ? (
-            <p className="text-xs text-slate-300">{notes}</p>
+            <p className="text-xs text-neutral-300">{notes}</p>
           ) : items && items.length === 0 ? (
-            <p className="text-xs text-slate-500 italic">Nessun punto all'ordine del giorno</p>
+            <p className="text-xs text-neutral-500 italic">Nessun punto all'ordine del giorno</p>
           ) : notes ? (
-            <p className="text-xs text-slate-300">{notes}</p>
+            <p className="text-xs text-neutral-300">{notes}</p>
           ) : null}
         </div>
       )}

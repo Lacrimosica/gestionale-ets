@@ -1,14 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import OverlayModal from '../ui/OverlayModal';
 import ModalField from '../ui/ModalField';
-import type { RoleFormState } from './useComplianceTab';
+import type { FormFieldValue, RoleFormState } from './useComplianceTab';
+import type { ComplianceRules } from '../../../hooks/useCompliance';
 
 interface RoleFormModalProps {
   isOpen: boolean;
   isEditing: boolean;
   form: RoleFormState;
-  rules?: any;
-  onFormChange: (field: keyof RoleFormState, value: any) => void;
+  rules?: ComplianceRules;
+  onFormChange: (field: keyof RoleFormState, value: FormFieldValue) => void;
   onSave: () => Promise<void>;
   onClose: () => void;
 }
@@ -34,7 +35,7 @@ const RoleFormModal = ({ isOpen, isEditing, form, rules, onFormChange, onSave, o
       confirmLabel={isEditing ? t('common.actions.saveChanges') : t('common.actions.save')}
     >
       {!rules && (
-        <div className="p-4 bg-red-900/30 border border-red-700 rounded-lg text-red-200 mb-4">
+        <div className="p-4 bg-danger-900/30 border border-danger-700 rounded-lg text-danger-200 mb-4">
           {t('compliance.rulesNotConfigured', { defaultValue: 'Compliance rules are not configured. Please contact an administrator.' })}
         </div>
       )}
@@ -42,10 +43,10 @@ const RoleFormModal = ({ isOpen, isEditing, form, rules, onFormChange, onSave, o
         <select
           value={form.roleType}
           onChange={(e) => onFormChange('roleType', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
           disabled={!rules}
         >
-          {rules && Object.entries(rules.roles).map(([value, role]: [string, any]) => (
+          {rules && Object.entries(rules.roles).map(([value, role]) => (
             <option key={value} value={value}>
               {t(role.label)} {role.description ? `(${role.description})` : ''}
             </option>
@@ -57,7 +58,7 @@ const RoleFormModal = ({ isOpen, isEditing, form, rules, onFormChange, onSave, o
           type="date"
           value={form.startDate}
           onChange={e => onFormChange('startDate', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <ModalField label={t('common.fields.endDate', { defaultValue: 'End Date' })}>
@@ -65,14 +66,14 @@ const RoleFormModal = ({ isOpen, isEditing, form, rules, onFormChange, onSave, o
           type="date"
           value={form.endDate}
           onChange={e => onFormChange('endDate', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm"
         />
       </ModalField>
       <ModalField label={t('common.fields.notes')}>
         <textarea
           value={form.notes}
           onChange={e => onFormChange('notes', e.target.value)}
-          className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm min-h-[80px]"
+          className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm min-h-[80px]"
         />
       </ModalField>
     </OverlayModal>

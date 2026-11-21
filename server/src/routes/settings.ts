@@ -1,14 +1,17 @@
 import { Hono } from 'hono';
 import { drizzle } from 'drizzle-orm/d1';
 import { and, eq, ne, isNotNull, isNull } from 'drizzle-orm';
-import { organizationSetting, user, organizationAddress, convocationModalityOption, userSetting, organizationUser, organization } from '../db/schema';
+import { organizationSetting, user, organizationAddress, convocationModalityOption, userSetting, organizationUser, organization, userMfa } from '../db/schema';
 import { desc } from 'drizzle-orm';
-import { hashPassword, verifyPassword } from '../lib/auth';
+import { hashPassword, verifyPassword, rejectNewPassword } from '../lib/auth';
 import { rejectGrant, canActOn } from '../lib/roles';
+import { isRateLimited, tooManyRequests, type RateLimiter } from '../lib/rate-limit';
+import { resetMfa } from '../lib/mfa';
 
 type Bindings = {
   DB: D1Database;
   JWT_SECRET: string;
+  AUTH_RATE_LIMITER?: RateLimiter;
 };
 
 type Variables = {
@@ -159,10 +162,27 @@ const upsertBrandingSettings = async (
     return { error: 'Logo file is too large', status: 400 as const };
   }
 
+  // The logo is rendered as an <img src> on the public login page; accept only the
+  // image data URLs the upload form produces, never arbitrary URLs.
+  if (logoDataUrl && !/^data:image\/(png|jpeg|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(logoDataUrl)) {
+    return { error: 'Logo must be a PNG, JPEG, WebP or SVG image', status: 400 as const };
+  }
+
+  // auth_domain is UNIQUE and decides which org a sign-in lands in, so it must not be
+  // possible to take over another org's domain (or collide on '').
+  if (authDomain) {
+    const owner = await db.select({ id: organization.id }).from(organization)
+      .where(and(eq(organization.authDomain, authDomain), ne(organization.id, orgId)))
+      .get();
+    if (owner) {
+      return { error: 'This domain is already in use by another organization.', status: 409 as const };
+    }
+  }
+
   await db.update(organization).set({
     name,
     shortName,
-    authDomain,
+    authDomain: authDomain || null,
     tagline,
     supportEmail,
     logoDataUrl,
@@ -207,9 +227,11 @@ settingsRouter.get('/users', async (c) => {
   const users = await Promise.all(
     orgUsers.map(async (orgUser) => {
       const u = await db.select().from(user).where(eq(user.id, orgUser.userId)).get();
+      const mfa = await db.select().from(userMfa).where(eq(userMfa.userId, orgUser.userId)).get();
       return {
         id: u?.id,
         email: u?.email,
+        mfaEnabled: !!(mfa?.totpConfirmedAt || mfa?.emailOtpEnabled),
         role: orgUser.role,
         isCoreAdmin: orgUser.role === 'core_admin',
         permissions: parsePermissions(orgUser.permissions, orgUser.role),
@@ -253,6 +275,10 @@ settingsRouter.post('/users', async (c) => {
   const { email, password, role, permissions } = await c.req.json();
   if (!email || !password || !role) {
     return c.json({ error: 'Missing required fields' }, 400);
+  }
+  const passwordError = rejectNewPassword(password);
+  if (passwordError) {
+    return c.json({ error: passwordError }, 400);
   }
   const grantError = rejectGrant(payload, role, permissions?.length ? permissions : undefined);
   if (grantError) {
@@ -380,6 +406,10 @@ settingsRouter.post('/users/:id/reset-password', async (c) => {
   if (!newPassword) {
     return c.json({ error: 'Missing required fields' }, 400);
   }
+  const passwordError = rejectNewPassword(newPassword);
+  if (passwordError) {
+    return c.json({ error: passwordError }, 400);
+  }
 
   // user rows are global; without this membership check a core_admin of any
   // org could reset (and take over) accounts belonging to other orgs.
@@ -390,11 +420,55 @@ settingsRouter.post('/users/:id/reset-password', async (c) => {
     return c.json({ error: 'User not found in this organization' }, 404);
   }
 
+  // The password is global too: resetting it for a user who also belongs to another
+  // org would hand this org's admin a login into that other org.
+  const otherMembership = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), ne(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (otherMembership) {
+    return c.json({ error: 'This user belongs to other organizations; only they can change their password' }, 403);
+  }
+
   await db.update(user).set({
     password: await hashPassword(newPassword),
     updatedAt: new Date().toISOString(),
   }).where(eq(user.id, id)).run();
 
+  return c.json({ success: true });
+});
+
+// DELETE /api/settings/users/:id/mfa — clear a user's two-step sign-in (lost device).
+// The user enrols again on their next password sign-in if their role requires it.
+settingsRouter.delete('/users/:id/mfa', async (c) => {
+  const denied = await requirePermission(c, 'settings.users.reset_password');
+  if (denied) return denied;
+
+  const payload = c.get('jwtPayload');
+  if (payload.role !== 'core_admin') {
+    return c.json({ error: 'Only core admin can reset two-step sign-in' }, 403);
+  }
+  const { id } = c.req.param();
+  if (id === payload.sub) {
+    return c.json({ error: 'Manage your own two-step sign-in from your security settings' }, 400);
+  }
+
+  const db = drizzle(c.env.DB);
+  const orgUser = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), eq(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (!orgUser) {
+    return c.json({ error: 'User not found in this organization' }, 404);
+  }
+  // Two-step settings are global like the password: resetting them for a user of other
+  // orgs would weaken that account there too.
+  const otherMembership = await db.select({ id: organizationUser.id }).from(organizationUser)
+    .where(and(eq(organizationUser.userId, id), ne(organizationUser.orgId, payload.orgId)))
+    .get();
+  if (otherMembership) {
+    return c.json({ error: 'This user belongs to other organizations; only they can change their two-step sign-in' }, 403);
+  }
+
+  await resetMfa(db, id);
   return c.json({ success: true });
 });
 
@@ -434,9 +508,17 @@ settingsRouter.post('/change-password', async (c) => {
   if (denied) return denied;
 
   const payload = c.get('jwtPayload');
+  // Guessing the current password with a stolen session is still password guessing.
+  if (await isRateLimited(c.env.AUTH_RATE_LIMITER, [`change-password:user:${payload.sub}`])) {
+    return tooManyRequests(c);
+  }
   const { currentPassword, newPassword } = await c.req.json();
   if (!currentPassword || !newPassword) {
     return c.json({ error: 'Missing required fields' }, 400);
+  }
+  const passwordError = rejectNewPassword(newPassword);
+  if (passwordError) {
+    return c.json({ error: passwordError }, 400);
   }
 
   const db = drizzle(c.env.DB);
@@ -739,7 +821,7 @@ settingsRouter.delete('/modality-options/:id', async (c) => {
 });
 
 // User preferences (theme)
-const KNOWN_THEMES = ['dark-slate', 'beige-blue-light'];
+const KNOWN_THEMES = ['dark-slate', 'beige-blue-light', 'niki-light', 'niki-dark'];
 
 settingsRouter.get('/user-preferences', async (c) => {
   const payload = c.get('jwtPayload');
@@ -751,7 +833,7 @@ settingsRouter.get('/user-preferences', async (c) => {
     .where(eq(userSetting.userId, payload.sub))
     .get();
 
-  return c.json({ theme: prefs?.theme ?? 'dark-slate' });
+  return c.json({ theme: prefs?.theme ?? 'niki-light' });
 });
 
 settingsRouter.put('/user-preferences', async (c) => {

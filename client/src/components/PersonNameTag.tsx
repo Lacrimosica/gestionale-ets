@@ -21,7 +21,7 @@ const PersonNameTag: React.FC<PersonNameTagProps> = ({ name, isPresumedNonExiste
       className={`inline-flex items-center gap-1.5 opacity-60 decoration-dashed underline-offset-2 hover:opacity-100 transition-opacity cursor-help ${className}`}
       title={t('common.ghostTitle', { defaultValue: 'Assumed non-existent (legacy/unverified record)' })}
     >
-      <Ghost size={12} className="text-slate-400" />
+      <Ghost size={12} className="text-neutral-400" />
       <span className="italic">{name}</span>
     </span>
   );

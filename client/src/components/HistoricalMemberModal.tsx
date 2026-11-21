@@ -40,34 +40,34 @@ const HistoricalMemberModal: React.FC<HistoricalMemberModalProps> = ({
   const displayDate = formatLongDate(date);
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-neutral-950/80 backdrop-blur-sm animate-in fade-in duration-300">
+      <div className="bg-neutral-900 border border-neutral-800 w-full max-w-2xl rounded-3xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-slate-800 flex justify-between items-start">
+        <div className="p-6 border-b border-neutral-800 flex justify-between items-start">
           <div>
-            <h2 className="text-xl font-black text-white uppercase tracking-tight">{t('timeline.members')}</h2>
-            <p className="text-slate-500 text-sm mt-1">Snapshot: {displayDate} • {assemblyLabel}</p>
+            <h2 className="text-xl font-black text-fg uppercase tracking-tight">{t('timeline.members')}</h2>
+            <p className="text-neutral-500 text-sm mt-1">Snapshot: {displayDate} • {assemblyLabel}</p>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-slate-800 rounded-xl text-slate-500 hover:text-white transition-all"
+            className="p-2 hover:bg-neutral-800 rounded-xl text-neutral-500 hover:text-fg transition-all"
           >
             <X size={24} />
           </button>
         </div>
 
         {/* Info & Actions */}
-        <div className="bg-slate-950/50 p-4 border-b border-slate-800 flex items-center justify-between px-6">
-          <div className="text-sm font-bold text-slate-400">
-            {t('common.total', { defaultValue: 'Total' })}: <span className="text-blue-400">{members.length} {t('timeline.members').toLowerCase()}</span>
+        <div className="bg-neutral-950/50 p-4 border-b border-neutral-800 flex items-center justify-between px-6">
+          <div className="text-sm font-bold text-neutral-400">
+            {t('common.total', { defaultValue: 'Total' })}: <span className="text-accent-400">{members.length} {t('timeline.members').toLowerCase()}</span>
           </div>
           <button 
             onClick={handleCopy}
-            className="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-300 px-4 py-2 rounded-xl text-xs font-black transition-all"
+            className="flex items-center space-x-2 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-4 py-2 rounded-xl text-xs font-black transition-all"
           >
             {copied ? (
               <>
-                <Check size={14} className="text-green-400" />
+                <Check size={14} className="text-success-400" />
                 <span>{t('common.copied', { defaultValue: 'COPIED!' })}</span>
               </>
             ) : (
@@ -85,14 +85,14 @@ const HistoricalMemberModal: React.FC<HistoricalMemberModalProps> = ({
             {members.map((m, idx) => (
               <div 
                 key={m.id} 
-                className="flex items-center space-x-3 p-3 bg-slate-950/30 border border-slate-800 rounded-2xl hover:border-blue-900/50 transition-all hover:bg-slate-800/10 group"
+                className="flex items-center space-x-3 p-3 bg-neutral-950/30 border border-neutral-800 rounded-2xl hover:border-accent-900/50 transition-all hover:bg-neutral-800/10 group"
               >
-                <div className="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center text-slate-500 group-hover:bg-blue-900/20 group-hover:text-blue-400 transition-colors">
+                <div className="w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center text-neutral-500 group-hover:bg-accent-900/20 group-hover:text-accent-400 transition-colors">
                   <User size={16} />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-sm font-bold text-slate-200 uppercase tracking-tight">{m.firstName} {m.lastName}</span>
-                  <span className="text-[10px] text-slate-600 font-mono italic">#{idx + 1}</span>
+                  <span className="text-sm font-bold text-neutral-200 uppercase tracking-tight">{m.firstName} {m.lastName}</span>
+                  <span className="text-[10px] text-neutral-600 font-mono italic">#{idx + 1}</span>
                 </div>
               </div>
             ))}
@@ -100,10 +100,10 @@ const HistoricalMemberModal: React.FC<HistoricalMemberModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-800 bg-slate-900/50 flex justify-end">
+        <div className="p-6 border-t border-neutral-800 bg-neutral-900/50 flex justify-end">
           <button 
             onClick={onClose}
-            className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-2.5 rounded-xl font-black text-sm uppercase transition-all shadow-lg shadow-blue-900/20"
+            className="bg-accent-600 hover:bg-accent-500 text-white px-8 py-2.5 rounded-xl font-black text-sm uppercase transition-all shadow-lg shadow-accent-900/20"
           >
             {t('common.close', { defaultValue: 'Close' })}
           </button>

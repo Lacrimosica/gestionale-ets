@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { initializeMiniflare, cleanupMiniflare, getMiniflareDB } from '../setup/miniflare-context';
 import { resetTestDatabase } from '../setup/db-reset';
 import {
@@ -90,7 +91,7 @@ describe('Access Control — Org Boundary Enforcement', () => {
     const org1Settings = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.orgId === org1.id)
+      .where(eq(schema.organizationSetting.orgId, org1.id))
       .get();
 
     expect(org1Settings?.city).toBe('Milan');
@@ -100,7 +101,7 @@ describe('Access Control — Org Boundary Enforcement', () => {
     const org2Settings = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.orgId === org2.id)
+      .where(eq(schema.organizationSetting.orgId, org2.id))
       .get();
 
     expect(org2Settings?.city).toBe('Rome');
@@ -143,7 +144,7 @@ describe('Access Control — Org Boundary Enforcement', () => {
     const org1Members = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.orgId === org1.id)
+      .where(eq(schema.organizationUser.orgId, org1.id))
       .all();
 
     // User1 should see: user1, user2
@@ -155,7 +156,7 @@ describe('Access Control — Org Boundary Enforcement', () => {
     const org2Members = await db
       .select()
       .from(schema.organizationUser)
-      .where((t) => t.orgId === org2.id)
+      .where(eq(schema.organizationUser.orgId, org2.id))
       .all();
 
     // User1 querying org2 would get filtered out at API layer
@@ -215,7 +216,7 @@ describe('Access Control — Org Boundary Enforcement', () => {
     const org1Invites = await db
       .select()
       .from(schema.invite)
-      .where((t) => t.orgId === org1.id)
+      .where(eq(schema.invite.orgId, org1.id))
       .all();
 
     // Admin1 should see only org1 invites
@@ -264,14 +265,14 @@ describe('Access Control — Org Boundary Enforcement', () => {
     const org1Setting = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.orgId === org1.id)
+      .where(eq(schema.organizationSetting.orgId, org1.id))
       .get();
 
     // Query org2 settings
     const org2Setting = await db
       .select()
       .from(schema.organizationSetting)
-      .where((t) => t.orgId === org2.id)
+      .where(eq(schema.organizationSetting.orgId, org2.id))
       .get();
 
     // Settings should be different

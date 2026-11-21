@@ -6,11 +6,19 @@ import axios from 'axios';
 import { useConvocations } from './useConvocations';
 import { API_BASE_URL } from '../config';
 import type {
+  AgendaItem,
   AssemblyDetailData,
   AssemblySummary,
   ConvocationDetail,
+  WorkflowItemData,
 } from '../types/assembly';
 import { formatDate } from '../lib/date-utils';
+
+/** The API may still send workflowData as a JSON string from older rows. */
+function parseWorkflowData(raw: WorkflowItemData | string | null | undefined): WorkflowItemData | null {
+  if (!raw) return null;
+  return typeof raw === 'string' ? (JSON.parse(raw) as WorkflowItemData) : raw;
+}
 
 export interface UseAssemblyDetailReturn {
   id?: string;
@@ -114,13 +122,9 @@ export const useAssemblyDetail = (): UseAssemblyDetailReturn => {
           .get<ConvocationDetail>(`${API_BASE_URL}/convocations/${assembly.convocationId}`)
           .then(({ data: convDetail }) => {
             // Parse workflowData JSON strings
-            const items = convDetail.agendaItems.map((item: any) => ({
+            const items: AgendaItem[] = convDetail.agendaItems.map((item) => ({
               ...item,
-              workflowData: item.workflowData
-                ? typeof item.workflowData === 'string'
-                  ? JSON.parse(item.workflowData)
-                  : item.workflowData
-                : null,
+              workflowData: parseWorkflowData(item.workflowData),
             }));
             setConvocationDetail({ ...convDetail, agendaItems: items });
 
@@ -132,26 +136,26 @@ export const useAssemblyDetail = (): UseAssemblyDetailReturn => {
               setPartnerForm({
                 id: ap.id,
                 type: ap.type ?? '',
-                subtype: (ap as any).subtype ?? '',
+                subtype: ap.subtype ?? '',
                 referenceNumber: ap.referenceNumber ?? 0,
                 referenceYear: ap.referenceYear ?? new Date().getFullYear(),
                 firstCallDate: ap.firstCallDate ?? '',
-                firstCallTime: (ap as any).firstCallTime ?? '',
+                firstCallTime: ap.firstCallTime ?? '',
                 location: ap.location ?? '',
                 mode: ap.mode ?? 'in_person',
-                meetLink: (ap as any).meetLink ?? '',
+                meetLink: ap.meetLink ?? '',
                 presidentId: ap.presidentId ?? '',
                 secretaryId: ap.secretaryId ?? '',
                 modalityFormulaPrima: ap.modalityFormulaPrima ?? '',
                 modalityFormulaApertura: ap.modalityFormulaApertura ?? '',
-                assemblyStatus: (ap as any).assemblyStatus ?? '',
-                secondCallDate: (ap as any).secondCallDate ?? '',
-                secondCallTime: (ap as any).secondCallTime ?? '',
+                assemblyStatus: ap.assemblyStatus ?? '',
+                secondCallDate: ap.secondCallDate ?? '',
+                secondCallTime: ap.secondCallTime ?? '',
                 googleDocsLink: ap.googleDocsLink ?? '',
                 pdfLink: ap.pdfLink ?? '',
-                endTime: (ap as any).endTime ?? '',
+                endTime: ap.endTime ?? '',
                 notes: ap.notes ?? '',
-                convocationDate: (ap as any).convocationDate ?? '',
+                convocationDate: ap.convocationDate ?? '',
               });
             }
           })
@@ -161,9 +165,9 @@ export const useAssemblyDetail = (): UseAssemblyDetailReturn => {
       // Initialize core form
       setCoreForm({
         type: assembly.type,
-        subtype: (assembly as any).subtype ?? '',
+        subtype: assembly.subtype ?? '',
         firstCallDate: assembly.firstCallDate ?? '',
-        firstCallTime: (assembly as any).firstCallTime ?? (assembly as any).oraFirstCall ?? '',
+        firstCallTime: assembly.firstCallTime ?? '',
         location: assembly.location,
         mode: assembly.mode,
         modalityFormulaPrima: assembly.modalityFormulaPrima ?? '',
@@ -176,9 +180,9 @@ export const useAssemblyDetail = (): UseAssemblyDetailReturn => {
         totalNumber: assembly.totalNumber,
         googleDocsLink: assembly.googleDocsLink ?? '',
         pdfLink: assembly.pdfLink ?? '',
-        depositedOnRunts: !!(assembly as any).depositedOnRunts,
-        runtsDepositDate: (assembly as any).runtsDepositDate ?? '',
-        endTime: (assembly as any).endTime ?? '',
+        depositedOnRunts: !!assembly.depositedOnRunts,
+        runtsDepositDate: assembly.runtsDepositDate ?? '',
+        endTime: assembly.endTime ?? '',
         notes: assembly.notes ?? '',
         convocationDate: assembly.convocationDate ?? '',
       });

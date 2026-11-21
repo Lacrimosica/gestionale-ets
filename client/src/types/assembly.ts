@@ -53,6 +53,7 @@ export interface AssemblySummary {
   referenceNumber: number;
   referenceYear?: number | null;
   firstCallDate?: string | null;
+  pairedAssemblyId?: string | null;
 }
 
 export interface AttendanceRecord {

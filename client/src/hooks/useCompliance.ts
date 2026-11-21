@@ -159,7 +159,7 @@ export const useCompliance = (personId?: string, enabled = true) => {
       const tasks = [fetchRules(), fetchSummary(), fetchAlerts(true)];
       if (personId) tasks.push(fetchPersonCompliance());
       await Promise.all(tasks);
-    } catch (err) {
+    } catch {
       setError('Error loading compliance data');
     } finally {
       setLoading(false);

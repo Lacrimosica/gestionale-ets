@@ -8,6 +8,8 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
+    supportedLngs: ['en', 'it'],
+    load: 'languageOnly',
     resources: {
       en: {
         translation: enTranslations
@@ -39,12 +41,6 @@ if (typeof document !== 'undefined') {
   const initialLng = i18n.language || 'en';
   document.documentElement.setAttribute('lang', initialLng === 'it' ? 'it' : 'en-GB');
 }
-
-i18n.on('languageChanged', (lng) => {
-  const htmlDoc = document.documentElement;
-  // If English, use 'en-GB' to force European formatting in pickers (DD/MM/YYYY and 24h)
-  htmlDoc.setAttribute('lang', lng === 'it' ? 'it' : 'en-GB');
-});
 
 export default i18n;
 

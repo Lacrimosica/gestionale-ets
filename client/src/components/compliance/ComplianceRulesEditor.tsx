@@ -239,11 +239,11 @@ export const ComplianceRulesEditor = ({
       />
 
       {/* ── Save Bar ─────────────────────────────────────────────────────────── */}
-      <div className="sticky bottom-4 flex items-center justify-end gap-4 bg-slate-900/90 backdrop-blur border border-slate-700 rounded-xl px-4 py-3 shadow-xl shadow-black/40">
+      <div className="sticky bottom-4 flex items-center justify-end gap-4 bg-neutral-900/90 backdrop-blur border border-neutral-700 rounded-xl px-4 py-3 shadow-xl shadow-black/40">
         {message && (
           <p
             className={`text-sm ${
-              message.includes('Error') ? 'text-red-400' : 'text-emerald-400'
+              message.includes('Error') ? 'text-danger-400' : 'text-success-400'
             }`}
           >
             {message}
@@ -253,7 +253,7 @@ export const ComplianceRulesEditor = ({
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-emerald-900/30"
+          className="flex items-center gap-2 px-5 py-2 bg-success-600 hover:bg-success-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors shadow-lg shadow-success-900/30"
         >
           <Save size={14} />
           {saving ? t('settings.compliance.save.savingButton') : t('settings.compliance.save.saveComplianceRules')}

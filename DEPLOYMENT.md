@@ -6,6 +6,40 @@
 |---|---|---|---|
 | Production | `gestionale-server` | top-level `wrangler.toml` | Automatically on every push to `main` (Cloudflare Workers Builds). `npm run deploy` does the same by hand. |
 | Staging | `gestionale-server-staging` | `[env.staging]` | `npm run deploy:staging` |
+| Demo | `gestionale-server-demo` | `[env.demo]` | `npm run deploy:demo` |
+
+## Custom domains
+
+The Pages project `gestionale-ets` serves these frontend environments:
+
+| Environment | URL | Pages deployment |
+|---|---|---|
+| Production | `https://niki.lacrimosica.com` | Production branch |
+| Staging | `https://niki-staging.lacrimosica.com` | `staging` branch |
+| Demo | `https://niki-demo.lacrimosica.com` | `demo` branch |
+
+The `lacrimosica.com` zone is managed in the same Cloudflare account as Pages.
+In **Workers & Pages → gestionale-ets → Custom domains**, add all three hostnames.
+Cloudflare creates the DNS records; make sure they are **Proxied**. For staging
+and demo, edit the CNAME targets to the Pages branch aliases so each hostname
+serves the intended branch:
+
+| DNS name | CNAME target |
+|---|---|
+| `niki` | `gestionale-ets.pages.dev` |
+| `niki-staging` | `staging.gestionale-ets.pages.dev` |
+| `niki-demo` | `demo.gestionale-ets.pages.dev` |
+
+Add the domain in the Pages dashboard before creating or editing these records.
+Branch aliases require Cloudflare-proxied DNS records.
+
+The API remains on its existing `*.workers.dev` hostnames. The frontend build
+files already target those API URLs; the worker's `CORS_ORIGIN` and `APP_URL`
+must match the corresponding custom frontend domain. `GOOGLE_REDIRECT_BASE_URL`
+remains on `workers.dev`, so Google OAuth callback URLs do not change.
+
+After adding the Pages custom domains, redeploy the API environments so their
+updated allowed origins and post-login redirect URLs take effect.
 
 `wrangler deploy --env production` does **not** update production: it creates a separate
 `gestionale-server-production` worker with no secrets. Don't use it.
@@ -13,7 +47,7 @@
 Local `wrangler dev` reads the top-level config too, so local-only overrides (such as
 `DEPLOYMENT_MODE=open`) belong in `.dev.vars`, never in the top-level `[vars]`.
 
-Gestionale-ETS supports four deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable. This replaces the older boolean `ALLOW_ORG_CREATION` flag with a more flexible enum-based approach.
+Niki (formerly Gestionale-ETS) supports four deployment modes, controlled by the `DEPLOYMENT_MODE` environment variable. This replaces the older boolean `ALLOW_ORG_CREATION` flag with a more flexible enum-based approach.
 
 ---
 
@@ -132,6 +166,36 @@ Controls how organizations can be created and accessed.
 **Location:** Set in `wrangler.toml` `[vars]` or override in environment-specific sections.
 
 **Development:** Set in `server/.dev.vars` for local testing (default: `"open"`).
+
+### Two-step sign-in: `MFA_ENCRYPTION_KEY`, `MFA_REQUIRED_ROLES`, `EMAIL_PROVIDER`
+
+Password sign-ins can require a second step: a code from an authenticator app
+(TOTP) or an emailed code. Google sign-ins skip it, since Google runs its own 2-step
+verification. Users manage it under **Settings → Security**; a core admin can reset
+another user's two-step sign-in from the users list.
+
+| Variable | Kind | Effect |
+|---|---|---|
+| `MFA_ENCRYPTION_KEY` | secret | Encrypts authenticator secrets. Without it, authenticator apps are off. |
+| `MFA_REQUIRED_ROLES` | var | Roles that must enrol on their next password sign-in. Default `core_admin,admin`; `""` turns enforcement off (demo). |
+| `EMAIL_PROVIDER` | var | Unset: email codes **and email verification** are off. `log`: codes are printed to the Worker log (local dev only). |
+
+Enforcement only applies when at least one method is available, so deploying the
+code before setting the key never locks admins out.
+
+Set the key once per environment (keep a copy: losing it disables every enrolled
+authenticator, and users must be reset):
+
+```bash
+openssl rand -base64 32 | npx wrangler secret put MFA_ENCRYPTION_KEY --env production
+openssl rand -base64 32 | npx wrangler secret put MFA_ENCRYPTION_KEY --env staging
+```
+
+**Email verification.** Once a real email provider is configured, every account
+must confirm its address once, with an emailed code, before it can sign in with a
+password. This is what stops someone who registered another person's email from
+keeping access after the real owner links their Google account. Accounts are not
+backfilled as verified on purpose.
 
 ### Backward Compatibility
 
@@ -289,6 +353,21 @@ npx wrangler d1 execute gestionale-ets-db-staging --remote --env staging --file 
 ```
 
 For production use `-- gestionale-ets-db --remote --env production`. Every statement is guarded on the item's current `workflow_data`, so re-running the file, or running it after someone edited an item, won't overwrite newer data. Names reported as `ambiguous` or `no_match` can be fixed by picking the people on the assembly page.
+- **0067_two_step_sign_in.sql**: `user.email_verified_at`, `user_mfa`, `mfa_recovery_code`, `mfa_challenge`.
+
+> **Check before the first migration after Nov 2026.** `[env.production]` and
+> `[env.staging]` previously pointed `migrations_dir` at `drizzle/migrations`, which
+> holds only the per-environment subfolders; they now point at `drizzle/migrations/prod`
+> and `drizzle/migrations/staging`. Before applying, list what wrangler thinks is
+> pending:
+>
+> ```bash
+> npx wrangler d1 migrations list gestionale-ets-db --remote --env production
+> ```
+>
+> Only `0067_two_step_sign_in.sql` should be pending. If older files show up, the
+> database recorded them under other names: do **not** apply; record them in
+> `d1_migrations` first (or run 0067 by hand with `wrangler d1 execute --file`).
 
 ---
 

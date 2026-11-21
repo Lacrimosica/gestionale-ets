@@ -90,3 +90,18 @@ function constantTimeEqual(a: string, b: string): boolean {
   }
   return diff === 0;
 }
+
+export const MIN_PASSWORD_LENGTH = 8;
+// PBKDF2 cost grows with input length; cap it so a huge body can't burn CPU time.
+const MAX_PASSWORD_LENGTH = 1024;
+
+/** @returns an error message when `password` is unacceptable as a new password, else null. */
+export function rejectNewPassword(password: unknown): string | null {
+  if (typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters.`;
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return `Password must be at most ${MAX_PASSWORD_LENGTH} characters.`;
+  }
+  return null;
+}

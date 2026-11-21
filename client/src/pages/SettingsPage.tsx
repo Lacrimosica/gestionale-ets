@@ -1,18 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings, ChevronDown, ShieldCheck, X, Sparkles, Palette } from 'lucide-react';
-import ComplianceRulesEditor from '../components/ComplianceRulesEditor';
+import { Settings, ChevronDown, ShieldCheck, X, Sparkles, Palette, Languages } from 'lucide-react';
+import ComplianceRulesEditor from '../components/compliance/ComplianceRulesEditor';
 import DocumentSettingsSection from '../components/settings/DocumentSettingsSection';
 import { buildPreviewText } from '../components/settings/documentTemplates';
 import { BrandingSection } from '../components/settings/BrandingSection';
 import { UsersManagementSection } from '../components/settings/UsersManagementSection';
 import { PasswordManagementSection } from '../components/settings/PasswordManagementSection';
+import { TwoFactorSection } from '../components/settings/TwoFactorSection';
+import { resetUserTwoStep } from '../lib/two-step';
 import { AddressesSection } from '../components/settings/AddressesSection';
 import { ThemeSection } from '../components/settings/ThemeSection';
 import { ExportSection } from '../components/settings/ExportSection';
 import { ImportSection } from '../components/settings/ImportSection';
-import { useAuth } from '../hooks/useAuth';
-import { useBranding } from '../hooks/useBranding';
+import { useAuth } from '../hooks/auth-context';
+import { useBranding } from '../hooks/branding-context';
 import { resetUserPassword, useDocumentSettings, useModalityOptions, type DocumentSettings } from '../hooks/useSettings';
 import { getPermissionsForRole, PERMISSIONS, type Permission } from '../lib/permissions';
 import { useCompliance } from '../hooks/useCompliance';
@@ -24,7 +26,7 @@ import { useAddressManagement } from '../hooks/useAddressManagement';
 
 const SettingsPage = () => {
   const { user, hasPermission, login, token } = useAuth();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { branding, updateBranding } = useBranding();
   const isCoreAdmin = user?.role === 'core_admin';
   const canManageUsers = hasPermission(PERMISSIONS.settingsUsersManage);
@@ -38,6 +40,7 @@ const SettingsPage = () => {
     branding: false,
     users: false,
     password: false,
+    twoStep: false,
     compliance: false,
     addresses: false,
     documents: false,
@@ -132,6 +135,17 @@ const SettingsPage = () => {
     }
   };
 
+  const handleResetTwoStep = async (targetUserId: string) => {
+    userManagement.setResetMessage(null);
+    try {
+      await resetUserTwoStep(targetUserId);
+      userManagement.setResetMessage(t('settings.messages.userTwoStepReset'));
+      await userManagement.refreshUsers();
+    } catch {
+      userManagement.setResetMessage(t('settings.messages.errorResettingTwoStep'));
+    }
+  };
+
   const handleDeleteUser = async (targetUserId: string) => {
     userManagement.setDeleteMessage(null);
     try {
@@ -206,12 +220,42 @@ const SettingsPage = () => {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-          <Settings className="text-cyan-400" />
+        <h1 className="text-3xl font-bold text-fg flex items-center gap-3">
+          <Settings className="text-info-400" />
           {t('settings.title')}
         </h1>
-        <p className="text-slate-400 mt-1">{t('settings.subtitle')}</p>
+        <p className="text-neutral-400 mt-1">{t('settings.subtitle')}</p>
       </div>
+
+      <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl">
+        <div className="flex items-center gap-3">
+          <Languages className="text-info-400" size={20} />
+          <div>
+            <h2 className="text-lg font-semibold text-fg">{t('settings.language.title')}</h2>
+            <p className="text-sm text-neutral-500">{t('settings.language.description')}</p>
+          </div>
+        </div>
+        <div className="mt-4 flex gap-2" role="group" aria-label={t('settings.language.title')}>
+          {(['en', 'it'] as const).map((language) => {
+            const isSelected = i18n.resolvedLanguage === language;
+            return (
+              <button
+                key={language}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => void i18n.changeLanguage(language)}
+                className={`rounded-lg border px-4 py-2 text-sm font-medium transition-colors ${
+                  isSelected
+                    ? 'border-info-500 bg-info-600/20 text-info-300'
+                    : 'border-neutral-700 text-neutral-300 hover:border-neutral-500 hover:text-fg'
+                }`}
+              >
+                {t(`settings.language.options.${language}`)}
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {canViewUsers && (
         <UsersManagementSection
@@ -235,7 +279,7 @@ const SettingsPage = () => {
           resetMessage={userManagement.resetMessage}
           onToggle={() => toggleSection('users')}
           onNewUserChange={(field, value) => {
-            if (field === 'role') {
+            if (field === 'role' && typeof value === 'string') {
               userManagement.setNewUser((prev) => ({ ...prev, role: value, permissions: getPermissionsForRole(value) }));
             } else {
               userManagement.setNewUser((prev) => ({ ...prev, [field]: value }));
@@ -257,6 +301,7 @@ const SettingsPage = () => {
           }}
           onConfirmDelete={handleDeleteUser}
           onResetPassword={handleResetPassword}
+          onResetTwoStep={isCoreAdmin ? handleResetTwoStep : undefined}
           onCancelDelete={() => {
             userManagement.setDeleteTarget(null);
             userManagement.setDeleteConfirmValue('');
@@ -276,6 +321,8 @@ const SettingsPage = () => {
           onChangePassword={handleChangePassword}
         />
       )}
+
+      <TwoFactorSection expanded={expandedSections.twoStep} onToggle={() => toggleSection('twoStep')} />
 
       <AddressesSection
         expanded={expandedSections.addresses}
@@ -370,9 +417,9 @@ const SettingsPage = () => {
 
       {canManageUsers && previewOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setPreviewOpen(false)}>
-          <div className="bg-slate-900 border border-slate-700 rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-800">
-              <span className="text-sm font-semibold text-white">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-xl w-full max-w-2xl max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-neutral-800">
+              <span className="text-sm font-semibold text-fg">
                 Preview — {{
                   convocation: 'Convocazione Ordinaria',
                   convocation_extraordinary_statute: 'Convocazione Straordinaria — Modifica Statuto',
@@ -383,9 +430,9 @@ const SettingsPage = () => {
                   minutes_board: 'Verbale Riunione CD',
                 }[previewTemplate] ?? previewTemplate}
               </span>
-              <button onClick={() => setPreviewOpen(false)} className="text-slate-400 hover:text-white"><X size={16} /></button>
+              <button onClick={() => setPreviewOpen(false)} className="text-neutral-400 hover:text-fg"><X size={16} /></button>
             </div>
-            <pre className="overflow-y-auto p-6 text-sm text-slate-200 whitespace-pre-wrap font-sans leading-relaxed">
+            <pre className="overflow-y-auto p-6 text-sm text-neutral-200 whitespace-pre-wrap font-sans leading-relaxed">
               {buildPreviewText(docForm, previewTemplate, branding.name)}
             </pre>
           </div>
@@ -393,33 +440,33 @@ const SettingsPage = () => {
       )}
 
       {isCoreAdmin && (
-        <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+        <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl space-y-4">
           <button
             onClick={() => toggleSection('compliance')}
             className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
           >
             <div className="flex items-center gap-3">
-              <ShieldCheck className="text-emerald-400" size={20} />
+              <ShieldCheck className="text-success-400" size={20} />
               <div className="text-left">
-                <h2 className="text-lg font-semibold text-white">{t('settings.compliance.title')}</h2>
-                <p className="text-sm text-slate-500">{t('settings.compliance.description')}</p>
+                <h2 className="text-lg font-semibold text-fg">{t('settings.compliance.title')}</h2>
+                <p className="text-sm text-neutral-500">{t('settings.compliance.description')}</p>
               </div>
             </div>
-            <ChevronDown size={20} className={`text-slate-400 transition-transform ${expandedSections.compliance ? 'rotate-180' : ''}`} />
+            <ChevronDown size={20} className={`text-neutral-400 transition-transform ${expandedSections.compliance ? 'rotate-180' : ''}`} />
           </button>
 
           {expandedSections.compliance && (
             <div className="space-y-4 max-w-3xl mx-auto">
-              <div className="rounded-lg border border-amber-800/40 bg-amber-900/10 px-4 py-3 text-sm text-amber-300/80">
+              <div className="rounded-lg border border-warning-800/40 bg-warning-900/10 px-4 py-3 text-sm text-warning-300/80">
                 {t('settings.compliance.warning')} {t('settings.compliance.labelsInfo', { example: 'compliance.documents.nda_dia' })}
               </div>
               {complianceLoading ? (
-                <div className="flex items-center gap-3 rounded-lg border border-slate-700/50 bg-slate-900/80 px-4 py-5 text-sm text-slate-300">
-                  <div className="h-5 w-5 border-4 border-slate-500 border-t-transparent rounded-full animate-spin" />
+                <div className="flex items-center gap-3 rounded-lg border border-neutral-700/50 bg-neutral-900/80 px-4 py-5 text-sm text-neutral-300">
+                  <div className="h-5 w-5 border-4 border-neutral-500 border-t-transparent rounded-full animate-spin" />
                   <span>{t('common.status.loading')}</span>
                 </div>
               ) : complianceError ? (
-                <div className="rounded-lg border border-red-700/50 bg-red-900/10 px-4 py-4 text-sm text-red-300">
+                <div className="rounded-lg border border-danger-700/50 bg-danger-900/10 px-4 py-4 text-sm text-danger-300">
                   {complianceError}
                 </div>
               ) : (
@@ -444,34 +491,34 @@ const SettingsPage = () => {
       )}
 
       {/* Customization Section */}
-      <section className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl space-y-4">
+      <section className="bg-neutral-900 border border-neutral-800 rounded-xl p-5 shadow-xl space-y-4">
         <button
           onClick={() => toggleSection('customization')}
           className="w-full flex items-center justify-between hover:opacity-80 transition-opacity"
         >
           <div className="flex items-center gap-3">
-            <Sparkles className="text-purple-400" size={20} />
+            <Sparkles className="text-special-400" size={20} />
             <div className="text-left">
-              <h2 className="text-lg font-semibold text-white">{t('settings.customization.title')}</h2>
-              <p className="text-sm text-slate-500">{t('settings.customization.description')}</p>
+              <h2 className="text-lg font-semibold text-fg">{t('settings.customization.title')}</h2>
+              <p className="text-sm text-neutral-500">{t('settings.customization.description')}</p>
             </div>
           </div>
-          <ChevronDown size={20} className={`text-slate-400 transition-transform ${expandedSections.customization ? 'rotate-180' : ''}`} />
+          <ChevronDown size={20} className={`text-neutral-400 transition-transform ${expandedSections.customization ? 'rotate-180' : ''}`} />
         </button>
 
         {expandedSections.customization && (
           <div className="space-y-4">
             {/* Theme Section */}
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50">
+            <div className="rounded-lg border border-neutral-700 bg-neutral-800/50">
               <button
                 className="flex w-full items-center justify-between p-4 hover:opacity-80 transition-opacity"
                 onClick={() => toggleSection('theme')}
               >
                 <div className="flex items-center gap-3">
-                  <Palette className="text-cyan-400" size={18} />
+                  <Palette className="text-info-400" size={18} />
                   <div className="text-left">
-                    <h3 className="font-semibold text-slate-200">{t('settings.theme.title')}</h3>
-                    <p className="text-xs text-slate-400">{t('settings.theme.description')}</p>
+                    <h3 className="font-semibold text-neutral-200">{t('settings.theme.title')}</h3>
+                    <p className="text-xs text-neutral-400">{t('settings.theme.description')}</p>
                   </div>
                 </div>
                 <ChevronDown
@@ -480,14 +527,14 @@ const SettingsPage = () => {
                 />
               </button>
               {expandedSections.theme && (
-                <div className="border-t border-slate-700 p-4">
+                <div className="border-t border-neutral-700 p-4">
                   <ThemeSection />
                 </div>
               )}
             </div>
 
             {/* Branding Section */}
-            <div className="rounded-lg border border-slate-700 bg-slate-800/50 overflow-hidden">
+            <div className="rounded-lg border border-neutral-700 bg-neutral-800/50 overflow-hidden">
               <BrandingSection
                 expanded={expandedSections.branding}
                 form={brandingForm.form}

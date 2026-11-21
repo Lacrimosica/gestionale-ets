@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ChevronDown } from 'lucide-react';
 
 const COUNTRIES = [
@@ -241,15 +242,20 @@ interface CountryComboboxProps {
   label?: string;
 }
 
-const CountryCombobox = ({ value, onChange, label = 'Paese' }: CountryComboboxProps) => {
+const CountryCombobox = ({ value, onChange, label }: CountryComboboxProps) => {
+  const { t, i18n } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const countryNames = new Intl.DisplayNames([i18n.resolvedLanguage || 'en'], { type: 'region' });
+  const getCountryLabel = (country: (typeof COUNTRIES)[number]) =>
+    countryNames.of(country.code) || country.name;
 
   const filtered = COUNTRIES.filter(
     (c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      getCountryLabel(c).toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -286,36 +292,36 @@ const CountryCombobox = ({ value, onChange, label = 'Paese' }: CountryComboboxPr
 
   return (
     <div className="space-y-2" ref={containerRef}>
-      {label && <label className="text-sm font-medium text-slate-400">{label}</label>}
+      <label className="text-sm font-medium text-neutral-400">{label ?? t('people.form.country')}</label>
       <div className="relative">
         <input
           ref={inputRef}
           type="text"
-          value={searchTerm || selectedCountry.name}
+          value={searchTerm || getCountryLabel(selectedCountry)}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
-          className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-slate-200 focus:ring-2 focus:ring-blue-600 outline-none pr-10"
-          placeholder="Seleziona o digita..."
+          className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-neutral-200 focus:ring-2 focus:ring-accent-600 outline-none pr-10"
+          placeholder={t('people.form.countryPlaceholder')}
         />
         <ChevronDown
           size={16}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none"
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none"
         />
         {isOpen && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-neutral-900 border border-neutral-700 rounded-lg shadow-lg max-h-60 overflow-auto">
             {filtered.length > 0 ? (
               filtered.map((country) => (
                 <button
-                  key={country.code}
+                  key={`${country.code}-${country.name}`}
                   onClick={() => handleSelect(country.name)}
-                  className="w-full text-left px-3 py-2 hover:bg-slate-800 text-slate-200 text-sm"
+                  className="w-full text-left px-3 py-2 hover:bg-neutral-800 text-neutral-200 text-sm"
                 >
-                  {country.name}
+                  {getCountryLabel(country)}
                 </button>
               ))
             ) : (
-              <div className="px-3 py-2 text-slate-500 text-sm">Nessun paese trovato</div>
+              <div className="px-3 py-2 text-neutral-500 text-sm">{t('people.form.noCountriesFound')}</div>
             )}
           </div>
         )}

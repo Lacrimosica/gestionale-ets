@@ -11,7 +11,7 @@ const DemoBanner = () => {
   return (
     <div
       role="status"
-      className="w-full bg-amber-400 text-amber-950 text-xs sm:text-sm px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center"
+      className="w-full bg-warning-400 text-warning-950 text-xs sm:text-sm px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center"
     >
       <span className="font-black uppercase tracking-widest">{t('demo.label')}</span>
       <span>{t('demo.message')}</span>

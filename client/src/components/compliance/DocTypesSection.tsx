@@ -6,9 +6,10 @@ import {
 import { FileText } from 'lucide-react';
 import type { ComplianceRules } from '../../hooks/useCompliance';
 import {
-  SectionHeader, Chip, FieldInput, emptyDocTypeForm,
+  SectionHeader, Chip, FieldInput,
   type DocTypeForm,
 } from './ComplianceEditorShared';
+import { emptyDocTypeForm } from './compliance-forms';
 
 interface DocTypesSectionProps {
   rules: ComplianceRules;
@@ -75,9 +76,9 @@ export const DocTypesSection = ({
   const docTypeKeys = Object.keys(rules.documentTypes);
 
   return (
-    <div className="bg-slate-950/40 border border-slate-800 rounded-xl p-5 space-y-3">
+    <div className="bg-neutral-950/40 border border-neutral-800 rounded-xl p-5 space-y-3">
       <SectionHeader
-        icon={<FileText className="text-blue-400" size={18} />}
+        icon={<FileText className="text-accent-400" size={18} />}
         title={t('settings.compliance.sections.documentTypes')}
         subtitle={t('settings.compliance.sections.documentTypesSubtitle')}
       />
@@ -90,15 +91,15 @@ export const DocTypesSection = ({
           return (
             <div
               key={key}
-              className="border border-slate-800 rounded-lg overflow-hidden"
+              className="border border-neutral-800 rounded-lg overflow-hidden"
             >
               {/* Header row */}
-              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-900/60">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-900/60">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className="font-mono text-xs text-slate-500 bg-slate-800 px-2 py-0.5 rounded border border-slate-700 shrink-0">
+                  <span className="font-mono text-xs text-neutral-500 bg-neutral-800 px-2 py-0.5 rounded border border-neutral-700 shrink-0">
                     {key}
                   </span>
-                  <span className="text-sm text-slate-200 font-medium truncate">
+                  <span className="text-sm text-neutral-200 font-medium truncate">
                     {displayLabel}
                   </span>
                   {(config.consentTypes ?? (config.hasConsents ? ['third_party', 'image_use'] : [])).map((ct) => (
@@ -109,7 +110,7 @@ export const DocTypesSection = ({
                   <button
                     type="button"
                     onClick={() => setExpandedDocKey(isExpanded ? null : key)}
-                    className="p-1.5 rounded text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                    className="p-1.5 rounded text-neutral-400 hover:text-fg hover:bg-neutral-800 transition-colors"
                   >
                     {isExpanded ? (
                       <ChevronUp size={14} />
@@ -122,7 +123,7 @@ export const DocTypesSection = ({
                     onClick={() =>
                       onDeleteRequest({ type: 'docType', key })
                     }
-                    className="p-1.5 rounded text-slate-600 hover:text-red-400 hover:bg-red-900/20 transition-colors"
+                    className="p-1.5 rounded text-neutral-600 hover:text-danger-400 hover:bg-danger-900/20 transition-colors"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -131,7 +132,7 @@ export const DocTypesSection = ({
 
               {/* Edit body */}
               {isExpanded && (
-                <div className="px-4 py-3 bg-slate-950/40 border-t border-slate-800 space-y-3">
+                <div className="px-4 py-3 bg-neutral-950/40 border-t border-neutral-800 space-y-3">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <FieldInput
                       label={t('settings.compliance.fields.labelI18nKey')}
@@ -184,7 +185,7 @@ export const DocTypesSection = ({
                   />
                   {(config.versions ?? []).length > 0 && (
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                      <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
                         {t('settings.compliance.fields.currentRequiredVersion')}
                       </label>
                       <select
@@ -194,7 +195,7 @@ export const DocTypesSection = ({
                             currentVersion: e.target.value || undefined,
                           })
                         }
-                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                        className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:border-accent-500 focus:ring-1 focus:ring-accent-500 outline-none"
                       >
                         <option value="">— {t('settings.compliance.fields.none')} —</option>
                         {(config.versions ?? []).map((v) => (
@@ -206,9 +207,9 @@ export const DocTypesSection = ({
                     </div>
                   )}
                   <div className="pt-1">
-                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                    <p className="text-xs text-neutral-500 flex items-center gap-1">
                       <Info size={11} /> {t('settings.compliance.preview')}{' '}
-                      <span className="text-slate-300 ml-1">
+                      <span className="text-neutral-300 ml-1">
                         {displayLabel}
                       </span>
                     </p>
@@ -222,8 +223,8 @@ export const DocTypesSection = ({
 
       {/* Add new doc type form */}
       {newDocForm ? (
-        <div className="border border-blue-700/40 rounded-xl p-4 bg-blue-900/10 space-y-3">
-          <p className="text-xs font-bold text-blue-400 uppercase tracking-widest">
+        <div className="border border-accent-700/40 rounded-xl p-4 bg-accent-900/10 space-y-3">
+          <p className="text-xs font-bold text-accent-400 uppercase tracking-widest">
             {t('settings.compliance.forms.newDocumentType')}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -283,7 +284,7 @@ export const DocTypesSection = ({
           />
           {newDocForm.versions.trim() && (
             <div className="space-y-1">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
                 {t('settings.compliance.fields.currentRequiredVersion')}
               </label>
               <select
@@ -295,7 +296,7 @@ export const DocTypesSection = ({
                       : f,
                   )
                 }
-                className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+                className="w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:border-accent-500 focus:ring-1 focus:ring-accent-500 outline-none"
               >
                 <option value="">— {t('settings.compliance.fields.none')} —</option>
                 {newDocForm.versions
@@ -314,19 +315,19 @@ export const DocTypesSection = ({
             <button
               type="button"
               onClick={handleAddDocType}
-              className="px-3 py-1.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-500"
+              className="px-3 py-1.5 bg-accent-600 text-white text-sm font-semibold rounded-lg hover:bg-accent-500"
             >
               {t('settings.compliance.forms.add')}
             </button>
             <button
               type="button"
               onClick={() => setNewDocForm(null)}
-              className="px-3 py-1.5 bg-slate-800 text-slate-300 text-sm rounded-lg hover:bg-slate-700"
+              className="px-3 py-1.5 bg-neutral-800 text-neutral-300 text-sm rounded-lg hover:bg-neutral-700"
             >
               {t('settings.compliance.forms.cancel')}
             </button>
             {message && (
-              <span className="text-sm text-red-400">{message}</span>
+              <span className="text-sm text-danger-400">{message}</span>
             )}
           </div>
         </div>
@@ -334,7 +335,7 @@ export const DocTypesSection = ({
         <button
           type="button"
           onClick={() => setNewDocForm(emptyDocTypeForm())}
-          className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-semibold transition-colors"
+          className="flex items-center gap-2 text-sm text-accent-400 hover:text-accent-300 font-semibold transition-colors"
         >
           <Plus size={16} /> {t('settings.compliance.forms.addDocumentType')}
         </button>

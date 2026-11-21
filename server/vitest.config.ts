@@ -14,6 +14,9 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 30000,
+    // beforeEach boots Miniflare and replays every migration; under a parallel full
+    // run that can exceed vitest's 10s hook default and fail an unrelated test.
+    hookTimeout: 30000,
     setupFiles: [],
     include: ['tests/**/*.test.ts'],
     exclude: ['tests/api-collections/**'],

@@ -18,23 +18,6 @@ export interface RoleForm {
   inherits: string[]; // role keys
 }
 
-export const emptyDocTypeForm = (): DocTypeForm => ({
-  key: '',
-  label: '',
-  description: '',
-  consentTypes: '',
-  versions: '',
-  currentVersion: '',
-});
-
-export const emptyRoleForm = (): RoleForm => ({
-  key: '',
-  label: '',
-  description: '',
-  requiredDocuments: [],
-  inherits: [],
-});
-
 // ── Sub-components ─────────────────────────────────────────────────────────
 
 export const SectionHeader = ({
@@ -49,8 +32,8 @@ export const SectionHeader = ({
   <div className="flex items-center gap-3 mb-4">
     {icon}
     <div>
-      <h3 className="text-base font-semibold text-white">{title}</h3>
-      {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+      <h3 className="text-base font-semibold text-fg">{title}</h3>
+      {subtitle && <p className="text-xs text-neutral-500 mt-0.5">{subtitle}</p>}
     </div>
   </div>
 );
@@ -65,10 +48,10 @@ export const Chip = ({
   color?: 'slate' | 'blue' | 'indigo' | 'amber';
 }) => {
   const colors = {
-    slate: 'bg-slate-800 text-slate-300 border-slate-700',
-    blue: 'bg-blue-900/40 text-blue-300 border-blue-800',
-    indigo: 'bg-indigo-900/40 text-indigo-300 border-indigo-800',
-    amber: 'bg-amber-900/30 text-amber-300 border-amber-800',
+    slate: 'bg-neutral-800 text-neutral-300 border-neutral-700',
+    blue: 'bg-accent-900/40 text-accent-300 border-accent-800',
+    indigo: 'bg-accent-900/40 text-accent-300 border-accent-800',
+    amber: 'bg-warning-900/30 text-warning-300 border-warning-800',
   };
   return (
     <span
@@ -79,7 +62,7 @@ export const Chip = ({
         <button
           type="button"
           onClick={onRemove}
-          className="hover:text-red-400 transition-colors ml-0.5"
+          className="hover:text-danger-400 transition-colors ml-0.5"
         >
           ×
         </button>
@@ -102,14 +85,14 @@ export const FieldInput = ({
   mono?: boolean;
 }) => (
   <div className="space-y-1">
-    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+    <label className="text-xs font-bold text-neutral-500 uppercase tracking-wider">
       {label}
     </label>
     <input
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className={`w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none ${
+      className={`w-full bg-neutral-950 border border-neutral-700 rounded-lg px-3 py-2 text-fg text-sm focus:border-accent-500 focus:ring-1 focus:ring-accent-500 outline-none ${
         mono ? 'font-mono' : ''
       }`}
     />

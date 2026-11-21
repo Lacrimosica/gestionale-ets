@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { GenConfig, WorkflowItemType } from '../types/assembly';
+import type { DimissioneSocio } from './useDocuments';
 
 interface UseDocumentGenerationConfigReturn {
   config: GenConfig;
@@ -23,18 +24,18 @@ interface UseDocumentGenerationConfigReturn {
   setFormulaPrima: (formula: string) => void;
   setFormulaSeconda: (formula: string) => void;
   setFormulaApertura: (formula: string) => void;
-  setVoting: (voting: Record<string, any>) => void;
+  setVoting: (voting: GenConfig['voting']) => void;
   setTestoVarie: (text: string) => void;
   setGenerateConvocation: (generate: boolean) => void;
   setGenerateMinutes1a: (generate: boolean) => void;
   setGenerateMinutes2a: (generate: boolean) => void;
   setGenerateGoogleDoc: (generate: boolean) => void;
   setGeneratePdf: (generate: boolean) => void;
-  setDataNewMembers: (members: any[]) => void;
+  setDataNewMembers: (members: string[]) => void;
   setDataBudgetYear: (year: string) => void;
-  setDataNewBoard: (board: any[]) => void;
-  setDataExcludedMembers: (members: any[]) => void;
-  setDataResignations: (resignations: any[]) => void;
+  setDataNewBoard: (board: string[]) => void;
+  setDataExcludedMembers: (members: string[]) => void;
+  setDataResignations: (resignations: DimissioneSocio[]) => void;
   setOutputFolderOverride: (folder: string) => void;
   reset: () => void;
   syncSecondCallDate: (date: string, time: string) => void;
@@ -94,7 +95,7 @@ export const useDocumentGenerationConfig = (): UseDocumentGenerationConfigReturn
     setConfig(prev => ({ ...prev, ...updates }));
   };
 
-  const updateDataField = (field: keyof GenConfig['data'], value: any) => {
+  const updateDataField = (field: keyof GenConfig['data'], value: GenConfig['data'][keyof GenConfig['data']]) => {
     setConfig(prev => ({
       ...prev,
       data: { ...prev.data, [field]: value },
